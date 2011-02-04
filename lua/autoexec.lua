@@ -199,5 +199,40 @@ function setSentrySpeed(obj,angl)
 	setPtrFloat(uc,8,angl)
 end
 
+function circleTrap(x0,y0)
+	local r=25
+	local t={}
+	local x,y,fn,col,bax=false
+	for i=0,360,36 do
+		x=r*math.cos(i*3.14/180)+x0
+		y=r*math.sin(i*3.14/180)+y0
+		table.insert(t,x)
+		table.insert(t,y)
+	end
+	fn=function()
+		if bax==true then return end
+		setTimeout(fn,1)
+		for i=3,#t,2 do
+			netRayFx(0x8c,t[i-2],t[i-1],t[i],t[i+1])
+		end
+		for i=1,#t,2 do
+			netRayFx(0x95,x0,y0,t[i],t[i+1])
+		end
+	end
+	col=function(a,b)
+		if bax==true then return end
+		local fl=createObject('smallflame',x0,y0)
+		spellApply(fl,5,fl,fl,unitPos(b))
+		for i=1,3 do
+			spellApply(fl,16,fl,fl,unitPos(b))
+		end
+		unitDecay(fl,1)
+		unitDecay(a,1)
+		bax=true
+	end
+	local Mine=createObject('crystalBall',x0,y0)
+	unitOnCollide(Mine,col)
+	fn()
+end
 
 
