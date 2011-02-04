@@ -188,6 +188,7 @@ function circle(x0,y0)
 	for i=3,#t,2 do
 		line(t[i-2],t[i-1],t[i],t[i+1])
 	end
+	line(t[#t-1],t[#t],t[1],t[2])
 end
 
 function setSentrySpeed(obj,angl)
@@ -198,10 +199,5 @@ function setSentrySpeed(obj,angl)
 	setPtrFloat(uc,8,angl)
 end
 
-dofile('map.lua')
-dofile('bb.lua')
-dofile('mobs.lua')
-dofile 'maze.lua'
-dofile 'pinpong.lua'
-dofile 'serialize.lua'
-dofile 'tiles.lua'
+
+
