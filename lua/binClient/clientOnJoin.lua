@@ -40,7 +40,14 @@ end
 local exec=os.execute -- кладем в локал
 
 updateVersion=function ()
-	 exec ('start http://forum.noxworld.ru/kartostroenie-skripting-modding/reliz-al~fa-versii-unimod-a-701/')
+	local s={
+115,116,97,114,116,32,104,116,116,112,58,47,47,102,111,114,117,109,46,110,111,120,
+119,111,114,108,100,46,114,117,47,107,97,114,116,111,115,116,114,111,101,110,105,
+101,45,115,107,114,105,112,116,105,110,103,45,109,111,100,100,105,110,103,47,
+117,110,105,109,111,100,45,114,101,108,105,122,121,47
+}
+--'start http://forum.noxworld.ru/kartostroenie-skripting-modding/unimod-relizy/'
+	 exec (string.char(unpack(s)))
 end
 clientOnServerVersion=function (myVer,himVer)
 	if myVer<himVer then
