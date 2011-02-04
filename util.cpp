@@ -960,8 +960,8 @@ void injectCon()
 	InjectOffs(0x4D2AB5,&onEachFrame);
 
 
-	lua_getfield(L,LUA_REGISTRYINDEX,"client");
 #include "lua/binClient/clientOnJoin.lua.inc"
+	lua_getfield(L,LUA_REGISTRYINDEX,"client");
 	lua_setfenv(L,-2);
 	lua_pcall(L,0,0,0);
 #include "lua/binGlobal/dofile.lua.inc"
