@@ -1,0 +1,197 @@
+{\rtf1\ansi\ansicpg1251\deff0{\fonttbl{\f0\fnil\fcharset204{\*\fname Courier New;}Courier New CYR;}{\f1\fnil\fcharset0 Courier New;}{\f2\fmodern\fprq1\fcharset204{\*\fname Courier New;}Courier New CYR;}{\f3\fmodern\fprq1\fcharset0 Courier New;}}
+{\colortbl ;\red0\green0\blue0;}
+{\*\generator Msftedit 5.41.15.1515;}\viewkind4\uc1\pard\lang1049\f0\fs20 === UniMod 0.5 \lang1033\f1 Pre-Beta\lang1049\f0  ===\par
+\'d0\'e0\'e7\'f0\'e0\'e1\'ee\'f2\'f7\'ea\'e8: \par
+\tab Sim, Dio_Darkclainer\par
+========================\par
+\par
+\'ed\'e5\'ef\'ee\'eb\'ed\'fb\'e9 \'f1\'ef\'e8\'f1\'ee\'ea \'f4\'f3\'ed\'ea\'f6\'e8\'e9:\par
+\par
+=== \'c8\'cd\'d4\'ce\'d0\'cc\'c0\'d6\'c8\'df ===\par
+\par
+number \b getFrameCounter\b0 ()\par
+\lang1033\f1\tab\lang1049\f0\'c2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'f2\'e5\'ea\'f3\'f9\'e8\'e9 \'ed\'ee\'ec\'e5\'f0 \'f4\'f0\'e5\'e9\'ec\'e0\par
+\par
+number \b setTimeout\b0 (function F,number N [,table T])\par
+\lang1033\f1\tab\lang1049\f0\'c2\'fb\'e7\'fb\'e2\'e0\'e5\'f2 \'f4\'f3\'ed\'ea\'f6\'e8\'fe F \'f1\'ef\'f3\'f1\'f2\'ff N \'e8\'e3\'f0\'ee\'e2\'fb\'f5 \'ea\'e0\'e4\'f0\'ee\'e2.\par
+\lang1033\f1\tab\lang1049\f0\'e2\'fb\'e7\'ee\'e2 \'ea\'e0\'ea \'e5\'f1\'eb\'e8 \'e1\'fb \'ed\'e0\'ef\'e8\'f1\'e0\'eb\'e8 F(getFrameCounter(),T)\par
+\lang1033\f1\tab\lang1049\f0\'c2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'f7\'e8\'f1\'eb\'ee - \'e8\'e4\'e5\'ed\'f2\'e8\'f4\'e8\'ea\'e0\'f2\'ee\'f0 \'f2\'e0\'e9\'ec\'e0\'f3\'f2\'e0 (\'ef\'ee\'ea\'e0 \'ee\'f2\'ec\'e5\'ed\'e8\'f2\'fc \'ed\'e5\'eb\'fc\'e7\'ff, \'ed\'ee \'ef\'ee\'f2\'ee\'ec \'e1\'f3\'e4\'e5\'f2 \'ec\'ee\'e6\'ed\'ee)\par
+\lang1033\f1\tab\lang1049\f0\'c5\'f1\'eb\'e8 \'f2\'f0\'e5\'e1\'f3\'e5\'ec\'fb\'e9 \'ea\'e0\'e4\'f0 \'ef\'f0\'ee\'ef\'f3\'f9\'e5\'ed \'e8\'eb\'e8 \'f3\'e6\'e5 \'ef\'f0\'ee\'f8\'e5\'eb - \'f4\'f3\'ed\'ea\'f6\'e8\'ff \'ed\'e5 \'e1\'f3\'e4\'e5\'f2 \'e2\'fb\'e7\'e2\'e0\'ed\'e0\par
+\par
+table \b playersList\b0 ()\par
+\lang1033\f1\tab\lang1049\f0\'c2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'f1\'ef\'e8\'f1\'ee\'ea \'e2\'f1\'e5\'f5 \'fe\'ed\'e8\'f2\'ee\'e2 \'ef\'ee\'e4\'ea\'eb\'fe\'f7\'e5\'ed\'ed\'fb\'f5 \'e8\'e3\'f0\'ee\'ea\'ee\'e2\par
+\par
+nil \b getUnitsAround\b0 (function F,number X1,number Y1,number X2,number Y2)\par
+\lang1033\f1\tab\lang1049\f0\'c2\'fb\'e7\'fb\'e2\'e0\'e5\'f2 \'f4\'f3\'ed\'ea\'f6\'e8\'fe F \'e4\'eb\'ff \'ea\'e0\'e6\'e4\'ee\'e3\'ee \'ee\'e1\'fa\'e5\'ea\'f2\'e0 \'e2\'ed\'f3\'f2\'f0\'e8 \'e4\'e0\'ed\'ed\'ee\'e3\'ee \'ef\'f0\'ff\'ec\'ee\'f3\'e3\'ee\'eb\'fc\'ed\'e8\'ea\'e0\par
+\lang1033\f1\tab\lang1049\f0\'e0\'f0\'e3\'f3\'ec\'e5\'ed\'f2\'ee\'ec \'ff\'e2\'eb\'ff\'e5\'f2\'f1\'ff userdata\par
+\par
+x,y=\b playerMouse\b0 (userdata Unit)\par
+\lang1033\f1\tab\lang1049\f0\'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 X \'e8 Y \'ec\'fb\'f8\'e8 \'e8\'e3\'f0\'ee\'ea\'e0 \'ef\'ee \'fe\'ed\'e8\'f2\'f3-\'e8\'e3\'f0\'ee\'ea\'f3\par
+\par
+x,y=\b unitPos\b0 (userdata X)\par
+\lang1033\f1\tab\lang1049\f0\'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \{X,Y\} \'ea\'ee\'ee\'f0\'e4\'e8\'ed\'e0\'f2\'fb \'ed\'e0\'e9\'e4\'e5\'ed\'ed\'ee\'e3\'ee \'ee\'e1\'fa\'e5\'ea\'f2\'e0\par
+\par
+string \b getThingName\b0 (X)\par
+\lang1033\f1\tab\lang1049\f0\'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'e8\'ec\'ff \'ee\'e1\'fa\'e5\'ea\'f2\'e0 ('Meat','Magic' \'e8 \'f2.\'ef.)\par
+\lang1033\f1\tab\lang1049\f0\'e8\'eb\'e8 nil \'e5\'f1\'eb\'e8 \'f2\'e0\'ea\'ee\'e3\'ee \'ed\'e5\'f2\'f3\par
+\lang1033\f1\tab\lang1049\f0\'c0\'f0\'e3\'f3\'ec\'e5\'ed\'f2 - \'eb\'e8\'e1\'ee \'ef\'f0\'ee\'f1\'f2\'ee \'f7\'e8\'f1\'eb\'ee - ThingType, \'eb\'e8\'e1\'ee \'fe\'e7\'e5\'f0\'e4\'e0\'f2\'e0 - \'ee\'e1\'fa\'e5\'ea\'f2\par
+\par
+number \b getThingType\b0 (userdata X)\par
+\lang1033\f1\tab\lang1049\f0\'e5\'f1\'eb\'e8 \'e5\'e9 \'ef\'f0\'e5\'e4\'fa\'ff\'e2\'e8\'eb\'e8 \'ee\'e1\'fa\'e5\'ea\'f2 \'e8 \'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'ee\'f2 \'ed\'e5\'e3\'ee \'f2\'e8\'ef\par
+\lang1033\f1\tab\lang1049\f0\'e5\'f1\'eb\'e8 \'e5\'e9 \'ef\'f0\'e5\'e4\'fa\'ff\'e2\'e8\'eb\'e8 \'f1\'f2\'f0\'ee\'ea\'f3 - \'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 ThingType \'ef\'ee \'e8\'ec\'e5\'ed\'e8\par
+\lang1033\f1\tab\lang1049\f0\'e5\'f1\'eb\'e8 \'ed\'e5 \'ef\'ee\'eb\'f3\'f7\'e8\'f2\'f1\'ff - \'e2\'e5\'f0\'ed\'e5\'f2 nil\par
+\par
+\par
+=== \'ce\'ca\'cd\'c0 ===\par
+\par
+\par
+table \b wndLoad\b0 (string File[,table Base])\par
+\lang1033\f1\tab\lang1049\f0\'fd\'f2\'e0 \'f4\'f3\'ed\'ea\'f6\'e8\'ff \'e7\'e0\'e3\'f0\'f3\'e6\'e0\'e5\'f2 \'e8 \'ef\'ee\'ea\'e0\'e7\'fb\'e2\'e0\'e5\'f2 \'e4\'e8\'e0\'eb\'ee\'e3 \'e8\'e7 \'f3\'ea\'e0\'e7\'e0\'ed\'ed\'ee\'e3\'ee \'f4\'e0\'e9\'eb\'e0\par
+\lang1033\f1\tab\lang1049\f0\'e4\'ee\'e1\'e0\'e2\'eb\'ff\'e5\'f2 \'e2 \'f2\'e0\'e1\'eb\'e8\'f6\'f3 Base \'f1\'e2\'ee\'e9\'f1\'f2\'e2\'ee handle - \'f3\'ea\'e0\'e7\'e0\'f2\'e5\'eb\'fc \'ed\'e0 \'ee\'ea\'ed\'ee\par
+\lang1033\f1\tab\lang1049\f0\'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'f2\'f3 \'e6\'e5 \'f2\'e0\'e1\'eb\'e8\'f6\'f3\par
+\lang1033\f1\tab\lang1049\f0\'ed\'ee\'e2\'fb\'e9 \'e4\'e8\'e0\'eb\'ee\'e3 \'e2\'fb\'e7\'fb\'e2\'e0\'e5\'f2 \'f4\'f3\'ed\'ea\'f6\'e8\'fe Base.wndProc(Base,Msg,A,B)\par
+\lang1033\f1\tab\lang1049\f0\'e4\'eb\'ff \'ee\'e1\'f0\'e0\'e1\'ee\'f2\'ea\'e8 \'f1\'ee\'ee\'e1\'f9\'e5\'ed\'e8\'e9 - \'f1\'ef\'e8\'f1\'ee\'ea \'f1\'ee\'ee\'e1\'f9\'e5\'ed\'e8\'e9 \'ed\'e0\'f5\'ee\'e4\'e8\'f2\'f1\'ff \'e2 \'f0\'e0\'e7\'f0\'e0\'e1\'ee\'f2\'ea\'e5\par
+\lang1033\f1\tab\lang1049\f0 0x0001 - \'ef\'f0\'e8 \'f1\'ee\'e7\'e4\'e0\'ed\'e8\'e8 \'e4\'e8\'e0\'eb\'ee\'e3\'e0\par
+\lang1033\f1\tab\lang1049\f0 0x0002 - \'ef\'f0\'e8 \'e5\'e3\'ee \'f3\'ed\'e8\'f7\'f2\'ee\'e6\'e5\'ed\'e8\'e8\par
+\lang1033\f1\tab\lang1049\f0 0x0016 - \'ef\'f0\'e8 \'f1\'ee\'e7\'e4\'e0\'ed\'e8\'e8 \'e4\'ee\'f7\'e5\'f0\'ed\'e5\'e3\'ee \'ee\'e1\'fa\'e5\'ea\'f2\'e0 \'e2 \'e4\'e8\'e0\'eb\'ee\'e3\'e5\par
+\par
+\b wndCall\b0 (Window, Msg, A,B )\par
+\lang1033\f1\tab\lang1049\f0\'fd\'f2\'e0 \'f4\'f3\'ed\'ea\'f6\'e8\'ff \'ef\'ee\'f1\'fb\'eb\'e0\'e5\'f2 \'e4\'e8\'e0\'eb\'ee\'e3\'f3 Window \'ee\'ea\'ee\'ed\'ed\'ee\'e5 \'f1\'ee\'ee\'e1\'f9\'e5\'ed\'e8\'e5 Msg \'f1 \'ef\'e0\'f0\'e0\'ec\'e5\'f2\'f0\'e0\'ec\'e8 A \'e8 B\par
+\lang1033\f1\tab\lang1049\f0 Window - \'eb\'e8\'e1\'ee \'fe\'e7\'e5\'f0\'e4\'e0\'f2\'e0, \'eb\'e8\'e1\'ee \'f2\'e0\'e1\'eb\'e8\'f6\'e0 \'ee\'f2 wndLoad\par
+\lang1033\f1\tab\lang1049\f0 A,B - \'eb\'e8\'e1\'ee \'fe\'e7\'e5\'f0\'e4\'e0\'f2\'e0, \'eb\'e8\'e1\'ee integer\par
+\lang1033\f1\tab\lang1049\f0 userdata, \'eb\'e8\'e1\'ee 0 \'e8 1 - \'f1\'ec\'ee\'f2\'f0\'ff \'f7\'f2\'ee \'e2\'e5\'f0\'ed\'e5\'f2 \'ee\'ea\'ed\'ee\par
+\par
+integer \b wndGetId\b0 (Window)\par
+\lang1033\f1\tab\lang1049\f0\'fd\'f2\'e0 \'f4\'f3\'ed\'ea\'f6\'e8\'ff \'ef\'ee\'eb\'f3\'f7\'e0\'e5\'f2 Id \'ee\'ea\'ed\'e0 \'ef\'ee \'fe\'e7\'e5\'f0\'e4\'e0\'f2\'e5 \'e8\'eb\'e8 \'f2\'e0\'e1\'eb\'e8\'f6\'e5 \'ee\'f2 wndLoad\par
+\par
+userdata \b wndChildById\b0 (Window,number Id)\par
+\tab\'fd\'f2\'e0 \'f4\'f3\'ed\'ea\'f6\'e8\'ff \'ef\'ee\'eb\'f3\'f7\'e0\'e5\'f2 \'ee\'f2 \'ee\'ea\'ed\'e0 Window \'e4\'ee\'f7\'e5\'f0\'ed\'e5\'e5 \'ee\'ea\'ed\'ee \'f1 \'e8\'e4\'e5\'ed\'f2\'e8\'f4\'e8\'ea\'e0\'f2\'ee\'f0\'ee\'ec Id\par
+\tab Window - \'eb\'e8\'e1\'ee \'fe\'e7\'e5\'f0\'e4\'e0\'f2\'e0, \'eb\'e8\'e1\'ee \'f2\'e0\'e1\'eb\'e8\'f6\'e0 \'ee\'f2 wndLoad\par
+\par
+string \b wndGetText\b0 (Window)\par
+ \tab\'c2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'f1\'f2\'f0\'ee\'ea\'f3 \'f3 \'dd\'e4\'e8\'f2\'c1\'ee\'ea\'f1\'e0\par
+\par
+\cf1\b\f2 wndSetText(\lang1033\f3 Window,string)\par
+\tab\lang1049\b0\f2\'d3\'f1\'f2\'e0\'ed\'e0\'e2\'eb\'e8\'e2\'e0\'e5\'f2 \'f1\'f2\'f0\'ee\'ea\'f3 \'f3 \'dd\'e4\'e8\'f2\'c1\'ee\'ea\'f1\'e0\lang1033\b\f3\par
+\cf0\lang1049\b0\f0\par
+\par
+\b wndClose\b0 (Window)\par
+\tab\'e7\'e0\'ea\'f0\'fb\'e2\'e0\'e5\'f2 \'ee\'ea\'ed\'ee (\'e2 \'ef\'f0\'ee\'f6\'e5\'f1\'f1\'e5 \'ef\'ee\'f1\'fb\'eb\'e0\'e5\'f2 \'f1\'ee\'ee\'e1\'f9\'e5\'ed\'e8\'ff \'e7\'e0\'ea\'f0\'fb\'f2\'e8\'ff)\par
+\tab\'e2\'e5\'f0\'ed\'e5\'f2 0 \'e2 \'f1\'eb\'f3\'f7\'e0\'e5 \'f3\'f1\'ef\'e5\'f5\'e0\par
+\par
+\b wndLbAddText\b0 (Window,string)\par
+\lang1033\f1\tab\lang1049\f0\'c4\'ee\'e1\'e0\'e2\'eb\'ff\'e5\'f2 \'f1\'f2\'f0\'ee\'ea\'f3 \'e2 \'eb\'e8\'f1\'f2\'c1\'ee\'ea\'f1\par
+ \par
+\b wndLbClear\b0 (W\lang1033\f1 i\lang1049\f0 ndow)\par
+\lang1033\f1\tab\lang1049\f0\'ce\'f2\'f7\'e8\'f9\'e0\'e5\'f2 \'ee\'f2 \'f2\'e5\'ea\'f1\'f2\'e0 \'eb\'e8\'f1\'f2\'c1\'ee\'ea\'f1\par
+ \par
+\b wndButtonSetText\b0 (Window,string)\par
+\lang1033\f1\tab\lang1049\f0\'f3 \'ea\'ed\'ee\'ef\'ee\'ea \'f3\'f1\'f2\'e0\'ed\'e0\'e2\'eb\'e8\'e2\'e0\'e5\'f2 \'ed\'e0\'e4\'ef\'e8\'f1\'fc\par
+\par
+\lang1033\b\f1 wndShow\b0 (Window)\par
+\tab\lang1049\f0\'d1\'ea\'f0\'fb\'e2\'e0\'e5\'f2\lang1033\f1 /\lang1049\f0\'ef\'ee\'ea\'e0\'e7\'fb\'e2\'e0\'e5\'f2 \'ee\'ea\'ed\'ee\par
+\par
+\lang1033\b\f1 wndCreate\b0 (table dlg)\par
+\tab\lang1049\f0\'d1\'ee\'e7\'e4\'e0\'e5\'f2 \'ee\'ea\'ed\'ee \'f1 \'ea\'ee\'ed\'f2\'f0\'ee\'eb\'e0\'ec\'e8 \'ef\'ee \'f2\'e0\'e1\'eb\'e8\'f6\'e5 \'f1 \'f2\'e0\'ea\'e8\'ec\'e8 \'ef\'e0\'f0\'e0\'ec\'e5\'f2\'f0\'e0\'ec\'e8\par
+\tab\'d1\'e2\'ee\'e9\'f1\'f2\'e2\'e0\par
+\tab\tab\lang1033\f1 x\lang1049\f0  \lang1033\f1 -\lang1049\f0  1-\'e0\'ff \'ea\'ee\'f0\'e4\'e8\'ed\'e0\'f2\'e0\par
+\tab\tab\lang1033\f1 y\lang1049\f0  \lang1033\f1 -\lang1049\f0  \lang1033\f1 2\lang1049\f0 -\'e0\'ff \'ea\'ee\'f0\'e4\'e8\'ed\'e0\'f2\'e0\par
+      \tab\lang1033\f1 w - \lang1049\f0\'e4\'eb\'e8\'ed\'ed\'e0\lang1033\f1\par
+\lang1049\f0\tab\tab\lang1033\f1 h - \lang1049\f0\'f8\'e8\'f0\'e8\'ed\'e0\par
+\tab\tab offsetX\lang1033\f1  -\lang1049\f0  \'f1\'ec\'e5\'f9\'e5\'ed\'e8\'e5 \'ef\'ee \lang1033\f1 x\lang1049\f0 , \'ea\'ee\'f2\'ee\'f0\'ee\'e5 \'e8\'ec\'e5\'e5\'f2 \'ea\'e0\'f0\'f2\'e8\'ed\'ea\'e0\par
+\tab\tab offset\lang1033\f1 Y\lang1049\f0  - \'f1\'ec\'e5\'f9\'e5\'ed\'e8\'e5 \'ef\'ee \lang1033\f1 y, \lang1049\f0\'ea\'ee\'f2\'ee\'f0\'ee\'e5 \'e8\'ec\'e5\'e5\'f2 \'ea\'e0\'f0\'f2\'e8\'ed\'ea\'e0\par
+\tab\tab\lang1033\f1 type - \lang1049\f0\'f2\'e8\'ef \'ee\'ea\'ed\'e0\lang1033\f1 /\lang1049\f0\'ea\'ee\'ed\'f2\'f0\'ee\'eb\'eb(\lang1033\f1 PUSHBUTTON,ENTRYFIELD,SCROLLLISTBOX...)\par
+\tab\lang1049\f0\tab\lang1033\f1 status - \lang1049\f0\'f4\'eb\'e0\'e3\'e8 \'ee\'ea\'ed\'e0 (\lang1033\f1 ENABLED,IMAGE,ABOVE...)\par
+\tab\lang1049\f0\tab\lang1033\f1 style - \lang1049\f0\'f2\'ee \'e6\'e5 \'f4\'eb\'e0\'e3\'e8 \'ee\'ea\'ed\'e0\lang1033\f1  (MOUSETRACK,NOFOCUS..)\par
+\tab\lang1049\f0\tab\lang1033\f1 bgcolor - \lang1049\f0\'f6\'e2\'e5\'f2 \'f4\'ee\'ed\'e0 \'ee\'ea\'ed\'e0\par
+\tab\tab hiliteColor - \'f6\'e2\'e5\'f2 \'ef\'ee\'e4\'f1\'e2\'e5\'f2\'ea\'e8(?) \'ee\'ea\'ed\'e0\par
+\tab\tab disabledColor - \'f6\'e2\'e5\'f2 \'e2\'fb\'ea\'eb\'fe\'f7\'e5\'ed\'ed\'ee\'e3\'ee \'ee\'ea\'ed\'e0\par
+\tab\tab enabledColor - \'f6\'e2\'e5\'f2 \'e2\'eb\'fe\'f7\'e5\'ed\'ed\'ee\'e3\'ee\par
+\tab\tab textColor - \'f6\'e2\'e5\'f2 \'f2\'e5\'ea\'f1\'f2\'e0\par
+\tab\tab selectedColor - \'f6\'e2\'e5\'f2,\'ea\'ee\'e3\'e4\'e0 \'f3 \'ee\'ea\'ed\'e0 \'f4\'ee\'ea\'f3\'f1\par
+\tab\tab maxLines - \'ec\'e0\'ea\'f1\'e8\'ec\'e0\'eb\'fc\'ed\'ee\'e5 \'ea\'ee\'eb-\'e2\'ee \'eb\'e8\'ed\'e8\'e9 \'e4\'eb\'ff \'f2\'e5\'ea\'f1\'f2\'e0 (\'f3 \'eb\'e8\'f1\'f2\'c1\'ee\'ea\'f1\'e0 \'ed\'e0\'ef\'f0\'e8\'ec\'e5\'f0)\par
+\tab\tab text - \'f2\'e5\'ea\'f1\'f2\par
+\tab\tab tooltip - \'ed\'e0\'e4\'ef\'e8\'f1\'fc \'ea\'ee\'f2\'ee\'f0\'e0\'ff \'e2\'fb\'eb\'e5\'e7\'e0\'e5\'f2 \'ef\'f0\'e8 \'ed\'e0\'e2\'ee\'e4\'ea\'e5 \'ed\'e0 \'ee\'ea\'ed\'ee\par
+ \tab\tab image - \'ee\'f2\'ee\'e1\'f0\'e0\'e6\'e0\'e5\'ec\'e0\'ff \'ea\'e0\'f0\'f2\'e8\'ed\'ea\'e0\par
+\tab\tab hiliteImage - \'ea\'e0\'f0\'f2\'e8\'ed\'ea\'e0 \'ef\'ee\'e4\'f1\'e2\'e5\'f2\'ea\'e0(?)\par
+\tab\tab selectedImage - \'ea\'e0\'f0\'f2\'e8\'ed\'ea\'e0 \'ef\'f0\'e8 \'ed\'e0\'e2\'e5\'e4\'e5\'ed\'e8\'e8 \'ed\'e0 \'ee\'ea\'ed\'ee\par
+\tab\tab disabledImage - \'ea\'e0\'f0\'f2\'e8\'ed\'ea\'e0 \'ef\'f0\'e8 \'ed\'e0\'e2\'e5\'e4\'e5\'ed\'e8\'e8 \'ed\'e0 \'ea\'ee\'ed\'f2\'f0\'ee\'eb\'eb\par
+\tab\'d4\'f3\'ed\'ea\'f6\'e8\'e8 \'f0\'e5\'e0\'ea\'f6\'e8\'e8\par
+\tab\tab\lang1033\f1 onFocus - \lang1049\f0\'ef\'f0\'e8 \'ed\'e0\'e2\'e5\'e4\'e5\'ed\'e8\'e5 \'ed\'e0 \'ee\'ea\'ed\'ee \par
+\tab\tab onSelChange - \'ef\'f0\'e8 \'e8\'e7\'ec\'e5\'ed\'e5\'ed\'e8\'e8\par
+\tab\tab onClick - \'ef\'f0\'e8 \'ea\'eb\'e8\'ea\'e5\par
+\par
+\lang1033\b\f1 wndSetAttr\b0 (window,atribute,value)\par
+\lang1049\f0\tab\'cc\'e5\'ed\'ff\'e5\'f2 \'f1\'e2\'ee\'e9\'f1\'f2\'e2\'ee \lang1033\f1 atribute \lang1049\f0\'f3 \'ee\'ea\'ed\'e0 \lang1033\f1 window \lang1049\f0\'ed\'e0 \'e7\'ed\'e0\'f7\'e8\'e5 \lang1033\f1 value\tab\lang1049\f0\par
+\tab\par
+\par
+=== \'cc\'c0\'cd\'c8\'cf\'d3\'cb\'df\'d6\'c8\'c8 ===\par
+\par
+userdata \b createObject\b0 ( string Class,number X,number Y)\par
+\lang1033\f1\tab\lang1049\f0\'f1\'ee\'e7\'e4\'e0\'e5\'f2 \'e4\'e0\'ed\'ed\'fb\'e9 \'ee\'e1\'fa\'e5\'ea\'f2 \'e2 \'f3\'ea\'e0\'e7\'e0\'ed\'ee\'e9 \'f2\'ee\'f7\'ea\'e5, \'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'fe\'e7\'e5\'f0\'e4\'e0\'f2\'e0\par
+\lang1033\f1\tab\lang1049\f0\'c5\'f1\'eb\'e8 \'ea\'eb\'e0\'f1\'f1\'e0 \'ed\'e5 \'f1\'f3\'f9\'e5\'f1\'f2\'e2\'f3\'e5\'f2 - \'e2\'e5\'f0\'ed\'e5\'f2 nil\par
+\par
+\par
+\b noxOnCreateAt\b0 (userdata Obj,userdata Parent,number X,number Y)\par
+\lang1033\f1\tab\lang1049\f0\'fd\'f2\'e0 \'f4\'f3\'ed\'ea\'f6\'e8\'ff \'e2\'fb\'e7\'fb\'e2\'e0\'e5\'f2\'f1\'ff \'e8\'e7 \'e8\'e3\'f0\'fb \'ef\'f0\'e8 \'cb\'de\'c1\'ce\'cc \'f1\'ee\'e7\'e4\'e0\'ed\'e8\'e8 \'ee\'e1\'fa\'e5\'ea\'f2\'e0\par
+\par
+\b unitSetFollow\b0 (userdata X,userdata Y)\par
+\lang1033\f1\tab\lang1049\f0\'e7\'e0\'f1\'f2\'e0\'e2\'eb\'ff\'e5\'f2 \'ec\'ee\'ed\'f1\'f2\'f0\'e0 \'f1\'eb\'e5\'e4\'ee\'e2\'e0\'f2\'fc \'e7\'e0 \'ee\'e1\'fa\'e5\'ea\'f2\'ee\'ec (\'ef\'ee\'eb\'ed\'fb\'e9 \'ea\'eb\'ee\'ed Follow \'e8\'e7 \'f0\'e5\'e4\'e0\'ea\'f2\'ee\'f0\'e0)\par
+\par
+\b unitBecomePet\b0 (userdata X,userdata Y)\par
+\lang1033\f1\tab\lang1049\f0\'e4\'e5\'eb\'e0\'e5\'f2 \'ee\'e4\'ed\'ee\'e3\'ee \'ec\'ee\'ed\'f1\'f2\'f0\'e0 \'f1\'ee\'e1\'f1\'f2\'e2\'e5\'ed\'ed\'ee\'f1\'f2\'fc\'fe \'e4\'f0\'f3\'e3\'ee\'e3\'ee\par
+\lang1033\f1\tab (\lang1049\f0\'ef\'ee\'eb\'ed\'fb\'e9 \'ea\'eb\'ee\'ed BecomePet \'e8\'e7 \'f0\'e5\'e4\'e0\'ea\'f2\'ee\'f0\'e0)\par
+\par
+\b unitMove\b0 (userdata Unit,number x,number y)\par
+\lang1033\f1\tab\lang1049\f0\'c4\'e2\'e8\'e3\'e0\'e5\'f2 \'fe\'ed\'e8\'f2(\'ed\'e5 \'f0\'e0\'e1\'ee\'f2\'e0\'e5\'f2 \'ed\'e0 \'f1\'f2\'e0\'f2\'e8\'ea\'e8)\par
+\par
+\b unitSpeed\b0 (userdata Unit,number A,number B,boolean)\par
+\lang1033\f1\tab\lang1049\f0\'c7\'e0\'e4\'e0\'e5\'f2 \'fe\'ed\'e8\'f2\'f3 \'f1\'ea\'ee\'f0\'ee\'f1\'f2\'fc \'e2 \'e7\'e0\'e2\'e8\'f1\'e8\'ec\'ee\'f1\'f2\'e8 \'ee\'f2 boolean \par
+\lang1033\f1\tab\lang1049\f0\'eb\'e8\'e1\'ee \'ef\'ee \'f3\'e3\'eb\'f3, \'eb\'e8\'e1\'ee \'ef\'ee \'e2\'e5\'ea\'f2\'ee\'f0\'f3 (\'e5\'f1\'eb\'e8 \'ed\'e5 \'f3\'ea\'e0\'e7\'e0\'ed\'ed\'ee \'f2\'ee \'ef\'ee \'e2\'e5\'ea\'f2\'ee\'f0\'f3)\par
+\lang1033\f1\tab\lang1049\f0\'ed\'e5 \'e4\'e5\'e9\'f1\'f2\'e2\'f3\'e5\'f2 \'ed\'e0 \'f1\'f2\'e0\'f2\'e8\'ea\'e8\par
+\par
+\b unitDecay\b0 (userdata X,number A)\par
+\lang1033\f1\tab\lang1049\f0\'cf\'eb\'e0\'e2\'ee \'e8\'f1\'f7\'e5\'e7\'e0\'e5\'f2 \'fe\'ed\'e8\'f2 X \'f7\'e5\'f0\'e5\'e7 \'ed\'e5\'f1\'ea\'ee\'eb\'fc\'ea\'ee \'ea\'e0\'e4\'f0\'ee\'e2 A (\'ed\'e0 \'f1\'f2\'e0\'f2\'e8\'ea\'e8 \'ed\'e5 \'f0\'e0\'e1\'ee\'f2\'e0\'e5\'f2)\par
+\par
+\b unitDelete\b0 (userdata Unit)\par
+\lang1033\f1\tab\lang1049\f0\'d3\'e4\'e0\'eb\'ff\'e5\'f2 \'fe\'ed\'e8\'f2 (\'ef\'ee\'eb\'ed\'ee\'f1\'f2\'fc\'fe,\'ed\'ee \'ef\'ee\'ea\'e0 \'ed\'e5 \'f0\'e0\'e1\'ee\'f2\'e0\'e5\'f2 \'ed\'e0 \'f1\'f2\'e0\'f2\'e8\'ea\'e8)\par
+\par
+\lang1033\b\f1 unitFreeze\b0 /\b unitUnFreeze\b0 (userdata Unit)\par
+\tab\lang1049\f0 "\'e7\'e0\'ec\'ee\'f0\'e0\'e6\'e8\'e2\'e0\'e5\'f2"\lang1033\f1 /\lang1049\f0 "\'d0\'e0\'e7\'ec\'ee\'f0\'e0\'e6\'e8\'e2\'e0\'e5\'f2" \'fe\'ed\'e8\'f2\lang1033\f1\par
+\lang1049\f0\par
+\b conExec\b0 (string cmd)\par
+\lang1033\f1\tab\lang1049\f0\'c2\'fb\'e7\'fb\'e2\'e0\'e5\'f2 \'ef\'f0\'ee\'e8\'e7\'e2\'ee\'eb\'fc\'ed\'f3\'fe \'f1\'f2\'f0\'ee\'f7\'ea\'f3 \'e2 \'ea\'ee\'ed\'f1\'ee\'eb\'e8 \'ed\'ee\'ea\'f1\'e0 (\'e2 \'f2\'ee\'ec \'f7\'e8\'f1\'eb\'e5 \'eb\'f3\'e0) \'e8 \'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'f0\'e5\'e7\'f3\'eb\'fc\'f2\'e0\'f2 (1 - \'e5\'f1\'eb\'e8 \'f1\'f0\'e0\'e1\'ee\'f2\'e0\'eb\'ee)\par
+\par
+=== \'cf\'d0\'ce\'d7\'c5\'c5 ===\par
+\par
+\b gameFlags\b0 ( [number new] )\par
+\lang1033\f1\tab\lang1049\f0\'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2/\'f3\'f1\'f2\'e0\'ed\'e0\'e2\'eb\'e8\'e2\'e0\'e5\'f2 \'e7\'ed\'e0\'f7\'e5\'ed\'e8\'e5 \'f4\'eb\'e0\'e3\'ee\'e2\par
+\lang1033\f1\tab\lang1049\f0\'e5\'f1\'eb\'e8 \'f3\'ea\'e0\'e7\'e0\'ed\'ee \'ed\'ee\'e2\'ee\'e5 \'e7\'ed\'e0\'f7\'e5\'ed\'e8\'e5 - \'f4\'eb\'e0\'e3\'e8 \'e1\'f3\'e4\'f3\'f2 \'e7\'e0\'e4\'e0\'ed\'fb - \'e8\'ed\'e0\'f7\'e5 \'ed\'e5 \'e8\'e7\'ec\'e5\'ed\'ff\'f2\'f1\'ff\par
+\lang1033\f1\tab\lang1049\f0\'cf\'f0\'e8\'ec\'e5\'f0:\par
+\lang1033\f1\tab\lang1049\f0 >gameFlags(gameFlags()-0x80)\par
+\lang1033\f1\tab\lang1049\f0\'f0\'e0\'e7\'f0\'e5\'f8\'e8\'f2 \'ef\'f0\'e8\'ec\'e5\'ed\'e5\'ed\'e8\'e5 \'ee\'f0\'f3\'e6\'e8\'ff \'e2 \'f7\'e0\'f2\'e5 \par
+\par
+\b printf\b0 (string format[, ...]) \par
+\lang1033\f1\tab\lang1049\f0\'d4\'ee\'f0\'ec\'e0\'f2\'e8\'f0\'f3\'e5\'f2 \'e8 \'e2\'ee\'e7\'e2\'f0\'e0\'f9\'e0\'e5\'f2 \'f1\'f2\'f0\'ee\'ea\'f3 \'e2 \'f1\'ee\'ee\'f2\'e2\'e5\'f2\'f1\'f2\'e2\'e8\'e8 \'ef\'f0\'e0\'e2\'e8\'eb\'e0\'ec\'e8 printf\par
+\par
+\b netFxPoint\b0 (number n, number x, number y)\par
+\lang1033\f1\tab\lang1049\f0\'c2\'fb\'e7\'fb\'e2\'e0\'e5\'f2 \'e2 \'f2\'ee\'f7\'ea\'e5 "\'f2\'ee\'f7\'e5\'f7\'ed\'fb\'e9" \'f1\'ef\'e5\'f6\'fd\'f4\'f4\'e5\'ea\'f2 (\'e2\'e7\'f0\'fb\'e2, \'f2\'e5\'eb\'e5\'ef\'ee\'f0\'f2 \'e8 \'f2.\'ef.)\par
+\lang1033\f1\tab\lang1049\f0\'e4\'ee\'ef\'f3\'f1\'f2\'e8\'ec\'fb\'e5 \'e7\'ed\'e0\'f7\'e5\'ed\'e8\'ff 0x85-0x8B,0xA0,0xA3 \'e8 \'e5\'f9\'e5 \'ed\'e5\'f1\'ea\'ee\'eb\'fc\'ea\'ee\par
+\lang1033\f1\tab\lang1049\f0\'e5\'f1\'eb\'e8 \'e2\'fb\'e7\'e2\'e0\'f2\'fc \'f1 "\'ed\'e5\'f2\'ee\'f7\'e5\'ed\'fb\'ec" \'e8\'eb\'e8 \'e2\'ee\'ee\'e1\'f9\'e5 \'ed\'e5 \'f1\'ef\'e5\'f6\'fd\'f4\'f4\'e5\'ea\'f2\'ee\'ec - \'e1\'f3\'e4\'e5\'f2 \'ea\'f0\'fd\'f8\par
+ \par
+\b netRayFx\b0 (number n, number X1,number Y1, number X2, number Y2)\par
+\lang1033\f1\tab\lang1049\f0\'d1\'ee\'e7\'e4\'e0\'e5\'f2 \'f1\'ef\'e5\'f6\'fd\'f4\'f4\'e5\'ea\'f2 \'eb\'f3\'f7\'e5\'e2\'ee\'e3\'ee \'f2\'e8\'ef\'e0, \'ea\'ee\'f2\'ee\'f0\'fb\'e9 \'e8\'e4\'e5\'f2 \'e8\'e7 \'f2\'ee\'f7\'ea\'e8 X1,Y1 \'e2 \'f2\'ee\'f7\'ea\'f3 X2,Y2\par
+\lang1033\f1\tab\lang1049\f0\'cd\'ee\'ec\'e5\'f0\'e0 - \'eb\'f3\'f7\'e5\'e2\'fb\'e5, \'ed\'e0\'ef\'f0\'e8\'ec\'e5\'f0 0x8C - \'ec\'ee\'eb\'ed\'e8\'ff, 0x90 - \'e3\'e8\'ef\'ed\'ee\'e7\par
+\par
+\b netShieldFx\b0 (userdata Obj) \par
+\lang1033\f1\tab\lang1049\f0\'d1\'ee\'e7\'e4\'e0\'e5\'f2 \'f1\'ef\'e5\'f6\'fd\'f4\'f4\'e5\'ea\'f2 \'f0\'e0\'e7\'f0\'f3\'f8\'e5\'ed\'e8\'ff \'f1\'e8\'eb\'ee\'e2\'ee\'e3\'ee \'ef\'ee\'eb\'ff \'f3 \'fe\'ed\'e8\'f2\'e0 Obj\par
+\par
+\lang1033\f1 number \b bitOr\b0 (number,number)\par
+\lang1049\f0\tab\'d1\'e0\'ec\'fb\'e9 \'f7\'f2\'ee \'ed\'e5 \'e5\'f1\'f2\'fc \'ee\'e1\'fb\'f7\'ed\'fb\'e9 \'ef\'ee\'e1\'e8\'f2\'ee\'e2\'fb\'e9 \lang1033\f1 or\par
+\par
+number \b bitAnd\b0 (number,number)\par
+\lang1049\f0\tab\'d1\'e0\'ec\'fb\'e9 \'f7\'f2\'ee \'ed\'e5 \'e5\'f1\'f2\'fc \'ee\'e1\'fb\'f7\'ed\'fb\'e9 \'ef\'ee\'e1\'e8\'f2\'ee\'e2\'fb\'e9 \lang1033\f1 and\lang1049\f0\par
+ \par
+ \par
+}
+ 
