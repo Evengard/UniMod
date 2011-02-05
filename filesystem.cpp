@@ -271,8 +271,10 @@ namespace
 			lua_error_(L);
 		}
 
-		readFile(lua_tostring(L,1),lua_toboolean(L,2)?GlobalList:MapList);
-		return 0;
+		bool r=false;
+		r=readFile(lua_tostring(L,1),lua_toboolean(L,2)?GlobalList:MapList);
+		lua_pushboolean(L,r?1:0);
+		return 1;
 	}
 	int bz2Loader(lua_State*L) /// loadfile из архивов
 	{
@@ -570,7 +572,8 @@ MSG_USE_MAP приходит всем, клиентам включая сервак
 	ASSIGN(mapFileSizeServ,0x0081B838);
 
 	lua_newtable(L);/// в эту таблицу будем что-нить класть если ведем глобальный поиск
-	registerserver("bz2Loader",&bz2Loader,1);
-	registerserver("fileLoad",&loadFileL);
+	lua_pushcclosure(L,&bz2Loader,1);
+	lua_setglobal(L,"bz2Loader");
+	lua_register(L,"fileLoad",&loadFileL);
 	
 }
