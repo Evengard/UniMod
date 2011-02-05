@@ -1,6 +1,7 @@
 local y=loadfile
+local bz2LoaderL=bz2Loader
 local z=function(x)
-	local a,b=bz2Loader(x)
+	local a,b=bz2LoaderL(x)
 	if not a then a,b=y(x) end
 --[[
 	local s=''
