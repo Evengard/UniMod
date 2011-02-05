@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+bool useMySpells=false;
+
 BYTE **clientPlayerInfoPtr;
 int (__cdecl *spellGetValidMB)(int Spell);
 void *(__cdecl *gLoadImg)(const char *Name);
@@ -505,6 +507,8 @@ extern void InjectAddr(DWORD Addr,void *Fn);
 
 void mapLoadSpells()
 {
+	if (!useMySpells)
+		return;
 	int Top=lua_gettop(L);
 	int plrClass=(*clientPlayerInfoPtr)[0x8CB];
 	luaL_loadstring(L,
@@ -618,7 +622,6 @@ void spellListInit()
 
 	ASSIGN(guiSpellListedNumbers,0x006D3F44);
 
-	bool useMySpells=false;
 	if (useMySpells) 
 	{
 		//////// драгдроп
