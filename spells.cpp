@@ -291,6 +291,7 @@ void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *MyUc)
 
 void spellsInit()
 {
+	ASSIGN(spellDefPtr,0x00663EF0);
 	ASSIGN(spellAccept,0x004FD400);
 	ASSIGN(spellGetPower,0x004FE7B0);
 	ASSIGN(spellCancelDurSpell,0x004FEB10);
