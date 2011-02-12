@@ -288,7 +288,7 @@ void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *MyUc)
 	lua_settop(L,Top);
 }
 
-
+extern BYTE *spellDefPtr;
 void spellsInit()
 {
 	ASSIGN(spellDefPtr,0x00663EF0);

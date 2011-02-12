@@ -510,7 +510,7 @@ void mapLoadSpells()
 	if (!useMySpells)
 		return;
 	if (clientPlayerInfoPtr==NULL)
-		return
+		return;
 	int Top=lua_gettop(L);
 	int plrClass=(*clientPlayerInfoPtr)[0x8CB];
 	luaL_loadstring(L,
