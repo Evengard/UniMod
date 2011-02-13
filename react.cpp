@@ -7,7 +7,7 @@ extern int (__cdecl *spellAccept)(int SpellType,void *Caster,void *CasterMB2,voi
 
 creatureAction* (__cdecl *monsterActionPush)(void *Unit,int ActionType);
 void (__cdecl *monsterActionPop)(void *Unit);
-
+extern bigUnitStruct *(__cdecl *unitDamageFindParent) (void *Unit);
 void (__cdecl *noxReportComplete)(void *Unit);
 void printI(const char *S);
 namespace
@@ -222,8 +222,15 @@ namespace
 			lua_pop(L,1);
 			return;
 		}
+		BYTE *Un=(BYTE*)Me;
 		lua_pushlightuserdata(L,Me);
-		if(0!=lua_pcall(L,1,1,0))/// BUGBUG косяк в том, что если внутри функции удалить 
+		Un=*(BYTE**)(Un+0x208);
+		BYTE *Unit=(BYTE*)unitDamageFindParent((void*)Un);
+			if (Unit==0)
+				lua_pushnil(L);
+			else
+				lua_pushlightuserdata(L,(void*)Unit);
+		if(0!=lua_pcall(L,2,1,0))/// BUGBUG косяк в том, что если внутри функции удалить 
 			/// объект - то там еще старое значение
 		{
 			conPrintI(lua_tostring(L,-1));
