@@ -1,9 +1,11 @@
 #include "stdafx.h"
 //:004317B0 configLoad(const char*)
 //00433290 configSave
+
 extern bool serverStart(int port);
 extern void serverClose();
-
+extern char *(__cdecl *mapGetName)();
+extern DWORD *GameFlags;
 extern void tputs(int s,const char *S);
 extern int tprintf(int s,const char *Format,...);
 extern void send_headers(int f, int status, char *title, char *extra, char *mime, 
@@ -11,12 +13,14 @@ extern void send_headers(int f, int status, char *title, char *extra, char *mime
 extern void send_error(int f, int status, char *title, char *extra, char *text);
 
 void (__cdecl *guiServerOptionsStartGameMB)();
+void (__cdecl *consoleServerMapLoad)(int spaceNumber, int tokensNumber, void* tokens);
 void *(__cdecl *serverGetGameData)(int N);
 void *(__cdecl *serverGetGameDataBySel)();
 int (__cdecl *serverModeIndexByModeFlags)(DWORD Flags);
 short *serverLessonLimitArr=0;
 byte *serverTimeLimitArr=0;
 int *serverInfoChanged;
+int *serverModeChange;
 
 void *(__cdecl *serverBanGetList)();
 void (__cdecl *serverBanRemove)(int N);
@@ -88,7 +92,7 @@ namespace
 	struct ServerData
 	{
 		char mapName[8];
-		char gap_8[1];
+		char gap[1];
 		char gameName[10];
 		char gap_13[5];
 		int field_18[5];
@@ -180,6 +184,7 @@ namespace
 	{
 		guiUpdate();
 		int Top=lua_gettop(L);
+		bool sameMap = false;
 		lua_getfield(L,LUA_REGISTRYINDEX,"formGameTable");
 		if (lua_type(L,Top+1)==LUA_TTABLE)
 		{
@@ -189,11 +194,14 @@ namespace
 			{
 				char Buf[16]={0};
 				strncpy(Buf,lua_tostring(L,-1),16);
-				char *P=strstr(Buf,".map");
-				if (P)
+				char *P;
+				P=strstr(Buf,".map");
+				if (P!=NULL)
 				{
 					*P=0;
 				}
+				if(strcmp(Buf,mapGetName())==0 || (0x80 & *GameFlags))
+					sameMap=true;
 				strncpy(Data->mapName,Buf,8);
 			}
 			lua_getfield(L,Top+1,"mode");
@@ -202,19 +210,31 @@ namespace
 			if (Mode!=NULL)
 			{
 				if (0==strcmpi(Mode,"ctf"))
+				{
 					Data->gameFlags=0x20;
+				}
 				else if (0==strcmpi(Mode,"kotr"))
+				{
 					Data->gameFlags=0x10;
-				else if (0==strcmpi(Mode,"highlander"))
+				}
+				else if (0==strcmpi(Mode,"highlander") || 0==strcmpi(Mode,"elimination"))
+				{
 					Data->gameFlags=0x400;
+				}
 				else if (0==strcmpi(Mode,"gameball") || (0==strcmpi(Mode,"flagball")))
+				{
 					Data->gameFlags=0x40;
+				}
 				else if (0==strcmpi(Mode,"quest"))
+				{
 					Data->gameFlags=0x1000;
+				}
 				else 
 				{
 					Data->gameFlags=0x100;//arena
 				}
+				*serverModeChange=*serverModeChange&0x0E80;
+				*serverModeChange=*serverModeChange&Data->gameFlags;
 			}
 			Index=serverModeIndexByModeFlags(Data->gameFlags);
 
@@ -240,7 +260,22 @@ namespace
 			}
 			lua_pushnil(L);
 			lua_setfield(L,LUA_REGISTRYINDEX,"formGameTable");
-			guiServerOptionsStartGameMB();
+			if(sameMap)
+			{
+				wchar_t command[5] = L"load";
+				wchar_t wMapName[9]={0};
+				int *commandPointer=(int*)&command;
+				int *wMapNamePointer=(int*)&wMapName;
+				MultiByteToWideChar(CP_ACP, MB_COMPOSITE, Data->mapName, 8, wMapName, 9);
+				BYTE result[8]={0};
+				memcpy(&result[0], &commandPointer, 4);
+				memcpy(&result[4], &wMapNamePointer, 4);
+				consoleServerMapLoad(1, 2, (void*)&result);
+			}
+			else
+			{
+				guiServerOptionsStartGameMB();
+			}
 		}
 		lua_settop(L,Top);
 	}
@@ -261,6 +296,8 @@ void adminInit(lua_State *L)
 	ASSIGN(serverLessonLimitArr,0x005D5334);
 	ASSIGN(serverTimeLimitArr,0x005D5340);
 	ASSIGN(serverInfoChanged,0x005D5360);
+	ASSIGN(serverModeChange,0x0062F0B6);
+	ASSIGN(consoleServerMapLoad,0x00441910);
 	InjectOffs(0x0043E333+1,&OnGuiUpdate);
 
 	int Top=lua_gettop(L);
