@@ -120,7 +120,7 @@ namespace
 		void fclose()
 		{
 			int Error=0;
-			if (Data) {BZ2_bzReadClose(&Error,Data); Data=0;} 
+			if (Data) {BZ2_bzclose(Data); Data=0;} 
 		}
 		DWORD getCrc(){ return 0; }
 		static IFile* fopen(const char *Filename)
