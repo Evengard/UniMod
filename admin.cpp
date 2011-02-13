@@ -242,7 +242,12 @@ namespace
 			if (lua_type(L,-1)!=LUA_TNIL)
 			{
 				if (0!=lua_toboolean(L,-1))
+				{
 					Data->isNew=1;
+					Data->gameFlags=0x80;
+					*serverModeChange=*serverModeChange&0x0E80;
+					*serverModeChange=*serverModeChange&Data->gameFlags;
+				}
 			}		
 			lua_getfield(L,Top+1,"fraglimit");
 			if (lua_type(L,-1)!=LUA_TNIL)
