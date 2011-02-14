@@ -2,6 +2,7 @@
 /*
 Здесь начисление/получение фрагов и т.п.
 */
+void teamCreateDefault();
 int (__cdecl *netReportScore)(void *Player);
 void (__cdecl *playerAddFragDeathmatch)(void *Victim,void *Attacker,void *A,void *B);
 
@@ -20,6 +21,7 @@ void (__cdecl *teamSendTeam)(void *TeamPtr);
 void (__cdecl *noxTeamUpdate)(void *newName, void *TeamPtr);
 void (__cdecl *serverFlagsSet)(DWORD V);
 void (__cdecl *serverFlagsClear)(DWORD V);
+wchar_t *(__cdecl *noxTeamDefaultName)(int color);
 
 namespace
 {
@@ -71,6 +73,15 @@ l1:
 			push 0x0040A8A6
 			ret
 		};
+	}
+	int noxTeamNumber()
+	{
+		int i=0;
+		for (pTeam *Test=(pTeam *)noxGetTeamFirst();Test!=NULL;Test=(pTeam *)noxGetTeamNext(Test))
+		{
+			i++;
+		}
+		return i;
 	}
 	int teamGet(lua_State *L)
 	{
@@ -267,6 +278,12 @@ l1:
 
 		return 0;
 	}
+	
+	int teamCreateDefaultL(lua_State *L)
+	{
+		teamCreateDefault();
+		return 0;
+	}
 	int teamCreate(lua_State *L)
 	{
 		void *R=NULL;
@@ -277,12 +294,16 @@ l1:
 			lua_getfield(L,1,"id");
 			id=lua_tointeger(L,-1);
 		}
+		bool newTeam=false;
 		if (id>0)
 		{
 			R=noxGetTeamByN(id);
 		}
 		else
+		{
+			newTeam=true;
 			R=noxTeamCreate(id);
+		}
 		if (R==NULL)
 		{
 			lua_pushnil(L);
@@ -291,9 +312,15 @@ l1:
 		serverFlagsSet(4);/// включаем тимы
 
 		lua_pushlightuserdata(L,R);
-		wchar_t* RR;
+		wchar_t* RR=NULL;
+		bool RRR=false;//Флаг посылать ли на КЛИЕНТ имя тимы
 		if (lua_type(L,1)==LUA_TTABLE)
 		{
+			lua_getfield(L,1,"color");
+			if (!lua_isnil(L,-1))
+			{
+				((byte*)R)[0x38]=lua_tointeger(L,-1);
+			}
 			lua_getfield(L,1,"name");
 			const char *S=lua_tostring(L,-1);
 			if (S)
@@ -301,27 +328,24 @@ l1:
 				mbstowcs((wchar_t*)R,S,0x14);
 				RR = (wchar_t*)R;
 				((byte*)R)[0x44]=1;
+				RRR=true;
 			}
-			else
+			else if(newTeam==true)
 			{
-				mbstowcs((wchar_t*)R,"null",0x14);
-				RR = (wchar_t*)R;
+				RR=noxTeamDefaultName(((byte*)R)[0x38]);//Получаем дефолтное название тимы - то что записано в CSF-ке, на основании цвета тимы
+				memcpy(R, RR, 0x28);
 				((byte*)R)[0x44]=1;
 			}
-			lua_getfield(L,1,"color");
-			if (!lua_isnil(L,-1))
-			{
-				((byte*)R)[0x38]=lua_tointeger(L,-1);
-			}
 		}
-		else
+		else if(newTeam==true)
 		{
-			mbstowcs((wchar_t*)R,"null",0x14);
-			RR = (wchar_t*)R;
+			RR=noxTeamDefaultName(((byte*)R)[0x38]);//Получаем дефолтное название тимы - то что записано в CSF-ке, на основании цвета тимы
+			memcpy(R, RR, 0x28);
 			((byte*)R)[0x44]=1;
 		}
-		teamSendTeam(R);
-		noxTeamUpdate(RR, R);
+		teamSendTeam(R); //Тут записывается информация о наличии тимы вообще - однако НАЗВАНИЕ тимы не посылается на клиент - клиент юзает СВОЁ ДЕФОЛТНОЕ название (!)
+		if(RRR==true)
+			noxTeamUpdate(RR, R); //Обновление ИМЕНИ тимы на клиентах - после чего имя тимы у клиентов уже не дефолтное, а именно то, что пришло с сервера
 		return 1;
 	}
 	
@@ -437,15 +461,75 @@ void scoreInit(lua_State *L)
 	ASSIGN(teamSendTeam,0x004184D0);
 	ASSIGN(netCommonByCode,0x00418C80);
 
+	ASSIGN(noxTeamDefaultName,0x00418C20);
+
 	InjectJumpTo(0x0040A8A0,teamCanPlayGame);
 	InjectOffs(0x0054D588+1,onDeathmatchFrag);
 	registerserver("playerScore",&playerScore);
 	registerserver("teamScore",&teamScore);
 	registerserver("teamGet",&teamGet);
-
+	registerserver("teamCreateDefault",&teamCreateDefaultL);
 	registerserver("teamCreate",&teamCreate);
 	registerserver("teamDelete",&teamDelete);
 	registerclient("playerInfo",&playerInfo);
 	registerclient("httpGet",&httpGet);
+	
+}
+void teamCreateDefault()
+{
+	if(noxTeamNumber()==2)
+		return;
+	if(noxTeamNumber()>2)
+	{
+		void *Test=noxGetTeamFirst();
+		for(int i=1;Test!=NULL;Test=noxGetTeamNext(Test))
+		{
+			if(i>2)
+			{
+				noxTeamDelete(Test,1);
+			}
+			i++;
+		}
+		return;
+	}
+	while(noxTeamNumber()<2)
+	{
+		void *R=NULL;
+		R=noxTeamCreate(0);
+		serverFlagsSet(4);/// включаем тимы
+		wchar_t* RR=NULL;
+		RR=noxTeamDefaultName(((byte*)R)[0x38]);//Получаем дефолтное название тимы - то что записано в CSF-ке, на основании цвета тимы
+		memcpy(R, RR, 0x28);
+		((byte*)R)[0x44]=1;
+		teamSendTeam(R);
+	}
+	return;
+	/*
+	for(int i=8;i>0;i--)
+	{
+		void* Team=NULL;
+		Team=noxGetTeamByN(i);
+		if(Team!=NULL)
+		{
+			noxTeamDelete(Team,1);
+		}
+		if(i==3)
+		{
+			serverFlagsClear(4);
+		}
+		if(i<3)
+		{
+			void *R=NULL;
+			R=noxTeamCreate(i);
+			serverFlagsSet(4);
+			char teamName[0x14]={0};
+			itoa(i,teamName,10);
+			mbstowcs((wchar_t*)R,teamName,0x14);
+			wchar_t* RR = (wchar_t*)R;
+			((byte*)R)[0x44]=1;
+			teamSendTeam(R);
+			noxTeamUpdate(RR, R);
+		}
+	}*/
 	
 }

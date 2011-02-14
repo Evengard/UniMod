@@ -1,7 +1,6 @@
 #include "stdafx.h"
 //:004317B0 configLoad(const char*)
 //00433290 configSave
-
 extern bool serverStart(int port);
 extern void serverClose();
 extern char *(__cdecl *mapGetName)();
@@ -14,18 +13,25 @@ extern void send_error(int f, int status, char *title, char *extra, char *text);
 
 void (__cdecl *guiServerOptionsStartGameMB)();
 void (__cdecl *consoleServerMapLoad)(int spaceNumber, int tokensNumber, void* tokens);
+int (__cdecl *mapLoadFromFile)(void* mapName);
 void *(__cdecl *serverGetGameData)(int N);
 void *(__cdecl *serverGetGameDataBySel)();
 int (__cdecl *serverModeIndexByModeFlags)(DWORD Flags);
 short *serverLessonLimitArr=0;
 byte *serverTimeLimitArr=0;
 int *serverInfoChanged;
-int *serverModeChange;
-
+//__int16 *serverModeChange;
+int *mapLoadData;
+int (__cdecl *mapLoadFlags)(void* mapLoadData);
 void *(__cdecl *serverBanGetList)();
 void (__cdecl *serverBanRemove)(int N);
 
 void *(__cdecl *memListNext)(void *Item);
+
+//int (__cdecl *mapCurrentFragLimit)(short gameFlags);
+//int (__cdecl *mapCurrentTimeLimit)(short gameFlags);
+
+extern void teamCreateDefault();
 
 bool serverRequest(int f,char *path)
 {
@@ -115,8 +121,7 @@ namespace
 		}
 		if (lua_type(L,1)!=LUA_TTABLE)
 		{
-				lua_pushstring(L,"wrong args!");
-				lua_error_(L);
+				lua_newtable(L);
 		}
 		lua_setfield(L,LUA_REGISTRYINDEX,"formGameTable");
 		return 0;
@@ -184,11 +189,17 @@ namespace
 	{
 		guiUpdate();
 		int Top=lua_gettop(L);
-		bool sameMap = false;
+		bool sameMap = true;
 		lua_getfield(L,LUA_REGISTRYINDEX,"formGameTable");
 		if (lua_type(L,Top+1)==LUA_TTABLE)
 		{
 			ServerData *Data=(ServerData*)serverGetGameDataBySel();
+			strncpy(Data->mapName, mapGetName(),0x8);
+			Data->gameFlags=(__int16)*GameFlags;
+			//__int16 GameFlagsTruncated = (__int16)*GameFlags;
+			//memcpy(Data->fragLimit,GameFlagsTruncated,0x2);
+			//Data->fragLimit=(__int16)mapCurrentFragLimit((__int16)*GameFlags);
+			//Data->timeLimitMB=(__int16)mapCurrentTimeLimit((__int16)*GameFlags);
 			lua_getfield(L,Top+1,"map");
 			if (lua_type(L,-1)!=LUA_TNIL)
 			{
@@ -202,6 +213,10 @@ namespace
 				}
 				if(strcmp(Buf,mapGetName())==0 || (0x80 & *GameFlags))
 					sameMap=true;
+				else
+				{
+					sameMap=false;
+				}
 				strncpy(Data->mapName,Buf,8);
 			}
 			lua_getfield(L,Top+1,"mode");
@@ -211,30 +226,30 @@ namespace
 			{
 				if (0==strcmpi(Mode,"ctf"))
 				{
-					Data->gameFlags=0x20;
+					Data->gameFlags=0x2027;
 				}
 				else if (0==strcmpi(Mode,"kotr"))
 				{
-					Data->gameFlags=0x10;
+					Data->gameFlags=0x2017;
 				}
 				else if (0==strcmpi(Mode,"highlander") || 0==strcmpi(Mode,"elimination"))
 				{
-					Data->gameFlags=0x400;
+					Data->gameFlags=0x2407;
 				}
 				else if (0==strcmpi(Mode,"gameball") || (0==strcmpi(Mode,"flagball")))
 				{
-					Data->gameFlags=0x40;
+					Data->gameFlags=0x2047;
 				}
 				else if (0==strcmpi(Mode,"quest"))
 				{
-					Data->gameFlags=0x1000;
+					Data->gameFlags=0x3007;
 				}
 				else 
 				{
-					Data->gameFlags=0x100;//arena
+					Data->gameFlags=0x2107;//arena
 				}
-				*serverModeChange=*serverModeChange&0x0E80;
-				*serverModeChange=*serverModeChange&Data->gameFlags;
+				//*serverModeChange=*serverModeChange&0x0E80;
+				//*serverModeChange=*serverModeChange&Data->gameFlags;
 			}
 			Index=serverModeIndexByModeFlags(Data->gameFlags);
 
@@ -244,9 +259,9 @@ namespace
 				if (0!=lua_toboolean(L,-1))
 				{
 					Data->isNew=1;
-					Data->gameFlags=0x80;
-					*serverModeChange=*serverModeChange&0x0E80;
-					*serverModeChange=*serverModeChange&Data->gameFlags;
+					Data->gameFlags=0x2087;
+					//*serverModeChange=*serverModeChange&0x0E80;
+					//*serverModeChange=*serverModeChange&Data->gameFlags;
 				}
 			}		
 			lua_getfield(L,Top+1,"fraglimit");
@@ -256,6 +271,7 @@ namespace
 				serverLessonLimitArr[Index]=Data->fragLimit;
 				*serverInfoChanged=1;
 			}
+			
 			lua_getfield(L,Top+1,"timelimit");
 			if (lua_type(L,-1)!=LUA_TNIL)
 			{
@@ -263,23 +279,32 @@ namespace
 				serverTimeLimitArr[Index]=Data->timeLimitMB;
 				*serverInfoChanged=1;
 			}
+			
+			
 			lua_pushnil(L);
 			lua_setfield(L,LUA_REGISTRYINDEX,"formGameTable");
-			if(sameMap)
+			if(mapLoadFromFile((void*)&Data->mapName))
 			{
-				wchar_t command[5] = L"load";
-				wchar_t wMapName[9]={0};
-				int *commandPointer=(int*)&command;
-				int *wMapNamePointer=(int*)&wMapName;
-				MultiByteToWideChar(CP_ACP, MB_COMPOSITE, Data->mapName, 8, wMapName, 9);
-				BYTE result[8]={0};
-				memcpy(&result[0], &commandPointer, 4);
-				memcpy(&result[4], &wMapNamePointer, 4);
-				consoleServerMapLoad(1, 2, (void*)&result);
-			}
-			else
-			{
-				guiServerOptionsStartGameMB();
+				if(mapLoadFlags(mapLoadData)&0x60)
+				{
+					teamCreateDefault();
+				}
+				if(sameMap)
+				{
+					wchar_t command[5] = L"load";
+					wchar_t wMapName[9]={0};
+					int *commandPointer=(int*)&command;
+					int *wMapNamePointer=(int*)&wMapName;
+					MultiByteToWideChar(CP_ACP, MB_COMPOSITE, Data->mapName, 8, wMapName, 9);
+					BYTE result[8]={0};
+					memcpy(&result[0], &commandPointer, 4);
+					memcpy(&result[4], &wMapNamePointer, 4);
+					consoleServerMapLoad(1, 2, (void*)&result);
+				}
+				else
+				{
+					guiServerOptionsStartGameMB();
+				}
 			}
 		}
 		lua_settop(L,Top);
@@ -301,8 +326,13 @@ void adminInit(lua_State *L)
 	ASSIGN(serverLessonLimitArr,0x005D5334);
 	ASSIGN(serverTimeLimitArr,0x005D5340);
 	ASSIGN(serverInfoChanged,0x005D5360);
-	ASSIGN(serverModeChange,0x0062F0B6);
+	//ASSIGN(serverModeChange,0x0062F0B6);
 	ASSIGN(consoleServerMapLoad,0x00441910);
+	ASSIGN(mapLoadFromFile,0x004CFE10);// функция загрузки карты из файла
+	ASSIGN(mapLoadData, 0x00974880);// оффсет куда mapLoadFromFile грузит карту
+	ASSIGN(mapLoadFlags, 0x004CFFA0);// функция получения флагов из загруженного файла
+	//ASSIGN(mapCurrentTimeLimit, 0x0040A180);
+	//ASSIGN(mapCurrentFragLimit, 0x0040A020);
 	InjectOffs(0x0043E333+1,&OnGuiUpdate);
 
 	int Top=lua_gettop(L);
