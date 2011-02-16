@@ -956,7 +956,7 @@ void injectCon()
 	guiInit();
 	scoreInit(L);
 	waypointsInit();
-//	cliUntilInit();
+	cliUntilInit();
 
 	InjectJumpTo(0x00443C80,&onConCmd);// Функция реакции на консольную команду
 	InjectOffs(0x4D2AB5,&onEachFrame);
