@@ -361,7 +361,16 @@ void __cdecl onLoadLevel() /// вызывается при загрузке левела (сервером???)
 	}
 
 	mapInitialize();
-
+	int Top=lua_gettop(L);
+	do
+	{
+		getServerVar("onMapLoad");
+		if (!lua_isfunction(L,-1))
+			break;
+		lua_pcall(L,0,0,0);
+		lua_settop(L,Top);
+	}
+	while(0);
 	mapLoadFilesystem(mapGetName());
 	mapLoadSpells();
 }
