@@ -44,10 +44,10 @@ unsigned __stdcall httpGetThread(void *Src);
 HANDLE httpGetThreadH;
 char httpGetResult[0x400]={0};
 char httpGetSrc[0x100]={0};
-char httpGetCallbackActive[0x100]={0};
+int currentHttpGetReference;
 bool alreadyActive=false;
-typedef queue<const char*> CHARQUEUE;
-CHARQUEUE httpGetQueue;
+typedef queue<int> INTQUEUE;
+INTQUEUE httpGetQueue;
 
 bool tgets(char *Buf, int size,SOCKET s,char *&Remain)
 {
@@ -308,45 +308,16 @@ int httpGet(lua_State *L)
 		lua_setfield(L,-2,"uri");
 		lua_remove(L,1);
 	}
-	if (lua_type(L,1)==LUA_TTABLE)
-	{
-		lua_getfield(L,1,"uri");
-		if (lua_type(L,-1)==LUA_TSTRING)
-		{
-			Src[0]=lua_tostring(L,-1);
-		}
-		else
-		{
-			return 1;
-		}
-		lua_getfield(L,1,"callback");
-		if (lua_type(L,-1)==LUA_TSTRING)
-		{
-			Src[1]=lua_tostring(L,-1);
-		}
-		else
-		{
-			Src[1]="onHttpGet";
-		}
-	}
-	else
+	if (lua_type(L,1)!=LUA_TTABLE)
 	{
 		return 1;
 	}
-	if(alreadyActive==false)
-	{
-		
-		httpGetThreadH = (HANDLE)_beginthreadex(NULL, 0, &httpGetThread, (void*)Src[0], 0, NULL);
-		strcpy(httpGetCallbackActive,Src[1]);
-		alreadyActive=true;
-	}
-	else
-	{
-		httpGetQueue.push(Src[0]);
-		httpGetQueue.push(Src[1]);
+	lua_pushvalue(L,1);
+	int reference = luaL_ref(L, LUA_REGISTRYINDEX);
+	httpGetQueue.push(reference);
+		//httpGetQueue.push(Src[1]);
 		//lua_pushstring(L,"already in use");
 		//lua_error_(L);
-	}
 	return 1;
 }
 
@@ -449,25 +420,43 @@ void httpGetCallback(lua_State *L)
 	if(WAIT_OBJECT_0==WaitForSingleObject(httpGetThreadH, 0) && alreadyActive==true)
 	{
 		int Top=lua_gettop(L);
-		getServerVar(httpGetCallbackActive);
-		strcpy(httpGetCallbackActive,"onHttpGet");
-		if (!lua_isfunction(L,-1))
-			return;
-		lua_pushstring(L,httpGetResult);
-		lua_pushstring(L,httpGetSrc);
-		alreadyActive=false;
-		lua_pcall(L,2,0,0);
-		lua_settop(L,Top);
-		if(httpGetQueue.empty()==false)
+		lua_rawgeti(L, LUA_REGISTRYINDEX, currentHttpGetReference);
+		do
 		{
-			const char* uri = httpGetQueue.front();
-			httpGetQueue.pop();
-			const char* cb = httpGetQueue.front();
-			httpGetQueue.pop();
-			httpGetThreadH = (HANDLE)_beginthreadex(NULL, 0, &httpGetThread, (void*)uri, 0, NULL);
-			strcpy(httpGetCallbackActive,cb);
-			alreadyActive=true;
+			lua_getfield(L,Top+1,"callback");
+			if(!lua_isfunction(L,-1))
+			{
+				getServerVar("onHttpGet");
+				if(!lua_isfunction(L,-1))
+					break;
+			}
+			lua_pushstring(L,httpGetResult);
+			lua_pushstring(L,httpGetSrc);
+			alreadyActive=false;
+			lua_pcall(L,2,0,0);
+			break;
 		}
+		while(0);
+		luaL_unref(L, LUA_REGISTRYINDEX, currentHttpGetReference);
+		lua_settop(L,Top);
+	}
+	if(httpGetQueue.empty()==false && alreadyActive==false)
+	{
+		int Top=lua_gettop(L);
+		int reference = httpGetQueue.front();
+		httpGetQueue.pop();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, reference);
+		currentHttpGetReference=reference;
+		if(lua_type(L,Top+1)!=LUA_TTABLE)
+			return;
+		lua_getfield(L,Top+1,"uri");
+		//int type=lua_type(L,-1);
+		if(lua_type(L,-1)!=LUA_TSTRING)
+			return;
+		const char* uri = lua_tostring(L, -1);
+		httpGetThreadH = (HANDLE)_beginthreadex(NULL, 0, &httpGetThread, (void*)uri, 0, NULL);
+		alreadyActive=true;
+		lua_settop(L,Top);
 	}
 	return;
 }
