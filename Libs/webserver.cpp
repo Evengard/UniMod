@@ -26,11 +26,28 @@
 #include <time.h>
 #include <varargs.h>
 #include <sys/stat.h>
-
+#include <process.h>
+#include <list>
+#include <iostream>
+#include <queue>
+#include <deque>
+//#include "stdafx.h"
+using namespace std ;
 #define SERVER "Nox UniMod/0.4.1"
 #define PROTOCOL "HTTP/1.0"
 #define RFC1123FMT "%a, %d %b %Y %H:%M:%S GMT"
 #define PORT 80
+//extern lua_State *L;
+extern void getServerVar(const char *VarName);
+void httpGetCallback();
+unsigned __stdcall httpGetThread(void *Src);
+HANDLE httpGetThreadH;
+char httpGetResult[0x400]={0};
+char httpGetSrc[0x100]={0};
+char httpGetCallbackActive[0x100]={0};
+bool alreadyActive=false;
+typedef queue<const char*> CHARQUEUE;
+CHARQUEUE httpGetQueue;
 
 bool tgets(char *Buf, int size,SOCKET s,char *&Remain)
 {
@@ -281,9 +298,62 @@ extern "C"
 int httpGet(lua_State *L)
 {
 	lua_settop(L,1);
-	lua_pushstring(L,"(http://)?([^%/%:]+)(%:[^%/]+)?%/?(.*)");
+	//lua_pushstring(L,"(http://)?([^%/%:]+)(%:[^%/]+)?%/?(.*)");
+	const char* Src[2]={0};
+	//Src=lua_tostring(L,1);
+	if (lua_type(L,1)==LUA_TSTRING)
+	{
+		lua_newtable(L);
+		lua_pushvalue(L,1);
+		lua_setfield(L,-2,"uri");
+		lua_remove(L,1);
+	}
+	if (lua_type(L,1)==LUA_TTABLE)
+	{
+		lua_getfield(L,1,"uri");
+		if (lua_type(L,-1)==LUA_TSTRING)
+		{
+			Src[0]=lua_tostring(L,-1);
+		}
+		else
+		{
+			return 1;
+		}
+		lua_getfield(L,1,"callback");
+		if (lua_type(L,-1)==LUA_TSTRING)
+		{
+			Src[1]=lua_tostring(L,-1);
+		}
+		else
+		{
+			Src[1]="onHttpGet";
+		}
+	}
+	else
+	{
+		return 1;
+	}
+	if(alreadyActive==false)
+	{
+		
+		httpGetThreadH = (HANDLE)_beginthreadex(NULL, 0, &httpGetThread, (void*)Src[0], 0, NULL);
+		strcpy(httpGetCallbackActive,Src[1]);
+		alreadyActive=true;
+	}
+	else
+	{
+		httpGetQueue.push(Src[0]);
+		httpGetQueue.push(Src[1]);
+		//lua_pushstring(L,"already in use");
+		//lua_error_(L);
+	}
+	return 1;
+}
+
+unsigned __stdcall httpGetThread(void *Src1)
+{
 	const char *Src=0,*Host=0,*Port=0,*Href=0,*P;
-	Src=lua_tostring(L,1);
+	Src=(char*)Src1;
 	if (0==strncmp(Src,"http://",7))
 		Src+=7;
 	Host=Src;
@@ -316,10 +386,13 @@ int httpGet(lua_State *L)
 		strncpy(Buf,Host,P-Host);
 
 	struct addrinfo *result;
+	char HostAddr[0x100] = {0};
+	strcpy(HostAddr, Buf);
 	if (0!=getaddrinfo(Buf,NULL,NULL,&result))
 	{
-		lua_pushstring(L,"httpGet - unable to resolve address");
-		lua_error(L);
+		//lua_pushstring(L,"httpGet - unable to resolve address");
+		//lua_error(L);
+		return 0;
 	}
 	memcpy(&so,result->ai_addr,result->ai_addrlen);
 	so.sin_port=htons(PortV);
@@ -332,14 +405,16 @@ int httpGet(lua_State *L)
 	{
 		R=WSAGetLastError();
 		closesocket(sock);
-		lua_pushstring(L,"httpGet - connect failed");
-		lua_error(L);
+		//lua_pushstring(L,"httpGet - connect failed");
+		//lua_error(L);
 	}
 	strcpy(Buf,"GET ");
 	if (*P==0)
 		P="/";
 	strcat(Buf,P);
-	strcat(Buf," HTTP/1.0\r\n\r\n");
+	strcat(Buf," HTTP/1.0\r\nHost: ");
+	strcat(Buf, HostAddr);
+	strcat(Buf,"\r\n\r\n");
 	R=send(sock,Buf,strlen(Buf),0);
 	if (R<0)
 	{
@@ -355,17 +430,44 @@ int httpGet(lua_State *L)
 		if ((R=recv(sock,Buf,sizeof(Buf),0))>=0)
 		{
 			P=strstr(Buf,"\r\n\r\n");
-			if (P==NULL)
-				lua_pushnil(L);
-			else
-				lua_pushstring(L,P);
+			if (P!=NULL)
+				strcpy(httpGetResult, P+4);
 		}
 		else
 		{
 			R=WSAGetLastError();
-			lua_pushnil(L);
+			//httpGetResult=NULL;
 		}
 	}
 	closesocket(sock);
-	return 1;
+	strcpy(httpGetSrc, Src);
+	return 0;
+}
+
+void httpGetCallback(lua_State *L)
+{
+	if(WAIT_OBJECT_0==WaitForSingleObject(httpGetThreadH, 0) && alreadyActive==true)
+	{
+		int Top=lua_gettop(L);
+		getServerVar(httpGetCallbackActive);
+		strcpy(httpGetCallbackActive,"onHttpGet");
+		if (!lua_isfunction(L,-1))
+			return;
+		lua_pushstring(L,httpGetResult);
+		lua_pushstring(L,httpGetSrc);
+		alreadyActive=false;
+		lua_pcall(L,2,0,0);
+		lua_settop(L,Top);
+		if(httpGetQueue.empty()==false)
+		{
+			const char* uri = httpGetQueue.front();
+			httpGetQueue.pop();
+			const char* cb = httpGetQueue.front();
+			httpGetQueue.pop();
+			httpGetThreadH = (HANDLE)_beginthreadex(NULL, 0, &httpGetThread, (void*)uri, 0, NULL);
+			strcpy(httpGetCallbackActive,cb);
+			alreadyActive=true;
+		}
+	}
+	return;
 }
