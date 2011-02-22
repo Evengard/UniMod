@@ -443,6 +443,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\cliUtil.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\console.cpp"
 					>
 				</File>
