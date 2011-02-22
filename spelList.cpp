@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+extern BYTE *spellDefPtr;
 BYTE **clientPlayerInfoPtr;
 int (__cdecl *spellGetValidMB)(int Spell);
 void *(__cdecl *gLoadImg)(const char *Name);
@@ -617,7 +618,8 @@ void spellListInit()
 	ASSIGN(gLoadImg,0x0042F970);
 
 	ASSIGN(guiSpellListedNumbers,0x006D3F44);
-
+	
+	ASSIGN(spellDefPtr,0x00663EF0);
 	bool useMySpells=false;
 	if (useMySpells) 
 	{
