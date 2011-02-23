@@ -27,10 +27,7 @@
 #include <varargs.h>
 #include <sys/stat.h>
 #include <process.h>
-#include <list>
-#include <iostream>
 #include <queue>
-#include <deque>
 //#include "stdafx.h"
 using namespace std ;
 #define SERVER "Nox UniMod/0.4.1"
