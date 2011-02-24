@@ -974,8 +974,8 @@ void injectCon()
 
 	lua_settop(L,Top);
 
-	lua_pushnil(L);
-	lua_setglobal(L,"os");/// выкинуть вон небезопасную таблицу
+	//lua_pushnil(L);
+	//lua_setglobal(L,"os");/// выкинуть вон небезопасную таблицу
 
 	if (0==luaL_loadfile(L, "autoexec.lua"))
 	{

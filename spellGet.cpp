@@ -527,7 +527,7 @@ extern void InjectAddr(DWORD Addr,void *Fn);
 void spellGetInit()
 {
 
-	ASSIGN(spellDefPtr,0x00663EF0);
+	//ASSIGN(spellDefPtr,0x00663EF0);
 	ASSIGN(spellAbilGetIcon,0x00425310);
 
 	/// абилки в просмотре отдельной книги за воина -- потом поправить
