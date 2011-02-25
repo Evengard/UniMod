@@ -961,16 +961,18 @@ void injectCon()
 	InjectJumpTo(0x00443C80,&onConCmd);// Функция реакции на консольную команду
 	InjectOffs(0x4D2AB5,&onEachFrame);
 
-//#include "lua/binClient/clientOnJoin.lua.inc"
+#include "lua/binClient/clientOnJoin.lua.inc"
+
 	lua_getfield(L,LUA_REGISTRYINDEX,"client");
 	lua_setfenv(L,-2);
 	lua_pcall(L,0,0,0);
-//#include "lua/binServer/chatMode.lua.inc"
+#include "lua/binServer/chatMode.lua.inc"
 	lua_getfield(L,LUA_REGISTRYINDEX,"server");
 	lua_setfenv(L,-2);
 	lua_pcall(L,0,0,0);
-//#include "lua/binGlobal/dofile.lua.inc"
-//#include "lua/binGlobal/filesystem.inc.lua.inc"
+#include "lua/binGlobal/dofile.lua.inc"
+	
+#include "lua/binGlobal/filesystem.inc.lua.inc"
 
 	lua_settop(L,Top);
 
@@ -983,4 +985,5 @@ void injectCon()
 		lua_setfenv(L,-2);
 		lua_pcall(L, 0, 0, 0);
 	}
+//	MessageBox(0,"!",0,0);
 };
