@@ -3,7 +3,10 @@
 
 int (__cdecl *getTTByNameSpriteMB)(void *Key);
 int (__cdecl *createTextBubble)(void *BubbleStruct,wchar_t *Str);
-
+extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
+								void *Buf,int BufSize);
+extern DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
+DWORD *gameFPS=(DWORD*)0x0085B3FC;
 namespace
 {
 	DWORD *frameCounter=(DWORD*)0x0084EA04;
@@ -129,16 +132,17 @@ namespace
 	}
 	struct BubblePacket
 	{
-		byte PacketType;
-		short NetCode;
-		int CoordsMB;
-		byte TimeoutSecMB;
-		short TimeoutFrames;//если 0 - использвоать в секундах
+		byte PacketType;//+0
+		short NetCode;//+1
+		byte Dummy;// +3
+		short PosX,PosY;//+4
+		byte TimeoutSecMB;//+8
+		short TimeoutFrames;//+9 если 0 - использвоать в секундах
 		
 	};
 	int cliShowBubble(lua_State *L) /// теперь получает 3-й аргумент - таблицу
 	{
-		lua_settop(L,2);
+		lua_settop(L,3);
 		if ( (!lua_isnumber(L,1))
 			|| (!lua_isstring(L,2))
 			)
@@ -149,11 +153,118 @@ namespace
 		BubblePacket P;
 		memset(&P,0,sizeof(P));
 		P.NetCode=lua_tointeger(L,1);
-		P.TimeoutSecMB=10;
+		int v=lua_tointeger(L,3);
+		if (v<1 || v>250)
+			v=2;
+		P.TimeoutSecMB=v;
 		wchar_t WBuf[100];
 		mbstowcs(WBuf,lua_tostring(L,2),99);
 		createTextBubble(&P,WBuf);
 		return 0;
+	}
+	//юнит, строка, [таблица кому == всем],[таймаут==2]
+	int createBubble(lua_State *L) /// теперь получает 3-й аргумент - таблицу
+	{
+		lua_settop(L,5);
+
+		int i=2;
+		int x=0,y=0;
+		short Code=0;
+		if (lua_isuserdata(L,1))
+		{
+			void *Unit=lua_touserdata(L,1);
+			if (Unit==0)
+			{
+				lua_pushstring(L,"wrong args!");
+				lua_error_(L);			
+			}
+			Code=netGetUnitCodeServ(Unit);
+		}else if ( lua_isnumber(L,1))
+		{
+			x=lua_tointeger(L,1);
+			y=lua_tointeger(L,2);
+			i++;
+		}
+		else
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+
+		size_t Len;
+		const char *S=lua_tolstring(L,i,&Len);
+		i++;
+		if (lua_istable(L,i))
+		{
+			i++;
+		}
+		int v=lua_tointeger(L,i);
+		if (v<1 || v>250)
+			v=2;
+		if (Len>200)
+			Len=200;
+		BYTE Buf[208],*P=Buf;
+		netUniPacket(upSendBubble,P,Len+6);
+
+		if (Code==0)
+			*((unsigned short*)P)=x;
+		else
+			*((unsigned short*)P)=Code;
+		P+=2;
+		*((unsigned short*)P)=y;
+		P+=2;
+		*(P++)=v;
+		memcpy(P,S,Len+1);
+		P+=Len;
+		for(bigUnitStruct* Plr=playerFirstUnit();Plr!=0;Plr=playerNextUnit(Plr))
+		{
+			if ((Code!=0)?(i!=3):(i!=4))
+			{
+				bool Skip=true;
+				lua_pushnil(L);
+				while (lua_next(L,i-1)!=0)
+				{
+					lua_pushlightuserdata(L,Plr);
+					if (lua_equal(L,-1,-2))
+					{
+						Skip=false;
+						lua_pop(L,3);
+						break;
+					}
+					lua_pop(L,2);
+				}
+				if (Skip)
+					continue;
+			}
+			BYTE *P2=(BYTE*)Plr->unitController;
+			P2+=0x114;P2=*((BYTE **)P2);
+			P2+=0x810;
+			netClientSend(*P2,1,Buf,P-Buf);
+		}
+
+		return 0;
+	}
+	void netOnBubble(BYTE *Packet)
+	{
+
+		BubblePacket P;
+		memset(&P,0,sizeof(P));
+		P.PosX=*((short*)Packet);
+		Packet+=2;
+		P.PosY=*((short*)Packet);
+		Packet+=2;
+		if (P.PosY==0)
+		{
+			P.NetCode=P.PosX;
+			P.PosX=0;
+		}
+		int v=*(Packet++);
+		if (v<1 || v>250)
+			v=2;
+		P.TimeoutFrames= v * (*gameFPS);
+		wchar_t WBuf[240];
+		mbstowcs(WBuf,(char*)Packet,240);
+		createTextBubble(&P,WBuf);
 	}
 }
 
@@ -180,6 +291,8 @@ void cliUntilInit()
 	registerClientVar("cliSetTimeout");
 
 	registerclient("cliBubble",&cliShowBubble);
+	registerserver("createBubble",&createBubble);
+	netRegClientPacket(upSendBubble,&netOnBubble);
 
 	InjectOffs(0x00475834+1,&asmToCliTimer);
 
