@@ -24,7 +24,7 @@ void *(__cdecl *netGetUnitByExtent)(DWORD NetCode);/// только для динамических (
 
 void (__cdecl *netSendShieldFx)(void *Unit,noxPoint* From);
 
-extern "C" void conSendToServer(char *Cmd);
+extern "C" void conSendToServer(const char *Cmd);
 extern "C" int conDoCmd(char *Cmd,bool &PrintNil);
 
 extern void netOnTileChanged(BYTE *Buf,BYTE *End);
@@ -65,7 +65,7 @@ void netSendAll(void *Buf,int BufSize)
 	}
 	
 }
-void conSendToServer(char *Src)
+void conSendToServer(const char *Src)
 {
 	BYTE Buf[255],*P=Buf;
 	size_t Size=strlen(Src)+1;
@@ -79,6 +79,13 @@ void conSendToServer(char *Src)
 
 }
 namespace {
+	int sendToServer(lua_State *L)
+	{
+		const char *S=lua_tostring(L,1);
+		if (S)
+			conSendToServer(S);
+		return 0;
+	}
 	int netGetCodeServL(lua_State *L)
 	{
 		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
@@ -489,7 +496,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 			break;
 		case upLuaRq:
 			char Buf[200];bool Unused;
-			strncpy(Buf,(char *)P,199);Buf[200]=0;
+			strncpy(Buf,(char *)P,199);Buf[199]=0;
 			conDoCmd(Buf,Unused);
 			sprintf(Buf,"cmd %s",P);
 			conPrintI(Buf);
@@ -554,4 +561,5 @@ void netInit()
 	registerserver("netFake",&netFake);
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
+	registerclient("netToServer",&sendToServer);
 }

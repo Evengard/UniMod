@@ -48,6 +48,7 @@ enum uniPacket_e
 	upChangeTile, /// сервер меняет тайл
 	upSpellStart,/// сервер сообщает старт спелла
 	upSpellSync, /// сервер сообщаем всем свежий список спелов
+	upSendBubble,/// сервер хочет создать чат
 };
 // приписать к буферу наш заголовок для отправки
 void netUniPacket(uniPacket_e Code,BYTE *&Data,int Size);
