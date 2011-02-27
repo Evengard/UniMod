@@ -2,6 +2,7 @@
 #include <list>
 
 int (__cdecl *getTTByNameSpriteMB)(void *Key);
+int (__cdecl *createTextBubble)(void *BubbleStruct,wchar_t *Str);
 
 namespace
 {
@@ -26,7 +27,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		lua_pushlightuserdata(L,cliSetTimeoutL);/// функции
+		lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
 		lua_gettable(L,LUA_REGISTRYINDEX);
 			lua_pushinteger(L,cliTimeoutNextId);
 			lua_pushvalue(L,1);
@@ -58,7 +59,7 @@ namespace
 		int Top=lua_gettop(L);
 		lua_pushlightuserdata(L,&cliTimeoutNextId);/// таблица аргументов
 		lua_gettable(L,LUA_REGISTRYINDEX);
-		lua_pushlightuserdata(L,cliSetTimeoutL);/// таблица функций
+		lua_pushlightuserdata(L,&cliSetTimeoutL);/// таблица функций
 		lua_gettable(L,LUA_REGISTRYINDEX);
 
 		for (std::list<cliTimeoutListRec>::iterator I=cliTimeoutList.begin();I!=cliTimeoutList.end();)
@@ -71,17 +72,12 @@ namespace
 				lua_gettable(L,-2);
 				if(lua_type(L,-1)==LUA_TFUNCTION)
 				{
-				/*	lua_getfenv(L,-1);
-					lua_pushvalue(L,-2);
-					lua_getfield(L,-2,"conOutput");// conOutput функция енв функция
-					lua_insert(L,-2);// функция conOutput енв функция
-					lua_pushnil(L);
-					lua_setfield(L,-4,"conOutput"); */	
+
 
 					lua_pushinteger(L,Time);
 					lua_pushinteger(L,I->Id);
 					// таблица с аргументом
-					lua_gettable(L,-8); // id,Time,Fn, conOutput, env, fn, {Fns},{Args}
+					lua_gettable(L,-5); // id,Time,Fn, {Fns},{Args}
 					if (0!=lua_pcall(L,2,0,0))
 					{
 						char Err[250];
@@ -126,23 +122,55 @@ namespace
 	{
 		__asm
 		{
-			call getTTByNameSpriteMB
 			call cliOnEachFrame
-			push 0x47582C 
+			push 0x00477F80
 			ret
 		}
 	}
-
-
+	struct BubblePacket
+	{
+		byte PacketType;
+		short NetCode;
+		int CoordsMB;
+		byte TimeoutSecMB;
+		short TimeoutFrames;//если 0 - использвоать в секундах
+		
+	};
+	int cliShowBubble(lua_State *L) /// теперь получает 3-й аргумент - таблицу
+	{
+		lua_settop(L,2);
+		if ( (!lua_isnumber(L,1))
+			|| (!lua_isstring(L,2))
+			)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		BubblePacket P;
+		memset(&P,0,sizeof(P));
+		P.NetCode=lua_tointeger(L,1);
+		P.TimeoutSecMB=10;
+		wchar_t WBuf[100];
+		mbstowcs(WBuf,lua_tostring(L,2),99);
+		createTextBubble(&P,WBuf);
+		return 0;
+	}
 }
 
-extern void InjectJumpTo(DWORD Addr,void *Fn);
+extern void InjectOffs(DWORD Addr,void *Fn);
 
 void cliUntilInit()
 {
 	ASSIGN(getTTByNameSpriteMB,0x044CFC0);
+	ASSIGN(createTextBubble,0x0048D880);
 
-
+	lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
+	lua_newtable(L);
+	lua_settable(L,LUA_REGISTRYINDEX);
+	lua_pushlightuserdata(L,&cliTimeoutNextId);/// значения
+	lua_newtable(L);
+	lua_settable(L,LUA_REGISTRYINDEX);
+	
 
 	lua_pushcfunction(L,&cliSetTimeoutL); 
 	// очень важная функция, ее надо в реестр луа класть 
@@ -151,6 +179,8 @@ void cliUntilInit()
 	lua_setfield(L,LUA_REGISTRYINDEX,"CliSetTimeout");
 	registerClientVar("cliSetTimeout");
 
-	InjectJumpTo(0x475827,&asmToCliTimer);
+	registerclient("cliBubble",&cliShowBubble);
+
+	InjectOffs(0x00475834+1,&asmToCliTimer);
 
 }

@@ -5,7 +5,7 @@
 +) Появление обелисков
 ) Респавны юнитов
 +.) Свойства стен
-+.) Баффы оружия/брони (исследовал но не могу применять)
++) Баффы оружия/брони (исследовал но не могу применять)
 
 Eще поправки
 +1) Чтобы юнит можно было двигать
@@ -835,7 +835,7 @@ void injectCon()
 	ASSIGN(oldCreateAtPart,0x004DAA55);// Возврат
 	ASSIGN(noxAlloc,0x00403560);
 	ASSIGN(noxCAlloc,0x004041D0);
-	ASSIGN(noxFree,0x40425D);
+	ASSIGN(noxFree,0x0040425D);
 
 	InjectJumpTo(0x004DAA50,&noxMyCreateAt);
 
@@ -985,5 +985,5 @@ void injectCon()
 		lua_setfenv(L,-2);
 		lua_pcall(L, 0, 0, 0);
 	}
-//	MessageBox(0,"!",0,0);
+	MessageBox(0,"!",0,0);
 };
