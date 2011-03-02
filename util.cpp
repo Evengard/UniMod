@@ -985,5 +985,5 @@ void injectCon()
 		lua_setfenv(L,-2);
 		lua_pcall(L, 0, 0, 0);
 	}
-	MessageBox(0,"!",0,0);
+	//MessageBox(0,"!",0,0);
 };

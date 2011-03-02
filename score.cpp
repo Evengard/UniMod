@@ -1,8 +1,11 @@
 #include "stdafx.h"
+#include <deque>
+#include <algorithm>
 /*
 Здесь начисление/получение фрагов и т.п.
 */
 extern DWORD *GameFlags;
+extern int playersListL(lua_State *L);
 void teamCreateDefault(int TeamNum, bool notRestrict);
 int minTeams=2;
 bool restrictTeams=false;
@@ -454,7 +457,7 @@ l1:
 				(lua_type(L,-1)!=LUA_TNUMBER)
 			)
 			{
-				lua_pushstring(L,"wrong args!");
+				lua_pushstring(L,"wrong team args!");
 				lua_error_(L);
 			}
 			pTeam *Team=0;
@@ -487,7 +490,7 @@ l1:
 				(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
 				)
 			{
-				lua_pushstring(L,"wrong args!");
+				lua_pushstring(L,"wrong player args!");
 				lua_error_(L);
 			}
 			DWORD *DW=(DWORD*)lua_touserdata(L,-1);
@@ -512,6 +515,75 @@ l1:
 			{
 				noxCreateAtImpl(Team->teamId, (void*)Common, 1, NetCode, 1);
 			}
+		}
+		return 1;
+	}
+
+	int teamAutoAssign(lua_State *L)
+	{
+		playersListL(L); //1 - table
+		if(lua_type(L, -1)==LUA_TTABLE)
+		{
+			std::deque<void*> players;
+			int i=1;
+			while(true)
+			{
+				lua_pushinteger(L, i);
+				lua_gettable(L, -2);
+				if(lua_type(L, -1)!=LUA_TLIGHTUSERDATA)
+					break;
+				players.push_back(lua_touserdata(L, -1));
+				i++;
+				lua_remove(L, -1);
+			}
+			lua_remove(L,-1);
+			random_shuffle(players.begin(), players.end());
+			std::deque<void*> teams;
+			if(noxGetTeamFirst()==NULL)
+				return 1;
+			teams.push_back(noxGetTeamFirst());
+			while(true)
+			{
+				if(noxGetTeamNext(teams.back())!=NULL)
+					teams.push_back(noxGetTeamNext(teams.back()));
+				else
+					break;
+			}
+			random_shuffle(teams.begin(), teams.end());
+			while(true)
+			{
+				if(teams.empty()==true)
+					break;
+				for (pTeam *Team=(pTeam*)teams.front();Team!=NULL;Team=(pTeam*)teams.front())
+				{
+					/*lua_newtable(L);
+					lua_pushlightuserdata(L, Team);
+					lua_setfield(L, -2, "team");
+					lua_pushlightuserdata(L, players.front());
+					lua_setfield(L, -2, "player");*/
+					void **PP=(void **)(((char*)players.front())+0x2EC);
+					PP=(void**)(((char*)*PP)+0x114);
+					byte *P=(byte*)(*PP);
+					int NetCode=*((short*)(P+0x80C));
+					byte *Common=(byte *)netCommonByCode(NetCode);
+					int TeamId=*(Common+4);
+					void *TeamTest=NULL;
+					TeamTest=(byte *)noxGetTeamByN(TeamId);
+					if(TeamTest!=NULL)
+					{
+						noxTeamChange((void*) Common, (void*) Team, NetCode, 1);
+					}
+					else
+					{
+						noxCreateAtImpl(Team->teamId, (void*)Common, 1, NetCode, 1);
+					}
+					players.pop_front();
+					teams.pop_front();
+					if(players.empty())
+						goto PLAYERS_END;
+				}
+			}
+PLAYERS_END:;
 		}
 		return 1;
 	}
@@ -594,6 +666,7 @@ void scoreInit(lua_State *L)
 	registerserver("teamCreate",&teamCreate);
 	registerserver("teamDelete",&teamDelete);
 	registerserver("teamAssign",&teamAssign);
+	registerserver("teamAutoAssign",&teamAutoAssign);
 	registerclient("playerInfo",&playerInfo);
 	registerclient("httpGet",&httpGet);
 	

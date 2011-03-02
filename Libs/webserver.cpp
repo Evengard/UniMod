@@ -43,8 +43,7 @@ char httpGetResult[0x400]={0};
 char httpGetSrc[0x100]={0};
 int currentHttpGetReference;
 bool alreadyActive=false;
-typedef queue<int> INTQUEUE;
-INTQUEUE httpGetQueue;
+queue<int> httpGetQueue;
 
 bool tgets(char *Buf, int size,SOCKET s,char *&Remain)
 {

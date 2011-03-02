@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <math.h>
 
+int playersListL(lua_State *L);
 void (__cdecl *unitSetFollow)(void* Me,void *Him);
 void (__cdecl *unitBecomePet)(void* Me,void *Him);
 void (__cdecl *noxFrozen) (void* Unit,int Num);
@@ -38,6 +39,28 @@ void (__cdecl *noxDeleteObject)(void *Unit);
 
 unitBigStructPtr	(__cdecl* objectCreateByName)(char const *ObjName);
 void 				(__cdecl* noxCreateAt)(unitBigStructPtr Obj,unitBigStructPtr ParentUnit, float X,float Y);
+
+
+int playersListL(lua_State *L)
+{
+	void *P;
+	P=playerFirstUnit();
+	if(P==0)
+	{
+		lua_pushnil(L);		
+		return 1;
+	}
+	lua_newtable(L);
+	int i=1;
+	while(P!=0)
+	{
+		lua_pushinteger(L,i++);
+		lua_pushlightuserdata(L,P);
+		lua_settable(L,-3);
+		P=playerNextUnit(P);
+	}
+	return 1;
+}
 
 namespace
 {
@@ -177,26 +200,6 @@ namespace
 		lua_pushinteger(L,*((int*)B));B+=4;
 		lua_pushinteger(L,*((int*)B));
 		return 2;
-	}
-	int playersListL(lua_State *L)
-	{
-		void *P;
-		P=playerFirstUnit();
-		if(P==0)
-		{
-			lua_pushnil(L);		
-			return 1;
-		}
-		lua_newtable(L);
-		int i=1;
-		while(P!=0)
-		{
-			lua_pushinteger(L,i++);
-			lua_pushlightuserdata(L,P);
-			lua_settable(L,-3);
-			P=playerNextUnit(P);
-		}
-		return 1;
 	}
 	int unitSetFollowL(lua_State*L)
 	{
