@@ -170,6 +170,75 @@ l1:
 		}
 		return 1;
 	}
+
+	int playerGetByName(lua_State *L)
+	{
+		if(lua_type(L, -1)==LUA_TSTRING)
+		{
+			const char *S=lua_tostring(L,-1);
+			bool found=false;
+			for(void *Pl=playerFirstUnit(); Pl!=0; Pl=playerNextUnit(Pl))
+			{
+				void **PP=(void **)(((char*)Pl)+0x2EC);
+				PP=(void**)(((char*)*PP)+0x114);
+				byte *P=(byte*)(*PP);
+				char Name[0x50]={0};
+				wcstombs(Name,((wchar_t*)(P+0x1260)),0x50);
+				if(strcmp(Name,S)==0)
+				{
+					found=true;
+					lua_pushlightuserdata(L, Pl);
+					break;
+				}
+			}
+			if(found==false)
+			{
+				lua_pushstring(L,"not found!");
+				lua_error_(L);
+			}
+		}
+		else
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		return 1;
+	}
+
+	int playerGetByWOL(lua_State *L)
+	{
+		if(lua_type(L, -1)==LUA_TSTRING)
+		{
+			const char *S=lua_tostring(L,-1);
+			bool found=false;
+			for(void *Pl=playerFirstUnit(); Pl!=0; Pl=playerNextUnit(Pl))
+			{
+				void **PP=(void **)(((char*)Pl)+0x2EC);
+				PP=(void**)(((char*)*PP)+0x114);
+				byte *P=(byte*)(*PP);
+				char WOL[0x20]={0};
+				strncpy(WOL,((char*)(P+0x830)),0x20);
+				if(strcmp(WOL,S)==0)
+				{
+					found=true;
+					lua_pushlightuserdata(L, Pl);
+					break;
+				}
+			}
+			if(found==false)
+			{
+				lua_pushstring(L,"not found!");
+				lua_error_(L);
+			}
+		}
+		else
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		return 1;
+	}
+
 	int playerInfo(lua_State *L)
 	{
 		lua_settop(L,1);
@@ -668,6 +737,8 @@ void scoreInit(lua_State *L)
 	registerserver("teamAssign",&teamAssign);
 	registerserver("teamAutoAssign",&teamAutoAssign);
 	registerclient("playerInfo",&playerInfo);
+	registerclient("playerGetByName",&playerGetByName);
+	registerclient("playerGetByWOL",&playerGetByWOL);
 	registerclient("httpGet",&httpGet);
 	
 }
