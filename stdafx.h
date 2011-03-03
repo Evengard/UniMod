@@ -433,3 +433,4 @@ struct ParseAttrib /// для всяких парсеров всяких структур
 	int argA;
 	void *argB;
 };
+#define goto wtf юзать гоуту нельзя
