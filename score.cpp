@@ -550,7 +550,7 @@ l1:
 					break;
 			}
 			random_shuffle(teamsList.begin(), teamsList.end());
-			while(true)
+			while(!players.empty())
 			{
 				std::deque<void*> teams(teamsList);
 				if(teams.empty()==true)
@@ -581,10 +581,9 @@ l1:
 					players.pop_front();
 					teams.pop_front();
 					if(players.empty())
-						goto PLAYERS_END;
+						break;
 				}
 			}
-PLAYERS_END:;
 		}
 		return 1;
 	}
