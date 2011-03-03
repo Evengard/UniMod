@@ -538,20 +538,21 @@ l1:
 			}
 			lua_remove(L,-1);
 			random_shuffle(players.begin(), players.end());
-			std::deque<void*> teams;
+			std::deque<void*> teamsList;
 			if(noxGetTeamFirst()==NULL)
 				return 1;
-			teams.push_back(noxGetTeamFirst());
+			teamsList.push_back(noxGetTeamFirst());
 			while(true)
 			{
-				if(noxGetTeamNext(teams.back())!=NULL)
-					teams.push_back(noxGetTeamNext(teams.back()));
+				if(noxGetTeamNext(teamsList.back())!=NULL)
+					teamsList.push_back(noxGetTeamNext(teamsList.back()));
 				else
 					break;
 			}
-			random_shuffle(teams.begin(), teams.end());
+			random_shuffle(teamsList.begin(), teamsList.end());
 			while(true)
 			{
+				std::deque<void*> teams(teamsList);
 				if(teams.empty()==true)
 					break;
 				for (pTeam *Team=(pTeam*)teams.front();Team!=NULL;Team=(pTeam*)teams.front())
