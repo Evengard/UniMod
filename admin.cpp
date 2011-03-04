@@ -28,6 +28,12 @@ void (__cdecl *serverBanRemove)(int N);
 time_t (__cdecl *_time)(time_t *N);
 
 void *(__cdecl *memListNext)(void *Item);
+void *(__cdecl *noxMapCycleNext)();
+void *(__cdecl *mapLoadName)(char* mapName);
+bool (__cdecl *noxMapCycleEnabledCheck)();
+bool mapNextSameForced=false;
+char nextMapOverride[0x16]={0};
+bool isNewGame=false;
 
 //int (__cdecl *mapCurrentFragLimit)(short gameFlags);
 //int (__cdecl *mapCurrentTimeLimit)(short gameFlags);
@@ -131,6 +137,362 @@ namespace
 		lua_setfield(L,LUA_REGISTRYINDEX,"formGameTable");
 		return 0;
 	}
+
+	int formNextGame(lua_State *L)
+	{
+		lua_settop(L,1);
+		if (lua_type(L,1)==LUA_TSTRING)
+		{
+			lua_newtable(L);
+			lua_pushvalue(L,1);
+			lua_setfield(L,-2,"map");
+			lua_remove(L,1);
+		}
+		if (lua_type(L,1)==LUA_TTABLE)
+		{
+			lua_getfield(L,1,"disable");
+			if (lua_type(L,-1)!=LUA_TNIL)
+			{
+				if (0!=lua_toboolean(L,-1))
+				{
+					lua_pushnil(L);
+					lua_setfield(L,LUA_REGISTRYINDEX,"formNextGameTable");
+					return 0;
+				}
+			}
+			lua_remove(L,-1);
+		}
+		if (lua_type(L,1)!=LUA_TTABLE)
+		{
+				lua_newtable(L);
+				lua_pushboolean(L,true);
+				lua_setfield(L,-2,"reload");
+				lua_remove(L,1);
+		}
+		lua_setfield(L,LUA_REGISTRYINDEX,"formNextGameTable");
+		return 0;
+	}
+	
+	bool __cdecl onMapCycleEnabledCheck()
+	{
+		lua_getfield(L,LUA_REGISTRYINDEX,"formNextGameTable");
+		if (lua_type(L,-1)==LUA_TTABLE)
+		{
+			return true;
+		}
+		else
+			return noxMapCycleEnabledCheck();
+	}
+
+	void* __cdecl onLoadMapCycle()
+	{
+		if(mapNextSameForced)
+		{
+			mapNextSameForced=false;
+			return nextMapOverride;
+		}
+		int Top=lua_gettop(L);
+		bool sameMap = false;
+		//bool dontUseGUIFunc = false;
+		bool newGame=false;
+		void *result=NULL;
+		lua_getfield(L,LUA_REGISTRYINDEX,"formNextGameTable");
+		if (lua_type(L,Top+1)==LUA_TTABLE)
+		{
+			lua_getfield(L,Top+1,"new");
+			if (lua_type(L,-1)!=LUA_TNIL)
+			{
+				if (0!=lua_toboolean(L,-1))
+				{
+					newGame=true;
+				}
+			}
+			ServerData *Data=(ServerData*)serverGetGameDataBySel();
+			strncpy(Data->mapName, mapGetName(),0x8);
+			Data->gameFlags=(__int16)*GameFlags;
+			//__int16 GameFlagsTruncated = (__int16)*GameFlags;
+			//memcpy(Data->fragLimit,GameFlagsTruncated,0x2);
+			//Data->fragLimit=(__int16)mapCurrentFragLimit((__int16)*GameFlags);
+			//Data->timeLimitMB=(__int16)mapCurrentTimeLimit((__int16)*GameFlags);
+			lua_getfield(L,Top+1,"map");
+			if (lua_type(L,-1)!=LUA_TNIL)
+			{
+				char Buf[16]={0};
+				strncpy(Buf,lua_tostring(L,-1),16);
+				char *P;
+				P=strstr(Buf,".map");
+				if (P!=NULL)
+				{
+					*P=0;
+				}
+				lua_getfield(L,Top+1,"reload");
+				if(strcmp(Buf,mapGetName())==0 && (lua_type(L,-1)!=LUA_TNIL && 0!=lua_toboolean(L,-1)))
+				{
+					strncpy(Data->mapName,mapGetName(),8);
+					sameMap=true;
+				}
+				else
+				{
+					strncpy(Data->mapName,Buf,8);
+					sameMap=false;
+				}
+				if(strcmp(Buf,mapGetName())==0)
+				{
+					sameMap=true;
+				}
+			}
+			else
+			{
+				lua_getfield(L,Top+1,"reload");
+				if(lua_type(L,-1)!=LUA_TNIL && 0!=lua_toboolean(L,-1))
+				{
+					strncpy(Data->mapName,mapGetName(),8);
+					sameMap=true;
+				}
+				//sameMap=true;
+			}
+			if(mapLoadFromFile((void*)&Data->mapName))
+			{
+				__int16 availableMode=(__int16)mapLoadFlags(mapLoadData);
+				lua_getfield(L,Top+1,"mode");
+				const char *Mode=lua_tostring(L,-1);
+				int Index=0;
+				if (Mode!=NULL)
+				{
+					bool modeSet=false;
+					if (0==strcmpi(Mode,"ctf") && (availableMode&0x20))
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x20;
+						modeSet=true;
+					}
+					else if (0==strcmpi(Mode,"kotr") && (availableMode&0x10))
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x10;
+						modeSet=true;
+					}
+					else if ((0==strcmpi(Mode,"highlander") || 0==strcmpi(Mode,"elimination")) && (availableMode&0x400))
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x400;
+						modeSet=true;
+					}
+					else if ((0==strcmpi(Mode,"gameball") || 0==strcmpi(Mode,"flagball")) && (availableMode&0x40))
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x40;
+						modeSet=true;
+					}
+					/*else if (0==strcmpi(Mode,"quest"))
+					{
+						Data->gameFlags=0x3007;
+					}*///От греха, а то грузить напрямую слишком бажно. Лучше уж полностью сервак с нуля пересоздавать...
+					else if (0==strcmpi(Mode,"arena") && (availableMode&0x100))
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x100;//arena
+						modeSet=true;
+					}
+					else
+					{
+						__int16 currentGameFlags=(__int16)*GameFlags&0x1FF0;
+						if(availableMode&currentGameFlags) //Если игра поддерживает текущий режим игры
+						{
+							Data->gameFlags=Data->gameFlags&0xE00F;
+							Data->gameFlags=Data->gameFlags|currentGameFlags;
+						}
+						else if(availableMode&0x100) //arena
+						{
+							Data->gameFlags=Data->gameFlags&0xE00F;
+							Data->gameFlags=Data->gameFlags|0x100;
+						}
+						else if(availableMode&0x20) //ctf
+						{
+							Data->gameFlags=Data->gameFlags&0xE00F;
+							Data->gameFlags=Data->gameFlags|0x20;
+						}
+						else if(availableMode&0x40) //flagball
+						{
+							Data->gameFlags=Data->gameFlags&0xE00F;
+							Data->gameFlags=Data->gameFlags|0x40;
+						}
+						else if(availableMode&0x80) //chat
+						{
+							Data->gameFlags=Data->gameFlags&0xE00F;
+							Data->gameFlags=Data->gameFlags|0x80;
+						}
+						else if(availableMode&0x400) //elim
+						{
+							Data->gameFlags=Data->gameFlags&0xE00F;
+							Data->gameFlags=Data->gameFlags|0x400;
+						}
+						else if(availableMode&0x10) //kotr
+						{
+							Data->gameFlags=Data->gameFlags&0xE00F;
+							Data->gameFlags=Data->gameFlags|0x10;
+						}
+						else //Все остальные пробуем загрузить с текущими флагами
+						{
+							Data->gameFlags=Data->gameFlags&0xE00F;
+							Data->gameFlags=Data->gameFlags|currentGameFlags;
+						}
+					}
+					//*serverModeChange=*serverModeChange&0x0E80;
+					//*serverModeChange=*serverModeChange&Data->gameFlags;
+					if(modeSet==true && strcmp(Data->mapName,mapGetName())==0)
+					{
+						sameMap=true;
+					}
+				}
+				else if(newGame==false)
+				{
+					__int16 currentGameFlags=(__int16)*GameFlags&0x1FF0;
+					if(availableMode&currentGameFlags) //Если игра поддерживает текущий режим игры
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|currentGameFlags;
+					}
+					else if(availableMode&0x100) //arena
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x100;
+					}
+					else if(availableMode&0x20) //ctf
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x20;
+					}
+					else if(availableMode&0x40) //flagball
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x40;
+					}
+					else if(availableMode&0x80) //chat
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x80;
+					}
+					else if(availableMode&0x400) //elim
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x400;
+					}
+					else if(availableMode&0x10) //kotr
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|0x10;
+					}
+					else //Все остальные пробуем загрузить с текущими флагами
+					{
+						Data->gameFlags=Data->gameFlags&0xE00F;
+						Data->gameFlags=Data->gameFlags|currentGameFlags;
+					}
+				}
+
+				if (newGame==true)
+				{
+					
+					Data->gameFlags=Data->gameFlags&0xE00F;
+					Data->gameFlags=Data->gameFlags|0x80;
+					Data->isNew=1;
+					//sameMap=false;
+					isNewGame=true;
+					if(strcmp(Data->mapName,mapGetName())==0 && availableMode&0x80)
+						sameMap=true;
+					//*serverModeChange=*serverModeChange&0x0E80;
+					//*serverModeChange=*serverModeChange&Data->gameFlags;
+				}
+				Index=serverModeIndexByModeFlags(Data->gameFlags);
+				lua_getfield(L,Top+1,"fraglimit");
+				if (lua_type(L,-1)!=LUA_TNIL)
+				{
+					Data->fragLimit=lua_tointeger(L,-1);
+					serverLessonLimitArr[Index]=Data->fragLimit;
+					*serverInfoChanged=1;
+				}
+				
+				lua_getfield(L,Top+1,"timelimit");
+				if (lua_type(L,-1)!=LUA_TNIL)
+				{
+					Data->timeLimitMB=lua_tointeger(L,-1);
+					serverTimeLimitArr[Index]=Data->timeLimitMB;
+					*serverInfoChanged=1;
+				}
+				
+				
+				lua_pushnil(L);
+				lua_setfield(L,LUA_REGISTRYINDEX,"formNextGameTable");
+				
+				if(mapLoadFlags(mapLoadData)&0x60 && newGame==false)
+				{
+					teamCreateDefault(2);
+				}
+				else
+				{
+					teamCreateDefault(-1);
+				}
+				/*if(sameMap)
+				{
+					wchar_t command[5] = L"load";
+					wchar_t wMapName[9]={0};
+					int *commandPointer=(int*)&command;
+					int *wMapNamePointer=(int*)&wMapName;
+					MultiByteToWideChar(CP_ACP, MB_COMPOSITE, Data->mapName, 8, wMapName, 9);
+					BYTE result[8]={0};
+					memcpy(&result[0], &commandPointer, 4);
+					memcpy(&result[4], &wMapNamePointer, 4);
+					consoleServerMapLoad(1, 2, (void*)&result);
+				}
+				else if(dontUseGUIFunc==false)
+				{
+					guiServerOptionsStartGameMB();
+				}*/
+				nextMapOverride[0]='\0';
+				strcpy(nextMapOverride, Data->mapName);
+				strcat(nextMapOverride, ".map");
+				result=nextMapOverride;
+				if(sameMap)
+					mapNextSameForced=true;
+			}
+			else
+			{
+				if(noxMapCycleEnabledCheck())
+					result=noxMapCycleNext();
+				else
+				{
+					mapNextSameForced=true;
+					return onLoadMapCycle();
+				}
+
+			}
+		}
+		else
+		{
+			if(noxMapCycleEnabledCheck())
+				result=noxMapCycleNext();
+			else
+			{
+				mapNextSameForced=true;
+				return onLoadMapCycle();
+			}
+		}
+		lua_settop(L,Top);
+		return result;
+	}
+
+	void onMapLoadName(char* mapName)
+	{
+		if(isNewGame)
+		{
+			isNewGame=false;
+			guiServerOptionsStartGameMB();
+		}
+		else
+			mapLoadName(mapName);
+	}
+
+
 	int banGetList(lua_State *L)
 	{
 		lua_createtable(L,5,0);
@@ -485,13 +847,20 @@ void adminInit(lua_State *L)
 	//ASSIGN(serverModeChange,0x0062F0B6);
 	ASSIGN(consoleServerMapLoad,0x00441910);
 	ASSIGN(mapLoadFromFile,0x004CFE10);// функция загрузки карты из файла
+	ASSIGN(mapLoadName,0x00409D70);// функция загрузки карты из файла - используется при загрузке из мапцикла
 	ASSIGN(mapLoadData, 0x00974880);// оффсет куда mapLoadFromFile грузит карту
 	ASSIGN(mapLoadFlags, 0x004CFFA0);// функция получения флагов из загруженного файла
 	//ASSIGN(mapCurrentTimeLimit, 0x0040A180);
 	//ASSIGN(mapCurrentFragLimit, 0x0040A020);
+	ASSIGN(noxMapCycleNext, 0x004D0CF0);
 	ASSIGN(_time,0x00566BD3);
+	ASSIGN(noxMapCycleEnabledCheck, 0x004D0D70);
+	InjectOffs(0x004D280B+1,&onMapCycleEnabledCheck); //Обход проверки на вкл. мапцикл если использовалась formNextGame
 	InjectOffs(0x0043E333+1,&OnGuiUpdate);
 	InjectOffs(0x00413D37+1,&onEndGame);
+	InjectOffs(0x004D281D+1,&onLoadMapCycle); //Хук на мапцикл
+	InjectOffs(0x004D283F+1,&onLoadMapCycle); //Хук на мапцикл
+	InjectOffs(0x004D284F+1,&onMapLoadName); //Поддержка new=1 в formNextGame (а вообще походу костыль)
 
 	int Top=lua_gettop(L);
 	if (0!=luaL_loadstring(L,
@@ -521,6 +890,7 @@ void adminInit(lua_State *L)
 	lua_setfield(L,LUA_REGISTRYINDEX,"serverFn");
 	registerserver("httpServer",&httpServerL);
 	registerserver("formGame",&formGame);
+	registerserver("formNextGame",&formNextGame);
 	registerserver("banList",&banGetList);
 	registerserver("banRemove",&banRemove);
 	lua_settop(L,Top);
