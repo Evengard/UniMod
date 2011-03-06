@@ -31,6 +31,12 @@ void *(__cdecl *memListNext)(void *Item);
 void *(__cdecl *noxMapCycleNext)();
 void *(__cdecl *mapLoadName)(char* mapName);
 bool (__cdecl *noxMapCycleEnabledCheck)();
+int (__cdecl *loadCfg)(char* fileName, int arg2);
+int (__cdecl *saveCfg)(char* fileName);
+int (__cdecl *loadBanList)(char* fileName);
+int (__cdecl *saveBanList)(char* fileName);
+void (__cdecl *flushBanList)(void* ptr);
+
 bool mapNextSameForced=false;
 char nextMapOverride[0x16]={0};
 bool isNewGame=false;
@@ -136,6 +142,45 @@ namespace
 		}
 		lua_setfield(L,LUA_REGISTRYINDEX,"formGameTable");
 		return 0;
+	}
+
+
+	int loadCfgL(lua_State *L)
+	{
+		loadCfg("nox.cfg", 1);
+		return 1;
+	}
+
+	int saveCfgL(lua_State *L)
+	{
+		saveCfg("nox.cfg");
+		return 1;
+	}
+
+	int saveBanListL(lua_State *L)
+	{
+		saveBanList("ban.txt");
+		return 1;
+	}
+
+	int loadBanListL(lua_State *L)
+	{
+		loadBanList("ban.txt");
+		return 1;
+	}
+
+	int flushBanListL(lua_State *L)
+	{
+		flushBanList((void*)0x62F038);
+		flushBanList((void*)0x62F0C0);
+		return 1;
+	}
+
+	int reloadBanListL(lua_State *L)
+	{
+		flushBanListL(L);
+		loadBanList("ban.txt");
+		return 1;
 	}
 
 	int formNextGame(lua_State *L)
@@ -855,6 +900,12 @@ void adminInit(lua_State *L)
 	ASSIGN(noxMapCycleNext, 0x004D0CF0);
 	ASSIGN(_time,0x00566BD3);
 	ASSIGN(noxMapCycleEnabledCheck, 0x004D0D70);
+	ASSIGN(loadCfg, 0x004317B0);
+	ASSIGN(saveCfg, 0x00433290);
+	ASSIGN(loadBanList, 0x004E41B0);
+	ASSIGN(saveBanList, 0x004E43F0);
+	ASSIGN(flushBanList, 0x00425760);
+
 	InjectOffs(0x004D280B+1,&onMapCycleEnabledCheck); //Обход проверки на вкл. мапцикл если использовалась formNextGame
 	InjectOffs(0x0043E333+1,&OnGuiUpdate);
 	InjectOffs(0x00413D37+1,&onEndGame);
@@ -893,5 +944,11 @@ void adminInit(lua_State *L)
 	registerserver("formNextGame",&formNextGame);
 	registerserver("banList",&banGetList);
 	registerserver("banRemove",&banRemove);
+	registerserver("loadCfg",&loadCfgL);
+	registerserver("saveCfg",&saveCfgL);
+	registerserver("loadBanList",&loadBanListL);
+	registerserver("saveBanList",&saveBanListL);
+	registerserver("reloadBanList",&reloadBanListL);
+	registerserver("flushBanList",&flushBanListL);
 	lua_settop(L,Top);
 }
