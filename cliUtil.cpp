@@ -3,10 +3,13 @@
 
 int (__cdecl *getTTByNameSpriteMB)(void *Key);
 int (__cdecl *createTextBubble)(void *BubbleStruct,wchar_t *Str);
+void (__cdecl *sub_476680) ();
+
 extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
 extern DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
 DWORD *gameFPS=(DWORD*)0x0085B3FC;
+
 namespace
 {
 	DWORD *frameCounter=(DWORD*)0x0084EA04;
@@ -125,8 +128,9 @@ namespace
 	{
 		__asm
 		{
+			call sub_476680
 			call cliOnEachFrame
-			push 0x00477F80
+			push 0x00475EFA
 			ret
 		}
 	}
@@ -269,11 +273,12 @@ namespace
 }
 
 extern void InjectOffs(DWORD Addr,void *Fn);
-
+extern void InjectJumpTo(DWORD Addr,void *Fn);
 void cliUntilInit()
 {
 	ASSIGN(getTTByNameSpriteMB,0x044CFC0);
 	ASSIGN(createTextBubble,0x0048D880);
+	ASSIGN(sub_476680,0x476680);
 
 	lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
 	lua_newtable(L);
@@ -294,6 +299,6 @@ void cliUntilInit()
 	registerserver("createBubble",&createBubble);
 	netRegClientPacket(upSendBubble,&netOnBubble);
 
-	InjectOffs(0x00475834+1,&asmToCliTimer);
+	InjectJumpTo(0x475EF5,&asmToCliTimer);
 
 }
