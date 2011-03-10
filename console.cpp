@@ -21,7 +21,7 @@ struct packetCast
 
 };
 extern void *(__cdecl *noxCallWndProc)(void* Window,int Msg,int A,int B);
-extern int (__cdecl *noxDrawGetStringSize) (int FontPtr, wchar_t *String,int *Width,int,int);
+extern int (__cdecl *noxDrawGetStringSize) (void *FontPtr, const wchar_t*String,int *Width,int *H,int);
 extern int (__cdecl *noxSetRectColorMB) (int);
 
 extern bool justDoNoxCmd;
@@ -215,10 +215,9 @@ namespace
 		std::wstring s((const wchar_t*)Window);
 		s.erase(conCur,s.size());
 		Wdd=*((BYTE**) (Wdd+0x0c8));
-		int FontPtr=(int) Wdd;
 		int Width;
-		int*PWidth=&Width;
-		noxDrawGetStringSize(FontPtr,(wchar_t*)s.c_str(),PWidth,0,0);
+		int *PWidth=&Width;
+		noxDrawGetStringSize((void*)Wdd,(wchar_t*)s.c_str(),PWidth,0,0);
 		return *PWidth+5;
 	}
 
