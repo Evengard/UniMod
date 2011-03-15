@@ -10,6 +10,7 @@ void (__cdecl *spellBuffOff)(void *Target,int BuffN);
 int (__cdecl *spellDefHasFlags)(int Spell,DWORD Flags);
 void (__cdecl *createSpellFly)(void *Caster,void *Target,int Spell);
 void (__cdecl *applyToTarget)(void *Target,int Buff,int Delay,int SpellPower);
+int (__cdecl *myCastSpellByUser)(int Spell, void *Caster, SpellTargetBlock *TargetBlock);
 //
 extern int (__cdecl *audSyllStartSpeak)(int SpellN);
 extern bigUnitStruct **unitCreatedList;
@@ -17,7 +18,25 @@ namespace
 {
 	/// колдует спелл кем-то (списано с нокса)
 	/// когда моб чего-нить колдует - мы об этом узнаем
-	int myCastSpellByUser(int Spell, void *Caster, SpellTargetBlock *TargetBlock)
+	int myCastSpellByUserPlayer(int Spell, void *Caster, SpellTargetBlock *TargetBlock)
+	{
+		bool check=true;
+		if(spellDefHasFlags(Spell,0x200400)==1 && Spell!=34)
+		{
+			if(Caster!=TargetBlock->target && spellDefHasFlags(Spell,0x600)==1)
+				check=false;
+			if(Caster==TargetBlock->target && spellDefHasFlags(Spell,0x600)==0)
+				check=false;
+		}
+		if(check)
+			return myCastSpellByUser(Spell, Caster, TargetBlock);
+		else
+		{
+			// Здесь можно будет заодно кикать или банить нарушителя
+			return 1;
+		}
+	}
+	int myCastSpellByUserMob(int Spell, void *Caster, SpellTargetBlock *TargetBlock)
 	{
 		int R,Top=lua_gettop(L);
 		
@@ -298,9 +317,12 @@ void spellsInit()
 	ASSIGN(spellDefHasFlags,0x00424A50);
 	ASSIGN(createSpellFly,0x004FDDA0);
 
-	ASSIGN(applyToTarget,0x004FF380)
+	ASSIGN(applyToTarget,0x004FF380);
 
-	InjectOffs(0x00541337+1,&myCastSpellByUser);
+	ASSIGN(myCastSpellByUser,0x004FDD20);
+
+	InjectOffs(0x00541337+1,&myCastSpellByUserMob);
+	InjectOffs(0x004FB425+1,&myCastSpellByUserPlayer);
 
 	registerserver("spellSync",&spellSync);
 	registerserver("spellApply",&spellApplyL);
