@@ -293,6 +293,12 @@ struct FloatRect
 void lua_error_(lua_State *L);
 
 struct ParseAttrib;
+/// функция для доступа к данным архивов - в последствии через нее надо провести все
+extern bool fsRead(const char *File,void *&Data, size_t &Size);
+
+/// Функции выделения ноксо-памяти
+extern void *(__cdecl *noxAlloc)(int Size);
+extern void (__cdecl *noxFree)(void *Ptr);
 
 /// Функция для регистрации пакетов клиенту и серверу
 typedef void (*netClientFn_s) (BYTE *Packet);

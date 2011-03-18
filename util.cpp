@@ -23,8 +23,9 @@ Eще поправки
 
 #define AddCodeLine(a,b) conPrintI(a)
 
-void *(__cdecl *noxAlloc)(int Size);
+
 void *(__cdecl *noxCAlloc)(int NumElements,int Size);
+void *(__cdecl *noxAlloc)(int Size);
 void (__cdecl *noxFree)(void *Ptr);
 
 int (__cdecl *consolePrint)(int Color, wchar_t *Text);
@@ -168,7 +169,6 @@ int printL(lua_State *L)
 	}
 	return 0;
 }
-
 void InjectJumpTo(DWORD Addr,void *Fn)// Пишем по данному адресу переход на нашу функцию
 {
 	BYTE *To=(BYTE *)Addr; 
