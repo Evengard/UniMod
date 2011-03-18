@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="E:\Lua\5.1\include;&quot;F:\lua-5.1.4\src&quot;"
+				AdditionalIncludeDirectories="E:\Lua\5.1\include;&quot;F:\lua-5.1.4\src&quot;;Libs\lpng151;Libs\zlib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UNIMOD_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -121,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;F:\lua-5.1.4\src&quot;;E:\Lua\5.1\include"
+				AdditionalIncludeDirectories="&quot;F:\lua-5.1.4\src&quot;;E:\Lua\5.1\include;Libs\lpng151;Libs\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UNIMOD_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -192,6 +192,10 @@
 				>
 				<File
 					RelativePath=".\admin.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\imageUtil.cpp"
 					>
 				</File>
 				<File
@@ -504,11 +508,19 @@
 			Name="lib"
 			>
 			<File
+				RelativePath=".\libs\lpng151\projects\visualc71\win32_lib_release\libpng.lib"
+				>
+			</File>
+			<File
 				RelativePath=".\LibVer.lib"
 				>
 			</File>
 			<File
 				RelativePath=".\Libs\lua51static_mt.lib"
+				>
+			</File>
+			<File
+				RelativePath=".\Libs\zlib\old\visualc2k5\Win32_LIB_Release\zlib.lib"
 				>
 			</File>
 		</Filter>

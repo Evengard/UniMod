@@ -274,15 +274,15 @@ namespace
 		readFile(lua_tostring(L,1),lua_toboolean(L,2)?GlobalList:MapList);
 		return 0;
 	}
-	int bz2Loader(lua_State*L) /// loadfile из архивов
+	TarBlock *itemByName(const char *P,bool CalledFromCon,char *Buf)
 	{
-		TarList *List=&MapList;
-
-		const char *P=lua_tostring(L,1);
 		if (P==NULL)
 			return NULL;
-		char Buf[200]="";
-		if (lua_objlen(L,lua_upvalueindex(1)))
+		if (strlen(P)>200)
+			return NULL;
+		TarList *List=&MapList;
+
+		if (!CalledFromCon)
 		{
 			if (0==strncmp(P,"map/",4))
 			{
@@ -308,7 +308,16 @@ namespace
 		}
 		strcat(Buf,lua_tostring(L,1));
 
-		TarBlock *B=dirSearch(P,List);
+		return dirSearch(P,List);
+	}
+	int bz2Loader(lua_State*L) /// loadfile из архивов
+	{
+
+		const char *P=lua_tostring(L,1);
+		char Buf[220]="";
+
+		TarBlock *B=itemByName(P,(lua_objlen(L,lua_upvalueindex(1))!=0),Buf);
+
 		if ( (B==NULL)|| B->Info.Size<=0)
 		{
 			lua_pushstring (L," is not a valid lua file");
@@ -470,6 +479,17 @@ namespace
 		netSendBySock(Player,Buf,P-Buf,Mode);
 		netSendBySock(Player,Data,Size,Mode);
 	}
+}
+bool fsRead(const char *File,void *&Data, size_t &Size)
+{
+	char Buf[220]="";
+	Data=NULL;Size=0;
+	TarBlock *B = itemByName(File,true,Buf);
+	if (!B)
+		return false;
+	Data=B->Info.Data;
+	Size=B->Info.Size;
+	return true;
 }
 void netOnSendArchive(int Size,char *Name,char *NameE)
 {
