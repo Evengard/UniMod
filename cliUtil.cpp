@@ -8,7 +8,9 @@ void (__cdecl *sub_476680) ();
 extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
 extern DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
+
 DWORD *gameFPS=(DWORD*)0x0085B3FC;
+
 
 namespace
 {
@@ -270,6 +272,9 @@ namespace
 		mbstowcs(WBuf,(char*)Packet,240);
 		createTextBubble(&P,WBuf);
 	}
+
+
+	
 }
 
 extern void InjectOffs(DWORD Addr,void *Fn);
