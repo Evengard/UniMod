@@ -508,7 +508,7 @@
 			Name="lib"
 			>
 			<File
-				RelativePath=".\libs\lpng151\projects\visualc71\win32_lib_release\libpng.lib"
+				RelativePath=".\Libs\lpng151\projects\visualc71\Win32_LIB_Release\libpng.lib"
 				>
 			</File>
 			<File
@@ -520,7 +520,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Libs\zlib\old\visualc2k5\Win32_LIB_Release\zlib.lib"
+				RelativePath=".\Libs\lpng151\projects\visualc71\Win32_LIB_Release\ZLib\zlib.lib"
 				>
 			</File>
 		</Filter>
