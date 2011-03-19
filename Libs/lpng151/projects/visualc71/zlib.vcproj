@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="zlib"
 	ProjectGUID="{2D4F8105-7D21-454C-9932-B47CAB71A5C0}"
+	RootNamespace="zlib"
 	>
 	<Platforms>
 		<Platform
