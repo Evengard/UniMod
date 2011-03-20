@@ -271,8 +271,10 @@ namespace
 			lua_error_(L);
 		}
 
-		readFile(lua_tostring(L,1),lua_toboolean(L,2)?GlobalList:MapList);
-		return 0;
+		lua_pushboolean(L,
+			readFile(lua_tostring(L,1),lua_toboolean(L,2)?GlobalList:MapList)
+			?1:0);
+		return 1;
 	}
 	TarBlock *itemByName(const char *P,bool CalledFromCon,char *Buf)
 	{

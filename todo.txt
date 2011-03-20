@@ -2,7 +2,7 @@
 - доделать примитивное чтение в формате "2" - без прозрачности
    1) поместить some.png в архив some.tbz2
    2) выполнить
-    loadFile('some.tbz2')
+    fileLoad('some.tbz2')
     imgLoadImage('some')
     ni'some'
 - разобратся с форматом "3"

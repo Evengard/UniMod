@@ -190,6 +190,7 @@ namespace
 		if (!fsRead(lua_tostring(L,1),Data,Size))
 			return 0;
 		PngReadData readData(Data,Size);
+
 		if (!imgPngStart(&png,&readData))
 		{
 			return 0;
@@ -223,11 +224,11 @@ namespace
 		return 1;
 	}
 
-	void PNGCAPI error_fn(png_structp, png_const_charp )
+	void PNGCAPI error_fn(png_structp, png_const_charp S)
 	{
-
+		throw S;
 	}
-	void PNGCAPI warn_fn(png_structp, png_const_charp )
+	void PNGCAPI warn_fn(png_structp, png_const_charp S)
 	{
 	}
 	void PNGCAPI  read_fn(png_structp png_ptr, png_bytep Data, png_size_t Size)
@@ -239,6 +240,14 @@ namespace
 			return;
 		memcpy(Data,readData->Current,Size);
 		readData->Current=((char*)readData->Current)+Size;
+	}
+	void* PNGCAPI pngMyMalloc(png_structp png_ptr, png_size_t Size)
+	{
+		return malloc(Size);
+	}
+	void pngMyFree(png_structp png_ptr, void *Ptr)
+	{
+		return free(Ptr);
 	}
 	bool imgPngStart(PngData *png,PngReadData *readData)
 	{
@@ -255,123 +264,152 @@ namespace
 		* was compiled with a compatible version of the library.  REQUIRED
 		*/
 	   png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,&error_fn, &warn_fn);
-
-	   if (png_ptr == NULL)
-	   {
+		if (png_ptr == NULL)
+		{
 		  return (ERROR);
-	   }
+		}
+		try
+		{
+	
+			png_set_mem_fn(png_ptr,NULL,pngMyMalloc,pngMyFree);
+			/* Allocate/initialize the memory for image information.  REQUIRED. */
+			info_ptr = png_create_info_struct(png_ptr);
 
-	   /* Allocate/initialize the memory for image information.  REQUIRED. */
-	   info_ptr = png_create_info_struct(png_ptr);
-	   if (info_ptr == NULL)
-	   {
-		  png_destroy_read_struct(&png_ptr, NULL, NULL);
-		  return (ERROR);
-	   }
+			if (info_ptr == NULL)
+			{
+			  png_destroy_read_struct(&png_ptr, NULL, NULL);
+			  return (ERROR);
+			}
 
-	   /* Set error handling if you are using the setjmp/longjmp method (this is
-		* the normal method of doing things with libpng).  REQUIRED unless you
-		* set up your own error handlers in the png_create_read_struct() earlier.
-		*/
+			/* Set error handling if you are using the setjmp/longjmp method (this is
+			* the normal method of doing things with libpng).  REQUIRED unless you
+			* set up your own error handlers in the png_create_read_struct() earlier.
+			*/
 
-	   if (setjmp(png_jmpbuf(png_ptr)))
-	   {
-		  /* Free all of the memory associated with the png_ptr and info_ptr */
-		  png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-		  /* If we get here, we had a problem reading the file */
-		  return (ERROR);
-	   }
+			/*	   if (setjmp(png_jmpbuf(png_ptr)))
+			{
+			  // Free all of the memory associated with the png_ptr and info_ptr 
+			  png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+			  // If we get here, we had a problem reading the file 
+			  return (ERROR);
+			}
+			_CrtCheckMemory();*/
 
 
-	   /* If you are using replacement read functions, instead of calling
-		* png_init_io() here you would call:
-		*/
-	   png_set_read_fn(png_ptr, readData, &read_fn);
+			/* If you are using replacement read functions, instead of calling
+			* png_init_io() here you would call:
+			*/
+			png_set_read_fn(png_ptr, readData, &read_fn);
 
-	   /* The call to png_read_info() gives us all of the information from the
-		* PNG file before the first IDAT (image data chunk).  REQUIRED
-		*/
-	   png_read_info(png_ptr, info_ptr);
+			/* The call to png_read_info() gives us all of the information from the
+			* PNG file before the first IDAT (image data chunk).  REQUIRED
+			*/
+			png_read_info(png_ptr, info_ptr);
 
-	   png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
-		   &interlace_type, NULL, NULL);
-		
-		png->width=width;
-		png->height=height;
-	   /* Set up the data transformations you want.  Note that these are all
-		* optional.  Only call them if you want/need them.  Many of the
-		* transformations only work on specific types of images, and many
-		* are mutually exclusive.
-		*/
+			png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+			   &interlace_type, NULL, NULL);
 
-	   /* Tell libpng to strip 16 bit/color files down to 8 bits/color */
-	   png_set_strip_16(png_ptr);
+			png->width=width;
+			png->height=height;
+			/* Set up the data transformations you want.  Note that these are all
+			* optional.  Only call them if you want/need them.  Many of the
+			* transformations only work on specific types of images, and many
+			* are mutually exclusive.
+			*/
 
-	   /* Extract multiple pixels with bit depths of 1, 2, and 4 from a single
-		* byte into separate bytes (useful for paletted and grayscale images).
-		*/
-	   png_set_packing(png_ptr);
+			/* Tell libpng to strip 16 bit/color files down to 8 bits/color */
+			png_set_strip_16(png_ptr);
 
-	   /* Expand paletted colors into true RGB triplets */
-	   if (color_type == PNG_COLOR_TYPE_PALETTE)
-		  png_set_palette_to_rgb(png_ptr);
+			/* Extract multiple pixels with bit depths of 1, 2, and 4 from a single
+			* byte into separate bytes (useful for paletted and grayscale images).
+			*/
+			png_set_packing(png_ptr);
 
-	   /* Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel */
-	   if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
-		  png_set_expand_gray_1_2_4_to_8(png_ptr);
+			/* Expand paletted colors into true RGB triplets */
+			if (color_type == PNG_COLOR_TYPE_PALETTE)
+			  png_set_palette_to_rgb(png_ptr);
 
-	   /* Expand paletted or RGB images with transparency to full alpha channels
-		* so the data will be available as RGBA quartets.
-		*/
-	//   if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
-	//      png_set_tRNS_to_alpha(png_ptr);
+			/* Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel */
+			if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
+			  png_set_expand_gray_1_2_4_to_8(png_ptr);
 
-	   
-	   /* Add filler (or alpha) byte (before/after each RGB triplet) */
-	   png_set_filler(png_ptr, 0xff, PNG_FILLER_BEFORE);
+			/* Expand paletted or RGB images with transparency to full alpha channels
+			* so the data will be available as RGBA quartets.
+			*/
+			//   if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+			//      png_set_tRNS_to_alpha(png_ptr);
 
-	   /* Turn on interlace handling.  REQUIRED if you are not using
-		* png_read_image().  To see how to handle interlacing passes,
-		* see the png_read_row() method below:
-		*/
-	   png_set_interlace_handling(png_ptr);
 
-	   /* Allocate the memory to hold the image using the fields of info_ptr. */
+			/* Add filler (or alpha) byte (before/after each RGB triplet) */
+			//png_set_filler(png_ptr, 0xff, PNG_FILLER_BEFORE);
 
-	   /* The easiest way to read the image: */
-	   png_bytep *row_pointers= (png_bytep *)png_malloc(png_ptr,sizeof(png_bytep)*height);
 
-	   /* Clear the pointer array */
-	   for (int row = 0; row < height; row++)
-	   {
-		  row_pointers[row] = (png_bytep) png_malloc(png_ptr, png_get_rowbytes(png_ptr,info_ptr));
-	   }
-	   png_read_image(png_ptr, row_pointers);
-	   png->row_pointers=row_pointers;
+			/* Turn on interlace handling.  REQUIRED if you are not using
+			* png_read_image().  To see how to handle interlacing passes,
+			* see the png_read_row() method below:
+			*/
+			int number_passes = png_set_interlace_handling(png_ptr); 
 
-	   return 1;
+			/* Allocate the memory to hold the image using the fields of info_ptr. */
+
+			/* The easiest way to read the image: */
+			png_bytep *row_pointers= (png_bytep *)malloc(sizeof(png_bytep)*height);
+
+			/* Clear the pointer array */
+			for (int row = 0; row < height; row++)
+			{
+			  row_pointers[row] = (png_bytep)malloc( png_get_rowbytes(png_ptr,info_ptr)); //(png_bytep) png_malloc(png_ptr, png_get_rowbytes(png_ptr,info_ptr));
+			}
+			int dataSize=32 + png_get_rowbytes(png_ptr,info_ptr);
+			png_bytep Data=(png_bytep )malloc( dataSize);
+			memset(Data,0,dataSize);
+
+//			png_read_image(png_ptr, row_pointers);
+			for (int pass = 0; pass <	number_passes; pass++)
+			{
+				for (int y = 0; y < height; y++)
+				{
+					png_read_row(png_ptr,  row_pointers[y] , NULL);//row_pointers[y]
+				}
+			}
+
+			png->row_pointers=row_pointers;
+		}
+		catch(const char *S)
+		{
+			_CrtCheckMemory();
+			conPrintI(S);
+		}
+		return 1;
 	}
 	void imgPngFinish(PngData *png)
 	{
 		png_structp &png_ptr(png->png_ptr);
 		png_infop &info_ptr(png->info_ptr);
 
-		png_bytep *row_pointers=png->row_pointers;
-		int height=png->height;
-
-		for (int row = 0; row < height; row++)
+		try
 		{
-		   png_free(png_ptr, row_pointers[row]);
+			png_bytep *row_pointers=png->row_pointers;
+			int height=png->height;
+
+			for (int row = 0; row < height; row++)
+			{
+			   free(row_pointers[row]);
+			}
+			free(row_pointers);
+
+			/* Read rest of file, and get additional chunks in info_ptr - REQUIRED */
+			png_read_end(png_ptr, info_ptr);
+
+			/* At this point you have read the entire image */
+
+			/* Clean up after the read, and free any memory allocated - REQUIRED */
+			png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 		}
-		png_free(png_ptr, row_pointers);
-
-		/* Read rest of file, and get additional chunks in info_ptr - REQUIRED */
-		png_read_end(png_ptr, info_ptr);
-
-		/* At this point you have read the entire image */
-
-		/* Clean up after the read, and free any memory allocated - REQUIRED */
-		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+		catch (const char *S)
+		{
+			conPrintI(S);
+		}
 		memset(png,0,sizeof(*png));
 	}
 
