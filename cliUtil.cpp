@@ -9,6 +9,7 @@ extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
 extern DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
 
+void *noxSpriteLast=0;
 DWORD *gameFPS=(DWORD*)0x0085B3FC;
 
 
@@ -274,6 +275,52 @@ namespace
 	}
 
 
+	int spriteGetL(lua_State*L)
+		{
+		if (lua_type(L,1)!=LUA_TFUNCTION)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		BYTE *P=(BYTE*)noxSpriteLast; // непотяно все ли спрайты попадут или нет
+		P=*(BYTE**)(P);
+		if (P==0)
+			return 0;
+		BYTE *P1=P;
+		while (P!=0)
+		{
+			lua_pushvalue(L,1);
+			lua_pushlightuserdata(L,(void *)P);
+			lua_pcall(L,1,0,0);
+			P=*(BYTE**)(P+0x170);
+		}
+		return 0;
+	}
+
+	int spriteGetPosL(lua_State*L)
+	{
+		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
+		{
+			lua_pushstring(L,"wrong args");
+			lua_error_(L);
+		}
+		BYTE *P=(BYTE*) lua_touserdata(L,1);
+		lua_pushnumber(L,*((int*)(P+0xC)));
+		lua_pushnumber(L,*((int*)(P+0x10)));
+		return 2;
+	}
+
+	int spriteThingTypeL(lua_State*L)
+	{
+		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
+		{
+			lua_pushstring(L,"wrong args");
+			lua_error_(L);
+		}
+		BYTE *P=(BYTE*) lua_touserdata(L,1);
+		lua_pushnumber(L,*((int*)(P+0x6C)));
+		return 1;
+	}
 	
 }
 
@@ -284,6 +331,7 @@ void cliUntilInit()
 	ASSIGN(getTTByNameSpriteMB,0x044CFC0);
 	ASSIGN(createTextBubble,0x0048D880);
 	ASSIGN(sub_476680,0x476680);
+	ASSIGN(noxSpriteLast,0x6D3DC0);
 
 	lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
 	lua_newtable(L);
@@ -299,9 +347,11 @@ void cliUntilInit()
 	lua_pushvalue(L,-1); 
 	lua_setfield(L,LUA_REGISTRYINDEX,"CliSetTimeout");
 	registerClientVar("cliSetTimeout");
-
+	registerclient("spriteGet",&spriteGetL);
 	registerclient("cliBubble",&cliShowBubble);
 	registerserver("createBubble",&createBubble);
+	registerclient("spriteGetPos",&spriteGetPosL);
+	registerclient("spriteThingType",&spriteThingTypeL);
 	netRegClientPacket(upSendBubble,&netOnBubble);
 
 	InjectJumpTo(0x475EF5,&asmToCliTimer);
