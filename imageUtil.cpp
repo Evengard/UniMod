@@ -38,7 +38,10 @@ struct imageH /// указатель на эту структуру возвращает gLoadItem
   unsigned short vbagId;
   // 0x80 значит загружено 
   // 0x40 хз, остальные - тип изображения 
-  // годный - 3 (menuBg,BorderCornerUL)
+  // 2 - обычный 16битный растр цветов
+  // 3 - RLE популярный с прозрачностью вроде (menuBg,BorderCornerUL)
+  // 7 - 16битный растр цветов с предобработкой, отключен (не может быть нарисован)
+  //
   char typeFlags; 
   char field_B;
 };
@@ -156,6 +159,7 @@ namespace
 		png_bytep *row_pointers;
 		int width;
 		int height;
+		int color;
 	};
 	struct PngReadData
 	{
@@ -166,9 +170,10 @@ namespace
 	};
 	bool imgPngStart(PngData *png,PngReadData *readData);
 	void imgPngFinish(PngData *png);
-
+	/// args:   srcPath[,imgName=srcPath /*[,imgType=2]*/ ]
 	int imgLoadImage(lua_State*L)
 	{
+		lua_settop(L,3);
 		if (!lua_isstring(L,1))
 		{
 			lua_pushstring(L,"wrong args!");
@@ -176,7 +181,10 @@ namespace
 		}
 
 		imageH *H= (imageH *)noxAlloc(sizeof(imageH));
-		imgAddImage(lua_tostring(L,1),H);
+		const char *imgName=lua_tostring(L,2);
+		if (imgName==NULL)
+			imgName=lua_tostring(L,1);
+		imgAddImage(imgName,H);
 
 		Sprite2 *SpritePtr=NULL;
 
@@ -198,25 +206,117 @@ namespace
 		int Width=png.width;
 		int Height=png.height;
 
-		int BlockSize=sizeof(Sprite2) + 2 * Width * Height ;
+		bool useAlpha=(png.color==PNG_COLOR_TYPE_RGBA);
+		int imgType=(useAlpha?3:2);
+		int BlockSize=0;
+		if (useAlpha)
+			BlockSize=sizeof(Sprite2) + 3 * Width * Height; 
+			// предполагаю что не будет через один A/C (в худшем случае размер будет 6xWxH)
+		else
+			BlockSize=sizeof(Sprite2) + 2 * Width * Height ;
 		H->dataPtr=noxAlloc(BlockSize);
-		H->typeFlags=0x82;// загружено в указатель формат, 2
+		H->typeFlags=0x80 | imgType;// загружено в указатель формат, 2
 		H->vbagId=1;// для примера
 		SpritePtr=(Sprite2*)H->dataPtr;
 		SpritePtr->W=Width;
 		SpritePtr->H=Height;
 		SpritePtr->dX=0;
 		SpritePtr->dY=0;
+		SpritePtr->Some=0;
 		short *P=(short*)(((byte*)H->dataPtr)+sizeof(Sprite2));
 //#define RGB2(r,g,b) ((((r)&0x1F)<<11)|(((g)&0x3F)<<5)|((b)&0x1F))
+#define RGB4(r,g,b,a) (((a)<<15)|(((r)>>3)<<10)|(((g)>>3)<<5)|((b)>>3))
 #define RGB3(r,g,b) ((((r)>>3)<<11)|(((g)>>2)<<5)|((b)>>3))
-		for (int j=0;j<Height;j++)
+		if (useAlpha)
 		{
-			png_bytep Src=png.row_pointers[j];
-			for (int i=0;i<Width;i++)
+			for (int j=0;j<Height;j++)
 			{
-				*(P++)=RGB3(Src[0],Src[1],Src[2]);
-				Src+=3;
+				png_bytep Src=png.row_pointers[j];
+				int Counter=0; //счетчик повторов
+				Byte *PP=NULL;
+				enum EncodeMode
+				{
+					emUnk=0,
+					emSkip=1,
+					emPlain=2,
+					emTrans=5,
+				}State=emUnk;
+				for (int i=0;i<Width;i++)
+				{
+					if (State==emUnk)
+					{
+						if (Counter>0 && PP!=NULL)
+						{
+							*PP=Counter;
+							Counter=0;
+						}
+						PP=(Byte*)P;
+						if (Src[3]<0x40)
+							State=emSkip;
+						else if ( Src[3]> 0xC0)
+							State=emPlain;
+						else 
+							State=emTrans;
+
+						*(PP++)=State;
+						*PP=0;
+						P++;
+						i--;
+						continue;
+					}
+					else if (State==emSkip)
+					{
+						if (Src[3]<0x40)
+						{
+							if ( ++Counter==255)
+								State=emUnk;
+							Src+=4;
+							continue;
+						}
+						State=emUnk;
+						i--;
+					}
+					else if (State==emPlain)
+					{
+						if (Src[3]>0xC0)
+						{
+							if ( ++Counter==255)
+								State=emUnk;
+							*(P++)=RGB3(Src[0],Src[1],Src[2]);
+							Src+=4;
+							continue;
+						}
+						State=emUnk;
+						i--;
+					}
+					else if (State==emTrans)
+					{
+						if ( (Src[3]>0x40) && Src[3]<0xC0)
+						{
+							if ( ++Counter==255)
+								State=emUnk;
+							*(P++)=RGB4(Src[0],Src[1],Src[2],Src[3]);
+							Src+=4;
+							continue;
+						}
+						State=emUnk;
+						i--;
+					}
+				}
+				if (Counter>0 && PP!=NULL)
+					*PP=Counter;
+			}
+		}
+		else
+		{
+			for (int j=0;j<Height;j++)
+			{
+				png_bytep Src=png.row_pointers[j];
+				for (int i=0;i<Width;i++)
+				{
+					*(P++)=RGB3(Src[0],Src[1],Src[2]);
+					Src+=3;
+				}
 			}
 		}
 		imgPngFinish(&png);
@@ -311,6 +411,7 @@ namespace
 
 			png->width=width;
 			png->height=height;
+			png->color=color_type;
 			/* Set up the data transformations you want.  Note that these are all
 			* optional.  Only call them if you want/need them.  Many of the
 			* transformations only work on specific types of images, and many
@@ -424,6 +525,6 @@ void ImageUtilInit()
 	ASSIGN(imgArrayNextId,0x00694870);
 
 	InjectJumpTo(0x0042F982,gLoadImgSearch);
-	registerclient("imgLoadImage",imgLoadImage); // грузить динамически изображение
+	registerclient("imgLoad",imgLoadImage); // грузить динамически изображение
 
 }
