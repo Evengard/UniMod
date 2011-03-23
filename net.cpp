@@ -20,7 +20,7 @@ void (__cdecl *netPriMsg)(void *PlayerUnit,char *String,int Flag);
 DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
 DWORD (__cdecl *netGetUnitCodeCli)(void *Sprite);
 
-void *(__cdecl *netGetUnitByExtent)(DWORD NetCode);/// только для динамических (на сервере)
+void *(__cdecl *netGetUnitByExtent)(DWORD NetCode);/// только для динамических (на сервере)playerGoObserver
 
 void (__cdecl *netSendShieldFx)(void *Unit,noxPoint* From);
 
@@ -31,6 +31,9 @@ extern void netOnTileChanged(BYTE *Buf,BYTE *End);
 extern void netOnUpdateUnitDef(BYTE *Buf,BYTE *BufEnd);
 
 int (__cdecl *netSendBySock)(int Player,void *Data,int Size, int Type);
+
+byte authorisedArray[0x1F];
+void (__cdecl *playerGoObserver)(void* playerPtr, byte unk1, byte unk2);
 
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
@@ -79,6 +82,25 @@ void conSendToServer(const char *Src)
 
 }
 namespace {
+
+	BYTE *fakePlayerInputPacket(BYTE* BufStart)
+	{
+		BYTE *P=BufStart;
+		if(P[1]<10)
+		{
+			BufStart+=P[1]+2;
+			return BufStart;
+		}
+		else
+		{
+			const BYTE replace[12]={0x3f, 0x0a, 0x01, 0x00, 0x00, 0x00, 0x81, 0x01, 0x00, 0x00, 0x00, 0x81};
+			if(P[1]>10)
+				BufStart+=(P[1]+2)-12;
+			memcpy(BufStart, replace, 12);
+			return BufStart;
+		}
+	}
+
 	int sendToServer(lua_State *L)
 	{
 		const char *S=lua_tostring(L,1);
@@ -471,7 +493,36 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 		BYTE *MyUc)/// Полученые сервером
 {
 	BYTE *P=BufStart;
-	if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
+	bool specialAuthorisation=false; //Отключение альтернативной авторизации
+	if (*P==0x3F && specialAuthorisation==true)
+	{
+		void **PP=(void **)(((char*)MyPlayer)+0x2EC);
+		PP=(void**)(((char*)*PP)+0x114);
+		byte *P=(byte*)(*PP);
+		byte playerIdx = *((byte*)(P+0x810));
+		if(playerIdx!=0x1F) // Так Нокс определяет Хоста
+			switch(authorisedArray[playerIdx])
+			{
+				case 0:
+					BufStart=fakePlayerInputPacket(BufStart);
+					playerGoObserver(P, 1, 1);
+					// Добавить вход в обсерв
+					authorisedArray[playerIdx]++;
+					break;
+				case 1:
+					BufStart=fakePlayerInputPacket(BufStart);
+					// В этом состоянии игрок будет всё время пока не залогинется
+					break;
+				case 2:
+					// А в этом - залогинился наш голубчик
+					break;
+			}
+	}
+	else if(*P==0xA8 && specialAuthorisation==true)
+	{
+		
+	}
+	else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
 	{
 		P++;
 		int BufSize=*(P++);
@@ -522,7 +573,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 			P+=0x16;
 		}
 	}
-/*	if (*P==0x72) // попытка выкинуть предмет
+/*	else if (*P==0x72) // попытка выкинуть предмет
 	{ // 7 байт {BYTE pkt, USHORT Obj,X,Y;}
 		char Buf[80];
 		USHORT V=toShort(P+1);
@@ -533,6 +584,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 	}*/
 }
 extern void InjectJumpTo(DWORD Addr,void *Fn);
+extern void InjectOffs(DWORD Addr,void *Fn);
 void netInit()
 {
 	ASSIGN(netSpriteByCodeHi,0x0045A720);
@@ -545,6 +597,13 @@ void netInit()
 	ASSIGN(netSendBySock,0x00552640);
 	ASSIGN(netPriMsg,0x004DA2C0);
 
+
+
+
+	ASSIGN(playerGoObserver,0x004E6860);
+
+	
+	
 	registerserver("servNetCode",&netGetCodeServL);
 
 	/// Стандартные спецэффекты

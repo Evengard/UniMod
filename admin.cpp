@@ -46,6 +46,11 @@ bool isNewGame=false;
 
 extern void teamCreateDefault(int TeamNumParam, bool notRestrict=false);
 extern void httpGetCallback(lua_State *L);
+extern byte authorisedArray[0x1F];
+
+void *(__cdecl *getConfigData)();
+
+void *(__cdecl *playerGetDataFromIndex)(byte index);
 
 bool serverRequest(int f,char *path)
 {
@@ -609,6 +614,13 @@ namespace
 		return _time(TimePtr);
 	}
 
+	void* __cdecl onServerStart()
+	{
+		for(byte i=0; i<0x1F; i++)
+			authorisedArray[i]=0;
+		return getConfigData();
+	}
+
 	void __cdecl OnGuiUpdate()
 	{
 		guiUpdate();
@@ -873,6 +885,12 @@ namespace
 		lua_settop(L,Top);
 	}
 
+	void* onPlayerLeave(byte Index)
+	{
+		authorisedArray[Index]=0;
+		return playerGetDataFromIndex(Index);
+	}
+
 }
 extern "C" void adminInit(lua_State *L);
 extern void InjectOffs(DWORD Addr,void *Fn);
@@ -905,6 +923,8 @@ void adminInit(lua_State *L)
 	ASSIGN(loadBanList, 0x004E41B0);
 	ASSIGN(saveBanList, 0x004E43F0);
 	ASSIGN(flushBanList, 0x00425760);
+	ASSIGN(getConfigData, 0x00416640);
+	ASSIGN(playerGetDataFromIndex,0x00417090);
 
 	InjectOffs(0x004D280B+1,&onMapCycleEnabledCheck); //Обход проверки на вкл. мапцикл если использовалась formNextGame
 	InjectOffs(0x0043E333+1,&OnGuiUpdate);
@@ -912,6 +932,8 @@ void adminInit(lua_State *L)
 	InjectOffs(0x004D281D+1,&onLoadMapCycle); //Хук на мапцикл
 	InjectOffs(0x004D283F+1,&onLoadMapCycle); //Хук на мапцикл
 	InjectOffs(0x004D284F+1,&onMapLoadName); //Поддержка new=1 в formNextGame (а вообще походу костыль)
+	InjectOffs(0x0043AAB9+1,&onServerStart); //Server startup hook - инициализируем тут свои переменные
+	InjectOffs(0x004DE55E+1,&onPlayerLeave); //Уход игрока с серва - деавторизуем его
 
 	int Top=lua_gettop(L);
 	if (0!=luaL_loadstring(L,
