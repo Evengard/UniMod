@@ -32,8 +32,12 @@ extern void netOnUpdateUnitDef(BYTE *Buf,BYTE *BufEnd);
 
 int (__cdecl *netSendBySock)(int Player,void *Data,int Size, int Type);
 
-byte authorisedArray[0x1F];
-void (__cdecl *playerGoObserver)(void* playerPtr, byte unk1, byte unk2);
+byte authorisedState[0x20];
+char *authorisedLogins[0x20];
+
+//char *temp; //Временная переменная
+extern void authAddToList(char* Data);
+
 
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
@@ -501,26 +505,77 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 		byte *P=(byte*)(*PP);
 		byte playerIdx = *((byte*)(P+0x810));
 		if(playerIdx!=0x1F) // Так Нокс определяет Хоста
-			switch(authorisedArray[playerIdx])
+			switch(authorisedState[playerIdx])
 			{
-				case 0:
-					BufStart=fakePlayerInputPacket(BufStart);
-					playerGoObserver(P, 1, 1);
-					// Добавить вход в обсерв
-					authorisedArray[playerIdx]++;
-					break;
-				case 1:
+				case 0: // Поидее сюда вообще не должно падать - игрока на сервере ещё нет
+				case 1: // Игрок на сервере, не начинал процедуру авторизации
+				case 2: // Игрок на сервере, ввёл логин
+				case 3: // Игрок на сервере, ввыл логин и пароль, ожидает авторизации
 					BufStart=fakePlayerInputPacket(BufStart);
 					// В этом состоянии игрок будет всё время пока не залогинется
 					break;
-				case 2:
+				case 4: // Игрок на сервере, авторизован
 					// А в этом - залогинился наш голубчик
 					break;
 			}
 	}
 	else if(*P==0xA8 && specialAuthorisation==true)
 	{
-		
+		void **PP=(void **)(((char*)MyPlayer)+0x2EC);
+		PP=(void**)(((char*)*PP)+0x114);
+		byte *Pl=(byte*)(*PP);
+		byte playerIdx = *((byte*)(Pl+0x810));
+		if(playerIdx!=0x1F && authorisedState[playerIdx]>=0 && authorisedState[playerIdx]<4)
+		{
+			switch(authorisedState[playerIdx])
+			{
+				case 0: 
+				case 3:
+					BufStart+=BufStart[0x8]+0xB;
+					break;
+				case 1:
+					// Тут только логин сейвим
+					{
+						char *login=NULL;
+						login = new char[P[0x8]];
+						strncpy(login, (char*)&P[0xB], P[0x8]);
+						authorisedLogins[playerIdx]=login;
+						authorisedState[playerIdx]++;
+						BufStart+=BufStart[0x8]+0xB;
+						login = NULL;
+					}
+					break;
+				case 2:
+					{
+						char *data=NULL;
+						data = new char[P[0x8]+1];
+						memcpy(data, &playerIdx, 1);
+						strncpy(&data[1], (char*)&P[0xB], P[0x8]);
+						// Сюда добавить логику запуска аутентификации по http
+
+						// TEMPORARY!
+						//temp=data;
+						// TEMPORARY! END
+						authorisedState[playerIdx]++;
+						authAddToList(data);
+						BufStart+=BufStart[0x8]+0xB;
+						data = NULL;
+					}
+					break;
+				/*case 3:
+					{
+						BufStart+=BufStart[0x8]+0xB;
+
+						// TEMPORARY!
+						if(strcmp(&temp[1], "password")==0)
+							authorisedState[playerIdx]++;
+						else
+							authorisedState[playerIdx]-=2;
+						// TEMPORARY! END
+					}
+					break;*/
+			}
+		}
 	}
 	else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
 	{
@@ -600,7 +655,7 @@ void netInit()
 
 
 
-	ASSIGN(playerGoObserver,0x004E6860);
+	
 
 	
 	
