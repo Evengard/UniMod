@@ -36,6 +36,7 @@ int (__cdecl *saveCfg)(char* fileName);
 int (__cdecl *loadBanList)(char* fileName);
 int (__cdecl *saveBanList)(char* fileName);
 void (__cdecl *flushBanList)(void* ptr);
+void (__cdecl *playerGoObserver)(void* playerPtr, byte unk1, byte unk2);
 
 bool mapNextSameForced=false;
 char nextMapOverride[0x16]={0};
@@ -46,11 +47,19 @@ bool isNewGame=false;
 
 extern void teamCreateDefault(int TeamNumParam, bool notRestrict=false);
 extern void httpGetCallback(lua_State *L);
-extern byte authorisedArray[0x1F];
+
+
+//extern unsigned __stdcall httpAuth(void *Data1);
 
 void *(__cdecl *getConfigData)();
 
 void *(__cdecl *playerGetDataFromIndex)(byte index);
+
+extern byte authorisedState[0x20];
+extern char* authorisedLogins[0x20];
+DWORD* currentIP;
+unsigned __int16 *currentPort;
+extern void httpAuthProcess();
 
 bool serverRequest(int f,char *path)
 {
@@ -128,6 +137,7 @@ namespace
 		char timeLimitMB;
 		char isNew;
 	};
+
 	int formGame(lua_State *L)
 	{
 		lua_settop(L,1);
@@ -616,8 +626,13 @@ namespace
 
 	void* __cdecl onServerStart()
 	{
-		for(byte i=0; i<0x1F; i++)
-			authorisedArray[i]=0;
+		for(byte i=0; i<0x20; i++)
+		{
+			authorisedState[i]=0;
+			if(authorisedLogins[i]!=0 && strcmp(authorisedLogins[i], "")!=0)
+				delete [] authorisedLogins[i];
+			authorisedLogins[i]="";
+		}
 		return getConfigData();
 	}
 
@@ -625,6 +640,7 @@ namespace
 	{
 		guiUpdate();
 		httpGetCallback(L);
+		httpAuthProcess();
 		int Top=lua_gettop(L);
 		bool sameMap = false;
 		bool dontUseGUIFunc = false;
@@ -887,7 +903,19 @@ namespace
 
 	void* onPlayerLeave(byte Index)
 	{
-		authorisedArray[Index]=0;
+		authorisedState[Index]=0;
+		if(strcmp(authorisedLogins[Index], "")!=0)
+			delete [] authorisedLogins[Index];
+		authorisedLogins[Index]="";
+		return playerGetDataFromIndex(Index);
+	}
+
+	void* onPlayerJoin(byte Index)
+	{
+		authorisedState[Index]=0; // Перестраховщик я какой то... (c) Evengard
+		authorisedLogins[Index]="";
+		playerGoObserver(playerGetDataFromIndex(Index), 1, 1);
+		authorisedState[Index]++;
 		return playerGetDataFromIndex(Index);
 	}
 
@@ -925,6 +953,9 @@ void adminInit(lua_State *L)
 	ASSIGN(flushBanList, 0x00425760);
 	ASSIGN(getConfigData, 0x00416640);
 	ASSIGN(playerGetDataFromIndex,0x00417090);
+	ASSIGN(playerGoObserver,0x004E6860);
+	ASSIGN(currentIP,0x0097EBC4);
+	ASSIGN(currentPort,0x0097EBC8);
 
 	InjectOffs(0x004D280B+1,&onMapCycleEnabledCheck); //Обход проверки на вкл. мапцикл если использовалась formNextGame
 	InjectOffs(0x0043E333+1,&OnGuiUpdate);
@@ -934,6 +965,7 @@ void adminInit(lua_State *L)
 	InjectOffs(0x004D284F+1,&onMapLoadName); //Поддержка new=1 в formNextGame (а вообще походу костыль)
 	InjectOffs(0x0043AAB9+1,&onServerStart); //Server startup hook - инициализируем тут свои переменные
 	InjectOffs(0x004DE55E+1,&onPlayerLeave); //Уход игрока с серва - деавторизуем его
+	InjectOffs(0x004DDF6C+1,&onPlayerJoin); //Игрок вошёл на сервер - вводим его в обсерв
 
 	int Top=lua_gettop(L);
 	if (0!=luaL_loadstring(L,
@@ -972,5 +1004,6 @@ void adminInit(lua_State *L)
 	registerserver("saveBanList",&saveBanListL);
 	registerserver("reloadBanList",&reloadBanListL);
 	registerserver("flushBanList",&flushBanListL);
+	//strcpy((char*)0x005AFA20, "So_Forum"); // Смена дефолтной чат-мапы при игре через "локальную" сеть
 	lua_settop(L,Top);
 }
