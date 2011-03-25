@@ -225,7 +225,7 @@ namespace
 		SpritePtr->Some=0;
 		short *P=(short*)(((byte*)H->dataPtr)+sizeof(Sprite2));
 //#define RGB2(r,g,b) ((((r)&0x1F)<<11)|(((g)&0x3F)<<5)|((b)&0x1F))
-#define RGB4(r,g,b,a) (((a)<<15)|(((r)>>3)<<10)|(((g)>>3)<<5)|((b)>>3))
+#define RGB4(r,g,b,a) ((((r)>>3)<<11)|(((g)>>3)<<6)|(((b)>>3)<<1)|((a?1:0)))
 #define RGB3(r,g,b) ((((r)>>3)<<11)|(((g)>>2)<<5)|((b)>>3))
 		if (useAlpha)
 		{
