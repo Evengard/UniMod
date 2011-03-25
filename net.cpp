@@ -652,13 +652,7 @@ void netInit()
 	ASSIGN(netSendBySock,0x00552640);
 	ASSIGN(netPriMsg,0x004DA2C0);
 
-
-
-
-	
-
-	
-	
+	const char Block2[]="Srv";
 	registerserver("servNetCode",&netGetCodeServL);
 
 	/// Стандартные спецэффекты
@@ -675,5 +669,7 @@ void netInit()
 	registerserver("netFake",&netFake);
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
-	registerclient("netToServer",&sendToServer);
+	char Buf[40]="";
+	sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
+	registerclient(Buf,&sendToServer);
 }

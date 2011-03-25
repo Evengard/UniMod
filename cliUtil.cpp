@@ -76,7 +76,7 @@ namespace
 			if ( Time < I->Frame )
 				break;
 			lua_pushinteger(L,I->Id);
-			if (I->Frame == Time)
+			if (I->Frame <= Time)
 			{
 				lua_gettable(L,-2);
 				if(lua_type(L,-1)==LUA_TFUNCTION)
@@ -345,7 +345,7 @@ void cliUntilInit()
 	// очень важная функция, ее надо в реестр луа класть 
 	// чтобы нельзя было удалить случайно
 	lua_pushvalue(L,-1); 
-	lua_setfield(L,LUA_REGISTRYINDEX,"CliSetTimeout");
+	lua_setfield(L,LUA_REGISTRYINDEX,"cliSetTimeout");
 	registerClientVar("cliSetTimeout");
 	registerclient("spriteGet",&spriteGetL);
 	registerclient("cliBubble",&cliShowBubble);
