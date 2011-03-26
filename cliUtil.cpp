@@ -4,6 +4,7 @@
 int (__cdecl *getTTByNameSpriteMB)(void *Key);
 int (__cdecl *createTextBubble)(void *BubbleStruct,wchar_t *Str);
 void (__cdecl *sub_476680) ();
+void (__cdecl *sub_437290) ();
 
 extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
@@ -11,7 +12,7 @@ extern DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
 
 void *noxSpriteLast=0;
 DWORD *gameFPS=(DWORD*)0x0085B3FC;
-DWORD *Dword_6E0094=(DWORD*)0x6E0094;
+
 
 namespace
 {
@@ -127,16 +128,40 @@ namespace
 
 
 
-	void __declspec(naked) asmToCliTimer() // вызываем тик 
+	void __declspec(naked) asmToCliTimer1() // Проблема в том что выхода из функции рисования 3, а если ставить в начале то все наши рисования замолевываются
 	{
 		__asm
 		{
-			mov eax,Dword_6E0094
+			call sub_476680
 			call cliOnEachFrame
-			push 0x475815
+			push 0x475EFA
 			ret
 		}
 	}
+
+		void __declspec(naked) asmToCliTimer2() // вызываем тик 
+	{
+		__asm
+		{
+			call sub_437290
+			call cliOnEachFrame
+			push 0x475A0A
+			ret
+		}
+	}
+
+		void __declspec(naked) asmToCliTimer3() // вызываем тик 
+	{
+		__asm
+		{
+			call sub_437290
+			call cliOnEachFrame
+			push 0x475A4E
+			ret
+		}
+	}
+
+
 	struct BubblePacket
 	{
 		byte PacketType;//+0
@@ -286,17 +311,7 @@ namespace
 		P=*(BYTE**)(P);
 		if (P==0)
 			return 0;
-		BYTE *P1=*(BYTE**)(P+0x174);
-		if (P1!=0)
-		{
-			while (P1!=0)
-			{
-				lua_pushvalue(L,1);
-				lua_pushlightuserdata(L,(void *)P1);
-				lua_pcall(L,1,0,0);
-				P=*(BYTE**)(P+0x174);
-			}		
-		}
+		BYTE *P1=P;
 		while (P!=0)
 		{
 			lua_pushvalue(L,1);
@@ -340,8 +355,10 @@ void cliUntilInit()
 {
 	ASSIGN(getTTByNameSpriteMB,0x044CFC0);
 	ASSIGN(createTextBubble,0x0048D880);
-	ASSIGN(sub_476680,0x476680);
 	ASSIGN(noxSpriteLast,0x6D3DC0);
+
+	ASSIGN(sub_476680,0x476680); // для таймаута 1
+	ASSIGN(sub_437290,0x437290); // 2 3
 
 	lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
 	lua_newtable(L);
@@ -364,6 +381,9 @@ void cliUntilInit()
 	registerclient("spriteThingType",&spriteThingTypeL);
 	netRegClientPacket(upSendBubble,&netOnBubble);
 
-	InjectJumpTo(0x475810,&asmToCliTimer);
+	InjectJumpTo(0x475EF5,&asmToCliTimer1);
+	InjectJumpTo(0x475A05,&asmToCliTimer2);
+	InjectJumpTo(0x475A49,&asmToCliTimer3);
+
 
 }
