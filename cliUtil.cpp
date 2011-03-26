@@ -11,7 +11,7 @@ extern DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
 
 void *noxSpriteLast=0;
 DWORD *gameFPS=(DWORD*)0x0085B3FC;
-
+DWORD *Dword_6E0094=(DWORD*)0x6E0094;
 
 namespace
 {
@@ -131,9 +131,9 @@ namespace
 	{
 		__asm
 		{
-			call sub_476680
+			mov eax,Dword_6E0094
 			call cliOnEachFrame
-			push 0x00475EFA
+			push 0x475815
 			ret
 		}
 	}
@@ -286,7 +286,17 @@ namespace
 		P=*(BYTE**)(P);
 		if (P==0)
 			return 0;
-		BYTE *P1=P;
+		BYTE *P1=*(BYTE**)(P+0x174);
+		if (P1!=0)
+		{
+			while (P1!=0)
+			{
+				lua_pushvalue(L,1);
+				lua_pushlightuserdata(L,(void *)P1);
+				lua_pcall(L,1,0,0);
+				P=*(BYTE**)(P+0x174);
+			}		
+		}
 		while (P!=0)
 		{
 			lua_pushvalue(L,1);
@@ -354,6 +364,6 @@ void cliUntilInit()
 	registerclient("spriteThingType",&spriteThingTypeL);
 	netRegClientPacket(upSendBubble,&netOnBubble);
 
-	InjectJumpTo(0x475EF5,&asmToCliTimer);
+	InjectJumpTo(0x475810,&asmToCliTimer);
 
 }
