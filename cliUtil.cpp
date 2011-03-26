@@ -3,8 +3,7 @@
 
 int (__cdecl *getTTByNameSpriteMB)(void *Key);
 int (__cdecl *createTextBubble)(void *BubbleStruct,wchar_t *Str);
-void (__cdecl *sub_476680) ();
-void (__cdecl *sub_437290) ();
+void (__cdecl *sub_4738E0) ();
 
 extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
@@ -128,40 +127,16 @@ namespace
 
 
 
-	void __declspec(naked) asmToCliTimer1() // Проблема в том что выхода из функции рисования 3, а если ставить в начале то все наши рисования замолевываются
+	void __declspec(naked) asmToCliTimer() // вызываем тик 
 	{
 		__asm
 		{
-			call sub_476680
+			call sub_4738E0
 			call cliOnEachFrame
-			push 0x475EFA
+			push 0x43635D
 			ret
 		}
 	}
-
-		void __declspec(naked) asmToCliTimer2() // вызываем тик 
-	{
-		__asm
-		{
-			call sub_437290
-			call cliOnEachFrame
-			push 0x475A0A
-			ret
-		}
-	}
-
-		void __declspec(naked) asmToCliTimer3() // вызываем тик 
-	{
-		__asm
-		{
-			call sub_437290
-			call cliOnEachFrame
-			push 0x475A4E
-			ret
-		}
-	}
-
-
 	struct BubblePacket
 	{
 		byte PacketType;//+0
@@ -355,10 +330,8 @@ void cliUntilInit()
 {
 	ASSIGN(getTTByNameSpriteMB,0x044CFC0);
 	ASSIGN(createTextBubble,0x0048D880);
+	ASSIGN(sub_4738E0,0x4738E0);
 	ASSIGN(noxSpriteLast,0x6D3DC0);
-
-	ASSIGN(sub_476680,0x476680); // для таймаута 1
-	ASSIGN(sub_437290,0x437290); // 2 3
 
 	lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
 	lua_newtable(L);
@@ -381,9 +354,6 @@ void cliUntilInit()
 	registerclient("spriteThingType",&spriteThingTypeL);
 	netRegClientPacket(upSendBubble,&netOnBubble);
 
-	InjectJumpTo(0x475EF5,&asmToCliTimer1);
-	InjectJumpTo(0x475A05,&asmToCliTimer2);
-	InjectJumpTo(0x475A49,&asmToCliTimer3);
-
+	InjectJumpTo(0x436358,&asmToCliTimer);
 
 }
