@@ -38,6 +38,7 @@ char *authorisedLogins[0x20];
 //char *temp; //Временная переменная
 extern void authAddToList(char* Data);
 
+extern void authCheckDelayed(byte playerIdx, char* pass);
 
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
@@ -547,19 +548,24 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 					break;
 				case 2:
 					{
-						char *data=NULL;
-						data = new char[P[0x8]+1];
-						memcpy(data, &playerIdx, 1);
-						strncpy(&data[1], (char*)&P[0xB], P[0x8]);
+						//char *data=NULL;
+						//data = new char[P[0x8]+1];
+						char* pass = new char[P[0x8]];
+						//memcpy(data, &playerIdx, 1);
+						//strncpy(&data[1], (char*)&P[0xB], P[0x8]);
+						strncpy(pass, (char*)&P[0xB], P[0x8]);
+
 						// Сюда добавить логику запуска аутентификации по http
 
 						// TEMPORARY!
 						//temp=data;
 						// TEMPORARY! END
 						authorisedState[playerIdx]++;
-						authAddToList(data);
+						//authAddToList(data);
+						authCheckDelayed(playerIdx, pass);
 						BufStart+=BufStart[0x8]+0xB;
-						data = NULL;
+						//data = NULL;
+						pass=NULL;
 					}
 					break;
 				/*case 3:

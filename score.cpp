@@ -30,6 +30,8 @@ void (__cdecl *noxTeamUpdate)(void *newName, void *TeamPtr);
 void (__cdecl *serverFlagsSet)(DWORD V);
 void (__cdecl *serverFlagsClear)(DWORD V);
 wchar_t *(__cdecl *noxTeamDefaultName)(int color);
+extern byte authorisedState[0x20];
+extern char* authorisedLogins[0x20];
 
 namespace
 {
@@ -289,6 +291,9 @@ l1:
 		byte *Common=(byte *)netCommonByCode(NetCode);
 		lua_pushinteger(L,NetCode);
 		lua_setfield(L,-2,"netcode");
+		byte playerIdx = *((byte*)(P+0x810));
+		lua_pushstring(L,authorisedLogins[playerIdx]);
+		lua_setfield(L,-2,"login");
 		int TeamId=*(Common+4);
 		byte *Team=NULL;
 		if (TeamId>0)
@@ -650,6 +655,8 @@ l1:
 					players.pop_front();
 					teams.pop_front();
 					if(players.empty())
+						break;
+					if(teams.empty())
 						break;
 				}
 			}

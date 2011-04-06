@@ -596,7 +596,7 @@ unsigned __stdcall httpAuth(void *Data1)
 	return 0;
 }
 
-void httpAuthProcess()
+void AuthProcess()
 {
 	if(WAIT_OBJECT_0==WaitForSingleObject(authGetThreadH, 0) && httpAuthCurrentlyActive==true)
 	{

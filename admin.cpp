@@ -59,7 +59,8 @@ extern byte authorisedState[0x20];
 extern char* authorisedLogins[0x20];
 DWORD* currentIP;
 unsigned __int16 *currentPort;
-extern void httpAuthProcess();
+extern void AuthProcess();
+extern void updateAuthDBProcess();
 
 bool serverRequest(int f,char *path)
 {
@@ -640,7 +641,11 @@ namespace
 	{
 		guiUpdate();
 		httpGetCallback(L);
-		httpAuthProcess();
+		bool useGetAuth=false;
+		if(useGetAuth==true)
+			AuthProcess();
+		else
+			updateAuthDBProcess();
 		int Top=lua_gettop(L);
 		bool sameMap = false;
 		bool dontUseGUIFunc = false;
