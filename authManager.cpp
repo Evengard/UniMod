@@ -146,6 +146,7 @@ namespace
 			if (lua_type(L,-1)!=LUA_TNIL)
 			{
 				const char* loginc=lua_tostring(L,-1);
+				login=new char[strlen(loginc)];
 				strcpy(login,loginc);
 			}
 			else
@@ -157,6 +158,7 @@ namespace
 			if (lua_type(L,-1)!=LUA_TNIL)
 			{
 				const char* passc=lua_tostring(L,-1);
+				pass=new char[strlen(passc)];
 				strcpy(pass,passc);
 			}
 			else
@@ -164,12 +166,13 @@ namespace
 				lua_pushstring(L,"wrong args!");
 				lua_error_(L);
 			}
-			lua_remove(L,-1);
 			if(!authRegister(login, pass))
 			{
 				lua_pushstring(L,"couldn't register");
 				lua_error_(L);
 			}
+			delete[] login;
+			delete[] pass;
 		}
 		else
 		{
@@ -185,8 +188,10 @@ namespace
 		{
 			char* login;
 			const char* loginc=lua_tostring(L, 1);
+			login=new char[strlen(loginc)];
 			strcpy(login, loginc);
 			authLock(login);
+			delete[] login;
 		}
 		else
 		{
