@@ -806,6 +806,7 @@ extern void clientViewInit();
 extern void unitDefsInit();
 extern void tilesInit();
 extern void cliUntilInit();
+extern bool initAuthData();
 extern "C" void scoreInit(lua_State *L);
 extern "C" void initAudServer(lua_State *L);
 
@@ -957,6 +958,7 @@ void injectCon()
 	scoreInit(L);
 	waypointsInit();
 	cliUntilInit();
+	initAuthData();
 
 	InjectJumpTo(0x00443C80,&onConCmd);// Функция реакции на консольную команду
 	InjectOffs(0x4D2AB5,&onEachFrame);

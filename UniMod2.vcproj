@@ -258,7 +258,7 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
 						/>
 					</FileConfiguration>
 				</File>
@@ -420,6 +420,10 @@
 				>
 				<File
 					RelativePath=".\audServer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\authManager.cpp"
 					>
 				</File>
 				<File
