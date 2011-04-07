@@ -733,6 +733,9 @@ public:
 		lua_getfield(L,1,Name);
 		return lua_tointeger(L,-1);
 	}
+	ListboxData LD;
+	EditboxData ED;
+
 	int wndCreate(lua_State *L)
 	{
 		lua_settop(L,2);
@@ -883,14 +886,13 @@ public:
 				lua_settable(L,1); // положим данные в таблицу окна
 			}else if (0==strcmpi(ControlType,"ENTRYFIELD"))
 			{
-				static EditboxData D;
-				D.Create(L,1);
-				DataPtr=&D;
+				ED.Create(L,1);
+				DataPtr=&ED;
 			}else if (0==strcmpi(ControlType,"SCROLLLISTBOX"))
 			{
-				static ListboxData D;
-				D.Create(L,1);
-				DataPtr=&D;
+				
+				LD.Create(L,1);
+				DataPtr=&LD;
 			}
 			void *Wnd=wndLoadControl(ControlType,Parent, Wdd.status,x,y,w,h, &Wdd,DataPtr);
 			if (Wnd==NULL)

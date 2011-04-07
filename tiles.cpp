@@ -103,6 +103,77 @@ namespace
 		}
 		return 1;
 	}
+	int tileSet2(lua_State*L)
+	{
+		lua_settop(L,3);
+		int x=lua_tointeger(L,1);
+		int y=lua_tointeger(L,2);
+		if (x<0 ||  y<0 || lua_type(L,3)!=LUA_TTABLE)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		int N=luaL_getn(L,3);
+		if (0!=(N&3))/// должно быть кратное четырем количество полей
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		if (N>4*6)
+		{
+			lua_pushstring(L,"wrong args - too many subtiles!");
+			lua_error_(L);
+		}
+		x/=46;
+		y/=23;
+		int right=y&1;
+		y>>=1;
+		TilePair *tp=((*tileRowData)[x])+y;
+		TileOne *One=NULL;
+		if (right==1)
+		{
+			One=&tp->right;
+			tp->flags|=2;
+		}
+		else
+		{
+			One=&tp->left;
+			tp->flags|=1;
+		}
+		if (One==NULL) 
+		{
+			lua_pushstring(L,"Unknown error!");
+			lua_error_(L);
+		}
+		TileOne *Prev=NULL;
+		for (int i=1;i<N;)
+		{
+			if (One==NULL)
+			{
+				One=tileListAddNew(0,0,0,0);
+				Prev->subTilePtr=One;
+			}
+			if (One==NULL) break; // вдруг при добавлении облом вышел
+			lua_rawgeti(L,3,i++);
+			One->image=lua_tointeger(L,-1);
+			lua_rawgeti(L,3,i++);
+			One->vari=lua_tointeger(L,-1);
+			lua_rawgeti(L,3,i++);
+			One->a=lua_tointeger(L,-1);
+			lua_rawgeti(L,3,i++);
+			One->b=lua_tointeger(L,-1);
+			lua_pop(L,4);
+
+			Prev=One;
+			One=One->subTilePtr;
+		}
+		if (One!=0 && Prev!=NULL)
+		{
+			tileFreeSubtiles(Prev);
+		}
+		*tileForceRedrawMB=1;		/// Тут надо послать на перерисовку экрана
+		return 0;
+	}
 	int tileSet(lua_State*L)
 	{
 		lua_settop(L,3);
@@ -206,6 +277,7 @@ void tilesInit()
 
 	registerserver("tileGet",tileGet);
 	registerserver("tileSet",tileSet);
+	registerserver("tileSet2",tileSet2);
 	registerclient("tileGetName",tileGetName);
 	registerclient("tileMaxVari",tileMaxVari);
 }
