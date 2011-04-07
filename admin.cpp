@@ -934,7 +934,6 @@ namespace
 	{
 		guiUpdate();
 		httpGetCallback(L);
-		httpAuthProcess();
 		bool useGetAuth=false;
 		if(useGetAuth==true)
 			AuthProcess();
