@@ -150,6 +150,48 @@ namespace
 		return false;
 	}
 
+	bool authDelete(char* login)
+	{
+		CSHA1 sha;
+		sha.Update((const unsigned char*)login, strlen(login));
+		sha.Final();
+		unsigned char lhash[20];
+		sha.GetHash(lhash);
+		sha.Reset();
+		if(authData.find(sha1hash(lhash))!=authData.end() && strncmp(authData[sha1hash(lhash)].login, login, 50)==0)
+		{
+			authMap::iterator it = authData.find(sha1hash(lhash));
+			account* acc=&it->second;
+			//sha1hash* lhash=&it->first;
+			authData.erase(it);
+			
+			//delete acc;
+			//delete lhash;
+			updateAuthDB.push(true);
+			return true;
+		}
+		return false;
+	}
+
+	bool authChangePass(char* login, char* pass)
+	{
+		CSHA1 sha;
+		sha.Update((const unsigned char*)login, strlen(login));
+		sha.Final();
+		unsigned char lhash[20];
+		sha.GetHash(lhash);
+		sha.Reset();
+		if(authData.find(sha1hash(lhash))!=authData.end() && strncmp(authData[sha1hash(lhash)].login, login, 50)==0)
+		{
+			sha.Update((const unsigned char*)pass, strlen(pass));
+			sha.Final();
+			sha.GetHash(authData[sha1hash(lhash)].phash);
+			sha.Reset();
+			return true;
+		}
+		return false;
+	}
+
 	void authentificate()
 	{
 		if(notLoggedIn.empty()!=true)
@@ -216,6 +258,98 @@ namespace
 		return 0;
 	}
 
+	int authChangePassL(lua_State *L)
+	{
+		if (lua_type(L,1)==LUA_TTABLE)
+		{
+			char* login;
+			char* pass;
+			lua_getfield(L,1,"login");
+			if (lua_type(L,-1)!=LUA_TNIL)
+			{
+				const char* loginc=lua_tostring(L,-1);
+				login=new char[strlen(loginc)+1];
+				strcpy(login,loginc);
+			}
+			else
+			{
+				lua_pushstring(L,"wrong args!");
+				lua_error_(L);
+			}
+			lua_getfield(L,1,"pass");
+			if (lua_type(L,-1)!=LUA_TNIL)
+			{
+				const char* passc=lua_tostring(L,-1);
+				pass=new char[strlen(passc)+1];
+				strcpy(pass,passc);
+			}
+			else
+			{
+				lua_pushstring(L,"wrong args!");
+				lua_error_(L);
+			}
+			if(!authChangePass(login, pass))
+			{
+				lua_pushstring(L,"couldn't change password");
+				lua_error_(L);
+			}
+			delete [] login;
+			delete [] pass;
+		}
+		else
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		return 0;
+	}
+
+	int authLoginL(lua_State *L)
+	{
+		if (lua_type(L,1)==LUA_TTABLE)
+		{
+			char* login;
+			char* pass;
+			lua_getfield(L,1,"login");
+			if (lua_type(L,-1)!=LUA_TNIL)
+			{
+				const char* loginc=lua_tostring(L,-1);
+				login=new char[strlen(loginc)+1];
+				strcpy(login,loginc);
+			}
+			else
+			{
+				lua_pushstring(L,"wrong args!");
+				lua_error_(L);
+			}
+			lua_getfield(L,1,"pass");
+			if (lua_type(L,-1)!=LUA_TNIL)
+			{
+				const char* passc=lua_tostring(L,-1);
+				pass=new char[strlen(passc)+1];
+				strcpy(pass,passc);
+			}
+			else
+			{
+				lua_pushstring(L,"wrong args!");
+				lua_error_(L);
+			}
+			if(!authLogin(login, pass))
+			{
+				lua_pushstring(L,"couldn't login");
+				lua_error_(L);
+			}
+			delete [] login;
+			delete [] pass;
+		}
+		else
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		return 0;
+	}
+
 	int authLockL(lua_State *L)
 	{
 		if (lua_type(L,1)==LUA_TSTRING)
@@ -230,6 +364,25 @@ namespace
 		else
 		{
 			lua_pushstring(L,"couldn't register");
+			lua_error_(L);
+		}
+		return 0;
+	}
+
+	int authDeleteL(lua_State *L)
+	{
+		if (lua_type(L,1)==LUA_TSTRING)
+		{
+			char* login;
+			const char* loginc=lua_tostring(L, 1);
+			login=new char[strlen(loginc)+1];
+			strcpy(login, loginc);
+			authDelete(login);
+			delete [] login;
+		}
+		else
+		{
+			lua_pushstring(L,"couldn't delete");
 			lua_error_(L);
 		}
 		return 0;
@@ -283,7 +436,10 @@ bool initAuthData()
 {
 	registerserver("authRegister",&authRegisterL);
 	registerserver("authLock",&authLockL);
+	registerserver("authLogin",&authLoginL);
+	registerserver("authChangePass",&authChangePassL);
 	registerserver("authToggle",&authToggleL);
+	registerserver("authDelete",&authDeleteL);
 	registerserver("playerGetByLogin",&playerGetByLogin);
 
 	ifstream file("authData.bin", ios::in | ios::binary);
