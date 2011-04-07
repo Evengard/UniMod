@@ -21,7 +21,7 @@ namespace
 	int myCastSpellByUserPlayer(int Spell, void *Caster, SpellTargetBlock *TargetBlock)
 	{
 		bool check=true;
-		if(spellDefHasFlags(Spell,0x200400)==1 && Spell!=34)
+		if(spellDefHasFlags(Spell,0x200400)==1 && Spell!=34 && (Spell<75 || Spell>114))
 		{
 			if(Caster!=TargetBlock->target && spellDefHasFlags(Spell,0x600)==1)
 				check=false;
