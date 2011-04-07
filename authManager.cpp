@@ -11,7 +11,7 @@ using namespace std;
 
 extern byte authorisedState[0x20];
 extern char* authorisedLogins[0x20];
-
+extern bool specialAuthorisation; //Отключение альтернативной авторизации
 namespace
 {
 	queue<bool> updateAuthDB;
@@ -234,12 +234,22 @@ namespace
 		}
 		return 0;
 	}
+
+	int authToggleL(lua_State *L)
+	{
+		if(specialAuthorisation)
+			specialAuthorisation=false;
+		else
+			specialAuthorisation=true;
+		return 0;
+	}
 }
 
 bool initAuthData()
 {
 	registerserver("authRegister",&authRegisterL);
 	registerserver("authLock",&authLockL);
+	registerserver("authToggle",&authToggleL);
 
 
 	ifstream file("authData.bin", ios::in | ios::binary);

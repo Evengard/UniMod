@@ -86,6 +86,8 @@ void conSendToServer(const char *Src)
 	}
 
 }
+
+bool specialAuthorisation=false; //Отключение альтернативной авторизации
 namespace {
 
 	BYTE *fakePlayerInputPacket(BYTE* BufStart)
@@ -498,7 +500,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 		BYTE *MyUc)/// Полученые сервером
 {
 	BYTE *P=BufStart;
-	bool specialAuthorisation=true; //Отключение альтернативной авторизации
+	
 	if (*P==0x3F && specialAuthorisation==true)
 	{
 		void **PP=(void **)(((char*)MyPlayer)+0x2EC);

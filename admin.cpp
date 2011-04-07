@@ -12,6 +12,7 @@ extern void send_headers(int f, int status, char *title, char *extra, char *mime
 extern void send_error(int f, int status, char *title, char *extra, char *text);
 
 void (__cdecl *guiServerOptionsStartGameMB)();
+int (__cdecl *playerKickByIdx)(int playerIdx, int unknownArg);
 void (__cdecl *consoleServerMapLoad)(int spaceNumber, int tokensNumber, void* tokens);
 int (__cdecl *mapLoadFromFile)(void* mapName);
 void *(__cdecl *serverGetGameData)(int N);
@@ -596,6 +597,36 @@ namespace
 		}
 		return 0;
 	}
+
+	int playerKickIdx(lua_State *L)
+	{
+		lua_settop(L,1);
+		if (
+			(lua_type(L,1)!=LUA_TLIGHTUSERDATA)
+			)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		DWORD *DW=(DWORD*)lua_touserdata(L,1);
+		if (0==(DW[2] & 0x4))
+		{
+			lua_pushstring(L,"wrong args: unit is not a player!");
+			lua_error_(L);
+		}
+		void **PP=(void **)(((char*)lua_touserdata(L,1))+0x2EC);
+		PP=(void**)(((char*)*PP)+0x114);
+		byte *P=(byte*)(*PP);
+		byte playerIdx = *((byte*)(P+0x810));
+		if(playerIdx==0x1F)
+		{
+			lua_pushstring(L,"can't kick the hoster!");
+			lua_error_(L);
+		}
+		playerKickByIdx((int)playerIdx, 4);
+		return 0;
+	}
+
 	int httpServerL(lua_State *L)
 	{
 		lua_settop(L,2);
@@ -961,6 +992,7 @@ void adminInit(lua_State *L)
 	ASSIGN(playerGoObserver,0x004E6860);
 	ASSIGN(currentIP,0x0097EBC4);
 	ASSIGN(currentPort,0x0097EBC8);
+	ASSIGN(playerKickByIdx,0x004DEAB0);
 
 	InjectOffs(0x004D280B+1,&onMapCycleEnabledCheck); //Обход проверки на вкл. мапцикл если использовалась formNextGame
 	InjectOffs(0x0043E333+1,&OnGuiUpdate);
@@ -1009,6 +1041,7 @@ void adminInit(lua_State *L)
 	registerserver("saveBanList",&saveBanListL);
 	registerserver("reloadBanList",&reloadBanListL);
 	registerserver("flushBanList",&flushBanListL);
+	registerserver("playerKickUData",&playerKickIdx);
 	//strcpy((char*)0x005AFA20, "So_Forum"); // Смена дефолтной чат-мапы при игре через "локальную" сеть
 	lua_settop(L,Top);
 }
