@@ -139,7 +139,7 @@ namespace
 		char timeLimitMB;
 		char isNew;
 	};
-
+	bool needToFormGame=false;
 	int formGame(lua_State *L)
 	{
 		lua_settop(L,1);
@@ -158,6 +158,7 @@ namespace
 				lua_remove(L,1);
 		}
 		lua_setfield(L,LUA_REGISTRYINDEX,"formGameTable");
+		needToFormGame=true;
 		return 0;
 	}
 
@@ -667,20 +668,13 @@ namespace
 		}
 		return getConfigData();
 	}
-
-	void __cdecl OnGuiUpdate()
+	void doFormGame()
 	{
-		guiUpdate();
-		httpGetCallback(L);
-		bool useGetAuth=false;
-		if(useGetAuth==true)
-			AuthProcess();
-		else
-			updateAuthDBProcess();
 		int Top=lua_gettop(L);
 		bool sameMap = false;
 		bool dontUseGUIFunc = false;
 		bool newGame=false;
+
 		lua_getfield(L,LUA_REGISTRYINDEX,"formGameTable");
 		if (lua_type(L,Top+1)==LUA_TTABLE)
 		{
@@ -935,6 +929,22 @@ namespace
 			}
 		}
 		lua_settop(L,Top);
+	}
+	void __cdecl OnGuiUpdate()
+	{
+		guiUpdate();
+		httpGetCallback(L);
+		httpAuthProcess();
+		bool useGetAuth=false;
+		if(useGetAuth==true)
+			AuthProcess();
+		else
+			updateAuthDBProcess();
+		if (needToFormGame)
+		{
+			needToFormGame=false;
+			doFormGame();
+		}
 	}
 
 	void* onPlayerLeave(byte Index)

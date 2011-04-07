@@ -203,6 +203,7 @@ namespace {
 				return 8;
 			}
 	}
+
  int setWallAtPtL(lua_State *L)
  {
   int tileName;
