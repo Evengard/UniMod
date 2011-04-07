@@ -598,7 +598,7 @@ namespace
 		return 0;
 	}
 
-	int playerKickIdx(lua_State *L)
+	int playerKickUData(lua_State *L)
 	{
 		lua_settop(L,1);
 		if (
@@ -1041,7 +1041,7 @@ void adminInit(lua_State *L)
 	registerserver("saveBanList",&saveBanListL);
 	registerserver("reloadBanList",&reloadBanListL);
 	registerserver("flushBanList",&flushBanListL);
-	registerserver("playerKickUData",&playerKickIdx);
+	registerserver("playerKickUData",&playerKickUData);
 	//strcpy((char*)0x005AFA20, "So_Forum"); // Смена дефолтной чат-мапы при игре через "локальную" сеть
 	lua_settop(L,Top);
 }

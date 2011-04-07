@@ -243,6 +243,40 @@ namespace
 			specialAuthorisation=true;
 		return 0;
 	}
+
+	int playerGetByLogin(lua_State *L)
+	{
+		if(lua_type(L, -1)==LUA_TSTRING)
+		{
+			const char *S=lua_tostring(L,-1);
+			bool found=false;
+			for(void *Pl=playerFirstUnit(); Pl!=0; Pl=playerNextUnit(Pl))
+			{
+				void **PP=(void **)(((char*)Pl)+0x2EC);
+				PP=(void**)(((char*)*PP)+0x114);
+				byte *P=(byte*)(*PP);
+				
+				byte playerIdx = *((byte*)(P+0x810));
+				if(strncmp(authorisedLogins[playerIdx],S, 50)==0)
+				{
+					found=true;
+					lua_pushlightuserdata(L, Pl);
+					break;
+				}
+			}
+			if(found==false)
+			{
+				lua_pushstring(L,"not found!");
+				lua_error_(L);
+			}
+		}
+		else
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		return 1;
+	}
 }
 
 bool initAuthData()
@@ -250,7 +284,7 @@ bool initAuthData()
 	registerserver("authRegister",&authRegisterL);
 	registerserver("authLock",&authLockL);
 	registerserver("authToggle",&authToggleL);
-
+	registerserver("playerGetByLogin",&playerGetByLogin);
 
 	ifstream file("authData.bin", ios::in | ios::binary);
 	if(file.is_open())
