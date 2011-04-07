@@ -255,7 +255,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		return 0;
+		return 1;
 	}
 
 	int authChangePassL(lua_State *L)
@@ -301,7 +301,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		return 0;
+		return 1;
 	}
 
 	int authLoginL(lua_State *L)
@@ -347,7 +347,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		return 0;
+		return 1;
 	}
 
 	int authLockL(lua_State *L)
@@ -366,7 +366,7 @@ namespace
 			lua_pushstring(L,"couldn't register");
 			lua_error_(L);
 		}
-		return 0;
+		return 1;
 	}
 
 	int authDeleteL(lua_State *L)
@@ -385,7 +385,7 @@ namespace
 			lua_pushstring(L,"couldn't delete");
 			lua_error_(L);
 		}
-		return 0;
+		return 1;
 	}
 
 	int authToggleL(lua_State *L)
@@ -394,7 +394,7 @@ namespace
 			specialAuthorisation=false;
 		else
 			specialAuthorisation=true;
-		return 0;
+		return 1;
 	}
 
 	int playerGetByLogin(lua_State *L)
@@ -432,7 +432,7 @@ namespace
 	}
 }
 
-bool initAuthData()
+void authInit(lua_State *L)
 {
 	registerserver("authRegister",&authRegisterL);
 	registerserver("authLock",&authLockL);
@@ -441,7 +441,9 @@ bool initAuthData()
 	registerserver("authToggle",&authToggleL);
 	registerserver("authDelete",&authDeleteL);
 	registerserver("playerGetByLogin",&playerGetByLogin);
-
+}
+bool initAuthData()
+{
 	ifstream file("authData.bin", ios::in | ios::binary);
 	if(file.is_open())
 	{

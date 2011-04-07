@@ -808,6 +808,7 @@ extern void tilesInit();
 extern void cliUntilInit();
 extern bool initAuthData();
 extern "C" void scoreInit(lua_State *L);
+
 extern "C" void initAudServer(lua_State *L);
 
 extern void guiInit();
@@ -819,6 +820,7 @@ extern void initModLib2();
 extern void initFilesystem();
 
 extern "C" void adminInit(lua_State *L);
+//extern "C" void authInit(lua_State *L);
 extern "C" int luaopen_lpeg (lua_State *L);
 extern "C" void loadJson(lua_State *L);
 extern "C" void mapUtilInit(lua_State*L);
@@ -939,6 +941,8 @@ void injectCon()
 	initFilesystem();
 	consoleInit();
 	adminInit(L);
+	//authInit(L);
+	initAuthData();
 	initAudServer(L);
 	reactInit();
 
@@ -959,7 +963,7 @@ void injectCon()
 	waypointsInit();
 	cliUntilInit();
 	//MessageBox(0,"!",0,0);
-	initAuthData();
+	
 
 	InjectJumpTo(0x00443C80,&onConCmd);// Функция реакции на консольную команду
 	InjectOffs(0x4D2AB5,&onEachFrame);
