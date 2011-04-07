@@ -958,6 +958,7 @@ void injectCon()
 	scoreInit(L);
 	waypointsInit();
 	cliUntilInit();
+	//MessageBox(0,"!",0,0);
 	initAuthData();
 
 	InjectJumpTo(0x00443C80,&onConCmd);// Функция реакции на консольную команду

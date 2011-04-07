@@ -19,6 +19,38 @@ namespace
 	bool authUpdating=false;
 	HANDLE authUpdate;
 
+	struct sha1hash
+	{
+		unsigned char val[20];
+
+		sha1hash()
+		{
+			memset(val, '\0', 20);
+		}
+
+		sha1hash(const sha1hash& oth)
+		{
+			memmove(val, oth.val, 20);
+		}
+
+		sha1hash(const unsigned char * str)
+		{
+			memset(val, '\0', 20);
+			if (str)
+			{
+				strncpy((char*)val, (char*)str, 20);
+			}
+		}
+
+		// required for 'map', 'set', etc
+		bool operator<(const sha1hash& oth) const
+		{
+			return strncmp((char*)val , (char*)oth.val, 20) < 0;
+		}
+	};
+
+
+
 	struct account
 	{
 		char login[50];
@@ -28,7 +60,7 @@ namespace
 		char unused[8];
 	};
 
-	typedef map<unsigned char*, account> authMap;
+	typedef map<sha1hash, account> authMap;
 	authMap authData;
 
 	
@@ -38,11 +70,13 @@ namespace
 		for (authMap::const_iterator it = authData.begin(); it != authData.end(); ++it)
 		{
 			char rawData[100];
-			strncpy(rawData, (char*)it->first, 20);
+			strncpy(rawData, (char*)it->first.val, 20);
 			memcpy(&rawData[20], &it->second, 80);
 			char zero=0;
 			memcpy(&rawData[92], &zero, 8);
+			file.write(rawData, 100);
 		}
+		file.close();
 		return true;
 	}
 
@@ -54,21 +88,21 @@ namespace
 		unsigned char lhash[20];
 		sha.GetHash(lhash);
 		sha.Reset();
-		if(strcmp(authData[lhash].login, login)!=0)
+		sha.Update((const unsigned char*)pass, strlen(pass));
+		sha.Final();
+		unsigned char phash[20];
+		sha.GetHash(phash);
+		sha.Reset();
+		account* newAcc = new account;
+		memset(newAcc->login, '\0', 50);
+		strncpy(newAcc->login, login, ((strlen(login)>50)?50:strlen(login)));
+		strncpy((char*)newAcc->phash, (char*)phash, 20);
+		newAcc->isActive=true;
+		newAcc->isAdmin=false;
+		memset(newAcc->unused, '\0', 8);
+		pair<sha1hash, account> newPair = pair<sha1hash, account>(sha1hash(lhash), *newAcc);
+		if(authData.insert(newPair).second)
 		{
-			sha.Update((const unsigned char*)pass, strlen(pass));
-			sha.Final();
-			unsigned char phash[20];
-			sha.GetHash(phash);
-			sha.Reset();
-			account newAcc;
-			strncpy(newAcc.login, login, ((strlen(login)>50)?50:strlen(login)));
-			strncpy((char*)newAcc.phash, (char*)phash, 20);
-			newAcc.isActive=true;
-			newAcc.isAdmin=false;
-			char zero=0;
-			memcpy(newAcc.unused, &zero, 8);
-			authData.insert(make_pair(lhash, newAcc));
 			updateAuthDB.push(true);
 			return true;
 		}
@@ -83,14 +117,14 @@ namespace
 		unsigned char lhash[20];
 		sha.GetHash(lhash);
 		sha.Reset();
-		if(strcmp(authData[lhash].login, login)==0 && authData[lhash].isActive==true)
+		if(authData.find(sha1hash(lhash))!=authData.end() && strncmp(authData[sha1hash(lhash)].login, login, 50)==0 && authData[sha1hash(lhash)].isActive==true)
 		{
 			sha.Update((const unsigned char*)pass, strlen(pass));
 			sha.Final();
 			unsigned char phash[20];
 			sha.GetHash(phash);
 			sha.Reset();
-			if(strcmp((char*)authData[lhash].phash, (char*)phash)==0)
+			if(strncmp((char*)authData[sha1hash(lhash)].phash, (char*)phash, 20)==0)
 				return true;
 		}
 		return false;
@@ -104,12 +138,12 @@ namespace
 		unsigned char lhash[20];
 		sha.GetHash(lhash);
 		sha.Reset();
-		if(strcmp(authData[lhash].login, login)==0)
+		if(authData.find(sha1hash(lhash))!=authData.end() && strncmp(authData[sha1hash(lhash)].login, login, 50)==0)
 		{
-			if(authData[lhash].isActive==true)
-				authData[lhash].isActive=false;
+			if(authData[sha1hash(lhash)].isActive==true)
+				authData[sha1hash(lhash)].isActive=false;
 			else
-				authData[lhash].isActive=true;
+				authData[sha1hash(lhash)].isActive=true;
 			updateAuthDB.push(true);
 			return true;
 		}
@@ -146,7 +180,7 @@ namespace
 			if (lua_type(L,-1)!=LUA_TNIL)
 			{
 				const char* loginc=lua_tostring(L,-1);
-				login=new char[strlen(loginc)];
+				login=new char[strlen(loginc)+1];
 				strcpy(login,loginc);
 			}
 			else
@@ -158,7 +192,7 @@ namespace
 			if (lua_type(L,-1)!=LUA_TNIL)
 			{
 				const char* passc=lua_tostring(L,-1);
-				pass=new char[strlen(passc)];
+				pass=new char[strlen(passc)+1];
 				strcpy(pass,passc);
 			}
 			else
@@ -171,8 +205,8 @@ namespace
 				lua_pushstring(L,"couldn't register");
 				lua_error_(L);
 			}
-			delete[] login;
-			delete[] pass;
+			delete [] login;
+			delete [] pass;
 		}
 		else
 		{
@@ -188,10 +222,10 @@ namespace
 		{
 			char* login;
 			const char* loginc=lua_tostring(L, 1);
-			login=new char[strlen(loginc)];
+			login=new char[strlen(loginc)+1];
 			strcpy(login, loginc);
 			authLock(login);
-			delete[] login;
+			delete [] login;
 		}
 		else
 		{
@@ -213,7 +247,7 @@ bool initAuthData()
 	{
 		file.seekg(0, ios::end);
 		size_t filesize=file.tellg();
-		for(size_t i=0; (i-100)<=filesize; i+=100)
+		for(size_t i=0; (i+100)<=filesize; i+=100)
 		{
 			file.seekg(i, ios::beg);
 			unsigned char *loginhash = new unsigned char[20];
@@ -221,12 +255,14 @@ bool initAuthData()
 			file.seekg(i+20, ios::beg);
 			char logindata[80];
 			file.read(logindata, 80);
-			account authEntry;
-			memcpy(&authEntry, logindata, 80);
-			authData.insert(make_pair(loginhash, authEntry));
+			account *authEntry = new account;
+			memcpy(authEntry, logindata, 80);
+			authData.insert(pair<sha1hash, account>(sha1hash(loginhash), *authEntry));
 		}
+		file.close();
 		return true;
 	}
+	file.close();
 	return false;
 }
 
@@ -248,5 +284,5 @@ void updateAuthDBProcess()
 
 void authCheckDelayed(byte playerIdx, char* pass)
 {
-	notLoggedIn.insert(make_pair(playerIdx, pass));
+	notLoggedIn.insert(pair<byte, char*>(playerIdx, pass));
 }
