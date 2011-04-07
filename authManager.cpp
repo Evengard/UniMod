@@ -255,6 +255,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
+		lua_pushstring(L, "ok");
 		return 1;
 	}
 
@@ -301,6 +302,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
+		lua_pushstring(L, "ok");
 		return 1;
 	}
 
@@ -347,6 +349,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
+		lua_pushstring(L, "ok");
 		return 1;
 	}
 
@@ -366,6 +369,7 @@ namespace
 			lua_pushstring(L,"couldn't register");
 			lua_error_(L);
 		}
+		lua_pushstring(L, "ok");
 		return 1;
 	}
 
@@ -385,6 +389,7 @@ namespace
 			lua_pushstring(L,"couldn't delete");
 			lua_error_(L);
 		}
+		lua_pushstring(L, "ok");
 		return 1;
 	}
 
@@ -394,6 +399,7 @@ namespace
 			specialAuthorisation=false;
 		else
 			specialAuthorisation=true;
+		lua_pushstring(L, "ok");
 		return 1;
 	}
 
