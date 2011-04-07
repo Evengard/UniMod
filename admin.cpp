@@ -957,6 +957,7 @@ namespace
 
 }
 extern "C" void adminInit(lua_State *L);
+extern void authInit(lua_State *L);
 extern void InjectOffs(DWORD Addr,void *Fn);
 void adminInit(lua_State *L)
 {
@@ -1042,6 +1043,7 @@ void adminInit(lua_State *L)
 	registerserver("reloadBanList",&reloadBanListL);
 	registerserver("flushBanList",&flushBanListL);
 	registerserver("playerKickUData",&playerKickUData);
+	authInit(L);
 	//strcpy((char*)0x005AFA20, "So_Forum"); // Смена дефолтной чат-мапы при игре через "локальную" сеть
 	lua_settop(L,Top);
 }
