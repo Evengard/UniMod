@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#include <time.h>
 /*
 Исследовать:
 +) Появление обелисков
@@ -625,7 +625,86 @@ namespace
 				,&getUnitsAroundImpl,L);
 		return 0;
 	}
-	
+//////
+	LPTOP_LEVEL_EXCEPTION_FILTER OldFilter=0;
+	char exAppName[MAX_PATH]="";
+	char exCmdLine[MAX_PATH]="";
+	char exCurDir[MAX_PATH]="";
+
+	int ExceptionMode=0;
+	int setExMode(lua_State *L)
+	{
+		lua_settop(L,3);
+		lua_pushinteger(L,ExceptionMode);
+		ExceptionMode=lua_tointeger(L,3);
+		return 1;
+	}
+		// 0 - ничего не делать(как обычно)
+		// 1 - записать в log и закрытся
+		// 2 - записать в log и рестартовать нокс
+		// 
+	LONG WINAPI ExceptionFilter(
+	    _EXCEPTION_POINTERS *EI
+	    )
+	{
+		static char Buf[1024];
+		char *P=Buf;
+		int L=0;
+		int Remain=sizeof(Buf)-1;
+		if (ExceptionMode==0)
+		{
+			if (OldFilter!=NULL)
+				return OldFilter(EI);
+		}
+		L=_snprintf(P,Remain,"=========\n== %8d\nE 0x%08x at 0x%08x, Esp: 0x%08x\nStack:\n",_time32(NULL),
+			EI->ExceptionRecord->ExceptionCode,EI->ExceptionRecord->ExceptionAddress,EI->ContextRecord->Esp);
+		P+=L;Remain-=L;
+		DWORD *DW=(DWORD*)EI->ContextRecord->Esp;
+		for (int i=0;i<32;i++)
+		{
+			if (IsBadReadPtr(DW,4))
+				break;
+			if (Remain<4)
+				break;
+			L=_snprintf(P,Remain,"0x%08x\n",*(DW++));
+			P+=L;Remain-=L;
+		}
+		L=_snprintf(P,Remain,"== END ==\n");
+		P+=L;Remain-=L;
+		FILE *F=fopen("UniErrorLog.txt","a+");
+		if (F!=NULL)
+		{
+			fwrite(Buf,P-Buf,1,F);
+			fclose(F);
+		}
+//		MessageBox(0,Buf,0,0);
+		if (ExceptionMode==2)
+		{
+//			static char Buf[1024];
+//			sprintf(Buf,"%s\n%s\n%s",exAppName,exCmdLine,exCurDir);
+//			MessageBox(0,Buf,0,0);
+			static STARTUPINFO SI={0};
+			static PROCESS_INFORMATION PI={0};
+			SI.cb=sizeof(SI);
+			Sleep(0);
+			CreateProcess(exAppName,exCmdLine,NULL,NULL,FALSE,0,NULL,exCurDir,&SI,&PI);
+			CloseHandle(PI.hProcess);
+			CloseHandle(PI.hThread);
+		}
+		ExitProcess(-1);
+		return 0;
+	}
+	void exInit()
+	{
+		GetModuleFileName (NULL,exAppName,MAX_PATH);
+		const char *Cmd=GetCommandLine();
+		strncpy(exCmdLine,Cmd,MAX_PATH-1);
+		GetCurrentDirectory(MAX_PATH,exCurDir);
+		OldFilter=SetUnhandledExceptionFilter(&ExceptionFilter);
+		
+	}
+
+////
 
 	int timeoutNextId=1;
 	struct TimeoutListRec
@@ -828,6 +907,7 @@ extern bool serverUpdate();
 
 void injectCon()
 {
+	exInit();
 	initModLib2();
 	luaopen_lpeg (L);
 	loadJson(L);
@@ -879,7 +959,7 @@ void injectCon()
 	lua_pushvalue(L,-1); 
 	lua_setfield(L,LUA_REGISTRYINDEX,"setTimeout");
 	registerServerVar("setTimeout");
-
+	registerserver("setExMode",&setExMode);
 	registerserver("unitGetAround",&getUnitsAround);
 	
 	lua_pushcfunction(L,&printL);
