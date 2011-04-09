@@ -40,6 +40,8 @@ extern void authAddToList(char* Data);
 
 extern void authCheckDelayed(byte playerIdx, char* pass);
 
+extern char authSendWelcomeMsg[0x20];
+
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
 	if (NetCode & 0x8000)
@@ -85,6 +87,19 @@ void conSendToServer(const char *Src)
 		netSendServ(Buf,Size+P-Buf);
 	}
 
+}
+
+void netSendChatMessage(char *sendChat, int sendTo)
+{
+	byte sendChatPacketHeader[0xB] = {0xA8, 0x2, 0x0, 0x2, 0x72, 0x0B, 0x7D, 0x0B, 0x5, 0x0, 0x0};
+	byte *sendChatPacket=new byte[strlen(sendChat)+0xB+1];
+	memcpy(sendChatPacket, sendChatPacketHeader, 0xB);
+	memcpy(&sendChatPacket[0xB], sendChat, strlen(sendChat));
+	sendChatPacket[0x8]=strlen(sendChat)+1;
+	sendChatPacket[0xB+strlen(sendChat)]=0x0;
+	netClientSend(sendTo,1,sendChatPacket,strlen(sendChat)+0xB+1);
+	delete [] sendChatPacket;
+	return;
 }
 
 bool specialAuthorisation=false; //Отключение альтернативной авторизации
@@ -556,6 +571,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 							strncpy(login, (char*)&P[0xB], P[0x8]);
 							authorisedLogins[playerIdx]=login;
 							authorisedState[playerIdx]++;
+							authSendWelcomeMsg[playerIdx]=-1;
 							BufStart+=BufStart[0x8]+0xB;
 							found=true;
 							login = NULL;
@@ -576,6 +592,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 							//temp=data;
 							// TEMPORARY! END
 							authorisedState[playerIdx]++;
+							authSendWelcomeMsg[playerIdx]=-1;
 							//authAddToList(data);
 							authCheckDelayed(playerIdx, pass);
 							BufStart+=BufStart[0x8]+0xB;
@@ -665,6 +682,11 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 }
 extern void InjectJumpTo(DWORD Addr,void *Fn);
 extern void InjectOffs(DWORD Addr,void *Fn);
+int sendChat(lua_State* L)
+{
+	netSendChatMessage("Enter your login", 0x00);
+	return 0;
+}
 void netInit()
 {
 	ASSIGN(netSpriteByCodeHi,0x0045A720);
@@ -692,9 +714,11 @@ void netInit()
 	registerserver("netReq",&netDoReq);
 
 	registerserver("netFake",&netFake);
+	registerserver("sendChat",&sendChat);
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
 	char Buf[40]="";
 	sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
 	registerclient(Buf,&sendToServer);
 }
+
