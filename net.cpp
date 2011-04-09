@@ -442,54 +442,61 @@ extern void netOnSendArchive(int Size,char *Name,char *NameE);
 extern void netOnAbortDownload();
 void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
 {
-	BYTE *P=BufStart;
-	if (*P==186)
-		netOnAbortDownload();
-	else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
+	bool found=true;
+	// ВНИМАНИЕ! Для всех ВЫФИЛЬТРОВЫВАЕМЫХ пакетов - обязательно ставьте found=true! Иначе не будет производиться обработка других пакетов в ЭТОМ же фрейме!
+	while(found)
 	{
-		P++;
-		BufStart+=2+*(P++);// выфильтровываем его нафиг
-		
-/*		char Buf[60];
-		sprintf(Buf,"Unipacket cli %x",*P);
-		conPrintI(Buf);*/
-
-		switch (*(P++))
+		found=false;
+		BYTE *P=BufStart;
+		if (*P==186)
+			netOnAbortDownload();
+		else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
 		{
-		case upWallChanged:
-			netOnWallChanged((wallRec*)P);
-			break;
-		/*case upLuaRq:
-			netLuaRq(P,BufStart);
-			break;*/
-		case upNewStatic:
-			netNewStatic(P,BufStart);
-			break;
-		case upDelStatic:
-			netDelStatic(P,BufStart);
-			break;
-		case upMoveStatic:
-			netMoveStatic(P,BufStart);
-			break;
-		case upUpdateDef:
-			netOnUpdateUnitDef(P-UNIPACKET_HEAD,BufStart);
-			break;
-		case upSendArchive:
-			netOnSendArchive( *((int*)P),(char*)P+sizeof(int),(char*)BufStart);
-			break;
-		case upChangeTile:
-			netOnTileChanged(P,BufStart);
-			break;
-		case upVersionResp:
-			netOnVersionResp(P,BufStart);
-			break;
-		default:
+			P++;
+			BufStart+=2+*(P++);// выфильтровываем его нафиг
+			found=true;
+			
+	/*		char Buf[60];
+			sprintf(Buf,"Unipacket cli %x",*P);
+			conPrintI(Buf);*/
+
+			switch (*(P++))
 			{
-				ClientMap_s::const_iterator I=ClientRegMap.find(P[-1]);
-				if (I!=ClientRegMap.end())
-					I->second(P);
-			}
-		};
+			case upWallChanged:
+				netOnWallChanged((wallRec*)P);
+				break;
+			/*case upLuaRq:
+				netLuaRq(P,BufStart);
+				break;*/
+			case upNewStatic:
+				netNewStatic(P,BufStart);
+				break;
+			case upDelStatic:
+				netDelStatic(P,BufStart);
+				break;
+			case upMoveStatic:
+				netMoveStatic(P,BufStart);
+				break;
+			case upUpdateDef:
+				netOnUpdateUnitDef(P-UNIPACKET_HEAD,BufStart);
+				break;
+			case upSendArchive:
+				netOnSendArchive( *((int*)P),(char*)P+sizeof(int),(char*)BufStart);
+				break;
+			case upChangeTile:
+				netOnTileChanged(P,BufStart);
+				break;
+			case upVersionResp:
+				netOnVersionResp(P,BufStart);
+				break;
+			default:
+				{
+					ClientMap_s::const_iterator I=ClientRegMap.find(P[-1]);
+					if (I!=ClientRegMap.end())
+						I->second(P);
+				}
+			};
+		}
 	}
 }
 extern void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *MyUc);
