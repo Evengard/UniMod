@@ -635,13 +635,14 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 						I->second(P,MyPlayer,MyUc);
 				}
 			}
-			return;
+			//return;
 		} else if (*P==0x79) // TRY_SPELL
 		{
 			if ( *((DWORD*)(P+1)) > 0x100 ) /// если это "наши" спелы - надо самим решать чего с ними делать
 			{
 				spellServDoCustom((int*)(P+1),(P[15])!=0,MyPlayer,MyUc);
-				P+=0x16;
+				found=true;
+				BufStart+=0x16;
 			}
 		}
 	/*	else if (*P==0x72) // попытка выкинуть предмет
