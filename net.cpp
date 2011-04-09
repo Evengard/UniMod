@@ -459,9 +459,9 @@ void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
 		case upWallChanged:
 			netOnWallChanged((wallRec*)P);
 			break;
-		case upLuaRq:
+		/*case upLuaRq:
 			netLuaRq(P,BufStart);
-			break;
+			break;*/
 		case upNewStatic:
 			netNewStatic(P,BufStart);
 			break;
@@ -499,152 +499,161 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 		BYTE *MyPlayer, /// bigUnitStruct
 		BYTE *MyUc)/// Полученые сервером
 {
-	BYTE *P=BufStart;
-	
-	if (*P==0x3F && specialAuthorisation==true)
+	bool found=true;
+	// ВНИМАНИЕ! Для всех ВЫФИЛЬТРОВЫВАЕМЫХ пакетов - обязательно ставьте found=true! Иначе не будет производиться обработка других пакетов в ЭТОМ же фрейме!
+	while(found)
 	{
-		void **PP=(void **)(((char*)MyPlayer)+0x2EC);
-		PP=(void**)(((char*)*PP)+0x114);
-		byte *P=(byte*)(*PP);
-		byte playerIdx = *((byte*)(P+0x810));
-		if(playerIdx!=0x1F) // Так Нокс определяет Хоста
-			switch(authorisedState[playerIdx])
-			{
-				case 0: // Поидее сюда вообще не должно падать - игрока на сервере ещё нет
-				case 1: // Игрок на сервере, не начинал процедуру авторизации
-				case 2: // Игрок на сервере, ввёл логин
-				case 3: // Игрок на сервере, ввыл логин и пароль, ожидает авторизации
-					BufStart=fakePlayerInputPacket(BufStart);
-					// В этом состоянии игрок будет всё время пока не залогинется
-					break;
-				case 4: // Игрок на сервере, авторизован
-					// А в этом - залогинился наш голубчик
-					break;
-			}
-	}
-	else if(*P==0xA8 && specialAuthorisation==true)
-	{
-		void **PP=(void **)(((char*)MyPlayer)+0x2EC);
-		PP=(void**)(((char*)*PP)+0x114);
-		byte *Pl=(byte*)(*PP);
-		byte playerIdx = *((byte*)(Pl+0x810));
-		if(playerIdx!=0x1F && authorisedState[playerIdx]>=0 && authorisedState[playerIdx]<4)
+		found=false;
+		BYTE *P=BufStart;
+		if (*P==0x3F && specialAuthorisation==true)
 		{
-			switch(authorisedState[playerIdx])
+			void **PP=(void **)(((char*)MyPlayer)+0x2EC);
+			PP=(void**)(((char*)*PP)+0x114);
+			byte *P1=(byte*)(*PP);
+			byte playerIdx = *((byte*)(P1+0x810));
+			if(playerIdx!=0x1F) // Так Нокс определяет Хоста
+				switch(authorisedState[playerIdx])
+				{
+					case 0: // Поидее сюда вообще не должно падать - игрока на сервере ещё нет
+					case 1: // Игрок на сервере, не начинал процедуру авторизации
+					case 2: // Игрок на сервере, ввёл логин
+					case 3: // Игрок на сервере, ввыл логин и пароль, ожидает авторизации
+						BufStart=fakePlayerInputPacket(BufStart);
+						// В этом состоянии игрок будет всё время пока не залогинется
+						break;
+					case 4: // Игрок на сервере, авторизован
+						// А в этом - залогинился наш голубчик
+						break;
+				}
+		}
+		else if(*P==0xA8 && specialAuthorisation==true)
+		{
+			void **PP=(void **)(((char*)MyPlayer)+0x2EC);
+			PP=(void**)(((char*)*PP)+0x114);
+			byte *Pl=(byte*)(*PP);
+			byte playerIdx = *((byte*)(Pl+0x810));
+			if(playerIdx!=0x1F && authorisedState[playerIdx]>=0 && authorisedState[playerIdx]<4)
 			{
-				case 0: 
-				case 3:
-					BufStart+=BufStart[0x8]+0xB;
-					break;
-				case 1:
-					// Тут только логин сейвим
-					{
-						char *login=NULL;
-						login = new char[P[0x8]];
-						strncpy(login, (char*)&P[0xB], P[0x8]);
-						authorisedLogins[playerIdx]=login;
-						authorisedState[playerIdx]++;
+				switch(authorisedState[playerIdx])
+				{
+					case 0: 
+					case 3:
 						BufStart+=BufStart[0x8]+0xB;
-						login = NULL;
-					}
-					break;
-				case 2:
-					{
-						//char *data=NULL;
-						//data = new char[P[0x8]+1];
-						char* pass = new char[P[0x8]];
-						//memcpy(data, &playerIdx, 1);
-						//strncpy(&data[1], (char*)&P[0xB], P[0x8]);
-						strncpy(pass, (char*)&P[0xB], P[0x8]);
-
-						// Сюда добавить логику запуска аутентификации по http
-
-						// TEMPORARY!
-						//temp=data;
-						// TEMPORARY! END
-						authorisedState[playerIdx]++;
-						//authAddToList(data);
-						authCheckDelayed(playerIdx, pass);
-						BufStart+=BufStart[0x8]+0xB;
-						//data = NULL;
-						pass=NULL;
-					}
-					break;
-				/*case 3:
-					{
-						BufStart+=BufStart[0x8]+0xB;
-
-						// TEMPORARY!
-						if(strcmp(&temp[1], "password")==0)
+						found=true;
+						break;
+					case 1:
+						// Тут только логин сейвим
+						{
+							char *login=NULL;
+							login = new char[P[0x8]];
+							strncpy(login, (char*)&P[0xB], P[0x8]);
+							authorisedLogins[playerIdx]=login;
 							authorisedState[playerIdx]++;
-						else
-							authorisedState[playerIdx]-=2;
-						// TEMPORARY! END
-					}
-					break;*/
+							BufStart+=BufStart[0x8]+0xB;
+							found=true;
+							login = NULL;
+						}
+						break;
+					case 2:
+						{
+							//char *data=NULL;
+							//data = new char[P[0x8]+1];
+							char* pass = new char[P[0x8]];
+							//memcpy(data, &playerIdx, 1);
+							//strncpy(&data[1], (char*)&P[0xB], P[0x8]);
+							strncpy(pass, (char*)&P[0xB], P[0x8]);
+
+							// Сюда добавить логику запуска аутентификации по http
+
+							// TEMPORARY!
+							//temp=data;
+							// TEMPORARY! END
+							authorisedState[playerIdx]++;
+							//authAddToList(data);
+							authCheckDelayed(playerIdx, pass);
+							BufStart+=BufStart[0x8]+0xB;
+							found=true;
+							//data = NULL;
+							pass=NULL;
+						}
+						break;
+					/*case 3:
+						{
+							BufStart+=BufStart[0x8]+0xB;
+
+							// TEMPORARY!
+							if(strcmp(&temp[1], "password")==0)
+								authorisedState[playerIdx]++;
+							else
+								authorisedState[playerIdx]-=2;
+							// TEMPORARY! END
+						}
+						break;*/
+				}
 			}
 		}
-	}
-	else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
-	{
-		P++;
-		int BufSize=*(P++);
-		BufStart+=2+BufSize;// выфильтровываем его нафиг
-		BufSize--;// пускай диспетчерский байт не в счет
-
-/*		char Buf[60];
-		sprintf(Buf,"Unipacket serv %x",*P);
-		conPrintI(Buf);*/
-
-		switch (*(P++))
+		else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
 		{
-		case upLuaResp: //TODO: диспетчеризацию ответов на разные вопросы
-			lua_getglobal(L,"netOnResp");
-			if (lua_type(L,-1)==LUA_TFUNCTION)
-			{
-				lua_pushlightuserdata(L,MyPlayer);
-				lua_pushinteger(L,*(P++));
-				lua_pushlstring(L,(char*)P,BufSize-1);
-				lua_pcall(L,3,0,0);
-			}
-			break;
-		case upLuaRq:
-			char Buf[200];bool Unused;
-			strncpy(Buf,(char *)P,199);Buf[199]=0;
-			conDoCmd(Buf,Unused);
-			sprintf(Buf,"cmd %s",P);
-			conPrintI(Buf);
-			break;
-		case upTryUnitUse:
-			netOnClientTryUse(P,BufStart,MyUc,MyPlayer);
-		case upVersionRq:
-			netOnVersionRq(P,BufStart,(bigUnitStruct*)MyPlayer);
-			break;
-		default:
-			{
-				ServerMap_s::const_iterator I=ServerRegMap.find(P[-1]);
-				if (I!=ServerRegMap.end())
-					I->second(P,MyPlayer,MyUc);
-			}
-		}
-		return;
-	} else if (*P==0x79) // TRY_SPELL
-	{
-		if ( *((DWORD*)(P+1)) > 0x100 ) /// если это "наши" спелы - надо самим решать чего с ними делать
-		{
-			spellServDoCustom((int*)(P+1),(P[15])!=0,MyPlayer,MyUc);
-			P+=0x16;
-		}
-	}
-/*	else if (*P==0x72) // попытка выкинуть предмет
-	{ // 7 байт {BYTE pkt, USHORT Obj,X,Y;}
-		char Buf[80];
-		USHORT V=toShort(P+1);
-		netUnitByCodeServ(V);
-		sprintf(Buf,"72 %x (%d,%d)",V,toShort(P+3),toShort(P+5) );
-		conPrintI(Buf);	
+			P++;
+			int BufSize=*(P++);
+			BufStart+=2+BufSize;// выфильтровываем его нафиг
+			found=true;
+			BufSize--;// пускай диспетчерский байт не в счет
 
-	}*/
+	/*		char Buf[60];
+			sprintf(Buf,"Unipacket serv %x",*P);
+			conPrintI(Buf);*/
+
+			switch (*(P++))
+			{
+			case upLuaResp: //TODO: диспетчеризацию ответов на разные вопросы
+				lua_getglobal(L,"netOnResp");
+				if (lua_type(L,-1)==LUA_TFUNCTION)
+				{
+					lua_pushlightuserdata(L,MyPlayer);
+					lua_pushinteger(L,*(P++));
+					lua_pushlstring(L,(char*)P,BufSize-1);
+					lua_pcall(L,3,0,0);
+				}
+				break;
+			/*case upLuaRq:
+				char Buf[200];bool Unused;
+				strncpy(Buf,(char *)P,199);Buf[199]=0;
+				conDoCmd(Buf,Unused);
+				sprintf(Buf,"cmd %s",P);
+				conPrintI(Buf);
+				break;*/
+			case upTryUnitUse:
+				netOnClientTryUse(P,BufStart,MyUc,MyPlayer);
+			case upVersionRq:
+				netOnVersionRq(P,BufStart,(bigUnitStruct*)MyPlayer);
+				break;
+			default:
+				{
+					ServerMap_s::const_iterator I=ServerRegMap.find(P[-1]);
+					if (I!=ServerRegMap.end())
+						I->second(P,MyPlayer,MyUc);
+				}
+			}
+			return;
+		} else if (*P==0x79) // TRY_SPELL
+		{
+			if ( *((DWORD*)(P+1)) > 0x100 ) /// если это "наши" спелы - надо самим решать чего с ними делать
+			{
+				spellServDoCustom((int*)(P+1),(P[15])!=0,MyPlayer,MyUc);
+				P+=0x16;
+			}
+		}
+	/*	else if (*P==0x72) // попытка выкинуть предмет
+		{ // 7 байт {BYTE pkt, USHORT Obj,X,Y;}
+			char Buf[80];
+			USHORT V=toShort(P+1);
+			netUnitByCodeServ(V);
+			sprintf(Buf,"72 %x (%d,%d)",V,toShort(P+3),toShort(P+5) );
+			conPrintI(Buf);	
+
+		}*/
+	}
 }
 extern void InjectJumpTo(DWORD Addr,void *Fn);
 extern void InjectOffs(DWORD Addr,void *Fn);
