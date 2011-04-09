@@ -12,6 +12,8 @@ using namespace std;
 extern byte authorisedState[0x20];
 extern char* authorisedLogins[0x20];
 extern bool specialAuthorisation; //Отключение альтернативной авторизации
+extern char authSendWelcomeMsg[0x20];
+
 namespace
 {
 	queue<bool> updateAuthDB;
@@ -206,6 +208,7 @@ namespace
 					delete [] authorisedLogins[it->first];
 					authorisedLogins[it->first]="";
 				}
+				authSendWelcomeMsg[it->first]=-1;
 				delete [] it->second;
 			}
 			notLoggedIn.clear();

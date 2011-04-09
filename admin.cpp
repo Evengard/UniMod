@@ -54,7 +54,7 @@ extern void httpGetCallback(lua_State *L);
 
 void *(__cdecl *getConfigData)();
 
-void *(__cdecl *playerGetDataFromIndex)(byte index);
+void *(__cdecl *playerGetDataFromIndex)(int index);
 
 extern byte authorisedState[0x20];
 extern char* authorisedLogins[0x20];
@@ -62,6 +62,11 @@ DWORD* currentIP;
 unsigned __int16 *currentPort;
 extern void AuthProcess();
 extern void updateAuthDBProcess();
+
+extern bool specialAuthorisation;
+
+using namespace std;
+char authSendWelcomeMsg[0x20];
 
 bool serverRequest(int f,char *path)
 {
@@ -665,6 +670,7 @@ namespace
 			if(authorisedLogins[i]!=0 && strcmp(authorisedLogins[i], "")!=0)
 				delete [] authorisedLogins[i];
 			authorisedLogins[i]="";
+			authSendWelcomeMsg[i]=0;
 		}
 		return getConfigData();
 	}
@@ -955,19 +961,24 @@ namespace
 		return playerGetDataFromIndex(Index);
 	}
 
-	void* onPlayerJoin(byte Index)
+	void* onPlayerJoin(int Index)
 	{
-		authorisedState[Index]=0; // Перестраховщик я какой то... (c) Evengard
-		authorisedLogins[Index]="";
-		playerGoObserver(playerGetDataFromIndex(Index), 1, 1);
-		authorisedState[Index]++;
-		return playerGetDataFromIndex(Index);
+		void* result=playerGetDataFromIndex(Index);
+		if(Index!=0x1F)
+		{
+			authorisedState[(byte)Index]=0; // Перестраховщик я какой то... (c) Evengard
+			authorisedLogins[(byte)Index]="";
+			playerGoObserver(result, 1, 1);
+			authSendWelcomeMsg[Index]=30;
+		}
+		return result;
 	}
 
 }
 extern "C" void adminInit(lua_State *L);
 extern void authInit(lua_State *L);
 extern void InjectOffs(DWORD Addr,void *Fn);
+
 void adminInit(lua_State *L)
 {
 	ASSIGN(guiServerOptionsStartGameMB,0x00459150);
