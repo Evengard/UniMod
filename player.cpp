@@ -7,6 +7,7 @@ void (__cdecl *playerObserveCreUndo)(void *Player);
 void *(__cdecl *netUnitFromPacketMB)(int NetIdx);
 
 extern int (__cdecl *printCentered)(wchar_t *Text);
+extern bigUnitStruct *(__cdecl *unitDamageFindParent) (void *Unit);
 /*
 во вселенном состоянии надо фильтровать сообщение 0x79 тру спелл и делать на него
 обход до 0051C16C, подменив источник
@@ -17,6 +18,8 @@ void *(*playerControlBufferNext)(int N, void *Prev);
 
 void *(__cdecl *playerAtCursor) (void *Player); 
 extern DWORD *GameFlags;
+
+DWORD *dword_834ABC=(DWORD*)0x834ABC;
 namespace
 {
 	void __cdecl onPlayerJoin(void *Player)
@@ -44,6 +47,39 @@ namespace
 			and eax,[esp+4]
 			ret
 		};//просто это была функция CheckGameFlags :)
+	}
+
+	void __cdecl onPlayerDie(BYTE* Player)
+	{
+		int Top=lua_gettop(L);
+		getServerVar("playerOnDie");
+		if (lua_isfunction(L,-1))
+		{
+			lua_pushlightuserdata(L,(void*)Player);
+			Player=*(BYTE**)(Player+0x208);
+			Player=(BYTE*)unitDamageFindParent((void*)Player);
+			if (Player==0)
+				lua_pushnil(L);
+			else
+				lua_pushlightuserdata(L,(void*)Player);
+			if (0!=lua_pcall(L,2,0,0))
+				conPrintI(lua_tostring(L,-1));
+		}
+		lua_settop(L,Top);
+	}
+
+	int __declspec(naked) onPlayerDieTrap()
+	{
+		__asm
+		{
+			mov eax,[esp+4]
+			push eax 
+			call onPlayerDie
+			add esp,4
+			mov eax,dword_834ABC
+			push 54D2B5h
+			ret
+		};
 	}
 
 	void * __cdecl ControlBufferGrab(void *Player,int N,void *Ret)
@@ -207,6 +243,8 @@ extern "C" int __cdecl  playerOnTrySpell(bigUnitStruct *Unit,byte *Uc,spellPacke
 }
 
 extern void InjectOffs(DWORD Addr,void *Fn);
+extern void InjectJumpTo(DWORD Addr,void *Fn);
+
 void playerInit()
 {
 	ASSIGN(playerControlBufferFirst,0x0051AB50);
@@ -227,6 +265,8 @@ void playerInit()
 	InjectOffs(0x004E67D2+1,&myPlayerControlBufferNext);
 	InjectOffs(0x004DD94B+1,&onPlayerJoinTrap);
 	InjectOffs(0x00491EB0+1,&clientOnJoin);
+
+	InjectJumpTo(0x54D2B0,&onPlayerDieTrap);
 
 	registerserver("playerLook",&playerLookL);
 	
