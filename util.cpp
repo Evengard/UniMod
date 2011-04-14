@@ -107,6 +107,19 @@ int bitAndL(lua_State *L)
 	return 1;
 }
 
+int bitXorL(lua_State *L)
+{
+	int R;
+	if(lua_type(L,1)!=LUA_TNUMBER)
+		return 0;
+	if(lua_type(L,2)!=LUA_TNUMBER)
+		return 0;
+	R=lua_tointeger(L,1) ^ lua_tointeger(L,2) ;
+	lua_pushnumber(L,R);
+	return 1;
+}
+
+
 int printL(lua_State *L)
 {
 	int n=lua_gettop(L);
@@ -960,7 +973,9 @@ void injectCon()
 	lua_setglobal(L,"bitOr");
 	lua_pushcfunction(L,&bitAndL);
 	lua_setglobal(L,"bitAnd");
-	
+	lua_pushcfunction(L,&bitXorL);
+	lua_setglobal(L,"bitXor");
+
 	luaL_dostring(L,"math.randomseed( os.time() )");
 
 	lua_createtable(L,0,40);/// Client enviroment

@@ -292,7 +292,10 @@ l1:
 		lua_pushinteger(L,NetCode);
 		lua_setfield(L,-2,"netcode");
 		byte playerIdx = *((byte*)(P+0x810));
-		lua_pushstring(L,authorisedLogins[playerIdx]);
+		if(authorisedState[playerIdx]==4)
+			lua_pushstring(L,authorisedLogins[playerIdx]);
+		else
+			lua_pushstring(L,"");
 		lua_setfield(L,-2,"login");
 		int TeamId=*(Common+4);
 		byte *Team=NULL;
