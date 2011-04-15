@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include <iostream>
+#include <fstream>
 //:004317B0 configLoad(const char*)
 //00433290 configSave
 extern bool serverStart(int port);
@@ -67,6 +69,10 @@ extern bool specialAuthorisation;
 
 using namespace std;
 char authSendWelcomeMsg[0x20];
+
+int mapCyclePosition=0;
+char mapCyclePrevMap[9];
+int mapCycleTries=0;
 
 bool serverRequest(int f,char *path)
 {
@@ -145,6 +151,335 @@ namespace
 		char isNew;
 	};
 	bool needToFormGame=false;
+
+	void* mapCycleNext()
+	{
+		if(mapCycleTries>=10)
+		{
+			mapCycleTries=0;
+			mapCyclePrevMap[0]=NULL;
+			char* ret = new char[13];
+			strcpy(ret, mapGetName());
+			strcat(ret, ".map");
+			ret[strlen(mapGetName())+4]=NULL;
+			//delete [] data;
+			return ret;
+		}
+		mapCycleTries++;
+		__int16 currentMode = ((__int16)*GameFlags)&0x1FF0;
+		ifstream file("mapcycle.txt", ios::in | ios::binary);
+		if(file.is_open())
+		{
+			file.seekg(0, ios::end);
+			size_t filesize=file.tellg();
+			file.seekg(0, ios::beg);
+			char* data=new char[filesize];
+			file.read(data, filesize);
+			for(int i=0; i<filesize; i++)
+			{
+				data[i]=tolower(data[i]);
+			}
+			//if(mapLoadFromFile((void*)&Data->mapName))
+			if(mapCyclePosition>0)
+			{
+				char* textPosition=data+mapCyclePosition;
+				/*char curMapName[9];
+				strcpy(curMapName, mapGetName());
+				for(int i=0; i<9; i++)
+				{
+					curMapName[i]=tolower(curMapName[i]);
+				}
+				if(strncmp(curMapName, textPosition, 8)==0)
+				{*/
+				char* nextMap=strstr(textPosition, "\n");
+				if(nextMap!=NULL)
+				{
+					char* nextMapEnd=strstr(&nextMap[1], ".map");
+					if(nextMapEnd!=NULL && (nextMapEnd-&nextMap[1])<=9)
+					{
+						char* ret = new char[13];
+						strncpy(ret, &nextMap[1], (nextMapEnd-&nextMap[1]+4));
+						char dot=ret[(nextMapEnd-&nextMap[1])];
+						ret[(nextMapEnd-&nextMap[1])]=NULL;
+						if(!mapLoadFromFile((void*)ret))
+						{
+							mapCyclePosition=&nextMap[1]-data;
+							strcpy(mapCyclePrevMap, ret);
+							return mapCycleNext();
+						}
+						ret[(nextMapEnd-&nextMap[1])]=dot;
+						ret[(nextMapEnd-&nextMap[1]+4)]=NULL;
+						mapCyclePosition=&nextMap[1]-data;
+						delete [] data;
+						mapCycleTries=0;
+						mapCyclePrevMap[0]=NULL;
+						return ret;
+					}
+				}
+				//}
+			}
+			char mode[0x20];
+			switch(currentMode)
+			{
+			case 0x80:
+				strcpy(mode,"[chat]");
+				break;
+			case 0x100:
+				strcpy(mode,"[deathmatch]");
+				break;
+			case 0x400:
+				strcpy(mode,"[elimination]");
+				break;
+			case 0x20:
+				strcpy(mode,"[capture the flag]");
+				break;
+			case 0x40:
+				strcpy(mode,"[flagball]");
+				break;
+			case 0x10:
+				strcpy(mode,"[king of the realm]");
+				break;
+			default:
+				strcpy(mode,"[other]");
+				break;
+			}
+			char* result=strstr(data, mode);
+			if(result==NULL)
+			{
+				char* ret = new char[13];
+				strcpy(ret, mapGetName());
+				strcat(ret, ".map");
+				ret[strlen(mapGetName())+4]=NULL;
+				delete [] data;
+				mapCycleTries=0;
+				mapCyclePosition=0;
+				return ret;
+			}
+			char searchNext[9];
+			if(mapCyclePrevMap[0]==NULL)
+				strcpy(searchNext, mapGetName());
+			else
+				strcpy(searchNext, mapCyclePrevMap);
+			for(int i=0; i<9; i++)
+			{
+				searchNext[i]=tolower(searchNext[i]);
+			}
+			char* prevMap=strstr(result, searchNext);
+			if(prevMap==NULL)
+			{
+				char* firstMap = strstr(result, "\n");
+				if(firstMap==NULL)
+				{
+					char* ret = new char[13];
+					strcpy(ret, mapGetName());
+					strcat(ret, ".map");
+					ret[strlen(mapGetName())+4]=NULL;
+					delete [] data;
+					mapCyclePosition=0;
+					mapCycleTries=0;
+					mapCyclePrevMap[0]=NULL;
+					return ret;
+				}
+				char* check = strstr(&firstMap[1], ".map");
+				if(check==NULL || (check-&firstMap[1])>9)
+				{
+					char* ret = new char[13];
+					strcpy(ret, mapGetName());
+					strcat(ret, ".map");
+					ret[strlen(mapGetName())+4]=NULL;
+					delete [] data;
+					mapCyclePosition=0;
+					mapCycleTries=0;
+					mapCyclePrevMap[0]=NULL;
+					return ret;
+				}
+				char* ret = new char[13];
+				strncpy(ret, &firstMap[1], (check-&firstMap[1]+4));
+				char dot=ret[(check-&firstMap[1])];
+				ret[(check-&firstMap[1])]=NULL;
+				if(!mapLoadFromFile((void*)ret))
+				{
+					mapCyclePosition=&firstMap[1]-data;
+					strcpy(mapCyclePrevMap, ret);
+					return mapCycleNext();
+				}
+				ret[(check-&firstMap[1])]=dot;
+				mapCyclePosition=&firstMap[1]-data;
+				mapCycleTries=0;
+				mapCyclePrevMap[0]=NULL;
+				delete [] data;
+				return ret;
+			}
+			char* nextMap = strstr(prevMap, "\n");
+			if(nextMap==NULL)
+			{
+				char* firstMap = strstr(result, "\n");
+				if(firstMap==NULL)
+				{
+					char* ret = new char[13];
+					strcpy(ret, mapGetName());
+					strcat(ret, ".map");
+					ret[strlen(mapGetName())+4]=NULL;
+					delete [] data;
+					mapCyclePosition=0;
+					mapCycleTries=0;
+					mapCyclePrevMap[0]=NULL;
+					return ret;
+				}
+				char* check = strstr(&firstMap[1], ".map");
+				if(check==NULL || (check-&firstMap[1])>9)
+				{
+					char* ret = new char[13];
+					strcpy(ret, mapGetName());
+					strcat(ret, ".map");
+					ret[strlen(mapGetName())+4]=NULL;
+					delete [] data;
+					mapCyclePosition=0;
+					mapCycleTries=0;
+					mapCyclePrevMap[0]=NULL;
+					return ret;
+				}
+				char* ret = new char[13];
+				strncpy(ret, &firstMap[1], (check-&firstMap[1]+4));
+				char dot=ret[(check-&firstMap[1])];
+				ret[(check-&firstMap[1])]=NULL;
+				if(!mapLoadFromFile((void*)ret))
+				{
+					mapCyclePosition=&firstMap[1]-data;
+					strcpy(mapCyclePrevMap, ret);
+					return mapCycleNext();
+				}
+				ret[(check-&firstMap[1])]=dot;
+				ret[(check-&firstMap[1]+4)]=NULL;
+				delete [] data;
+				mapCyclePosition=0;
+				mapCycleTries=0;
+				mapCyclePrevMap[0]=NULL;
+				return ret;
+			}
+			char* endNextMap = strstr(&nextMap[1], ".map");
+			if(endNextMap==NULL || (endNextMap-&nextMap[1])>9)
+			{
+				char* firstMap = strstr(result, "\n");
+				if(firstMap==NULL)
+				{
+					char* ret = new char[13];
+					strcpy(ret, mapGetName());
+					strcat(ret, ".map");
+					ret[strlen(mapGetName())+4]=NULL;
+					delete [] data;
+					mapCyclePosition=0;
+					mapCycleTries=0;
+					mapCyclePrevMap[0]=NULL;
+					return ret;
+				}
+				char* check = strstr(&firstMap[1], ".map");
+				if(check==NULL || (check-&firstMap[1])>9)
+				{
+					char* ret = new char[13];
+					strcpy(ret, mapGetName());
+					strcat(ret, ".map");
+					ret[strlen(mapGetName())+4]=NULL;
+					delete [] data;
+					mapCyclePosition=0;
+					mapCycleTries=0;
+					mapCyclePrevMap[0]=NULL;
+					return ret;
+				}
+				char* ret = new char[13];
+				strncpy(ret, &firstMap[1], (check-&firstMap[1]+4));
+				char dot=ret[(check-&firstMap[1])];
+				ret[(check-&firstMap[1])]=NULL;
+				if(!mapLoadFromFile((void*)ret))
+				{
+					mapCyclePosition=&firstMap[1]-data;
+					strcpy(mapCyclePrevMap, ret);
+					return mapCycleNext();
+				}
+				ret[(check-&firstMap[1])]=dot;
+				ret[(check-&firstMap[1]+4)]=NULL;
+				mapCyclePosition=&firstMap[1]-data;
+				delete [] data;
+				mapCycleTries=0;
+				mapCyclePrevMap[0]=NULL;
+				return ret;
+			}
+			char* ret = new char[13];
+			//strncpy(ret, &nextMap[1], (endNextMap-&nextMap[1]));
+			/*char curMapName[9];
+			strcpy(curMapName(), mapGetName());*/
+			/*if(strcmp(ret, searchNext)==0)
+			{
+				nextMap=strstr(endNextMap, "\n");
+				if(nextMap==NULL)
+				{
+					strcpy(ret, mapGetName());
+					strcat(ret, ".map");
+					ret[strlen(mapGetName())+4]=NULL;
+					delete [] data;
+					mapCyclePosition=0;
+					return ret;
+				}
+				endNextMap=strstr(endNextMap, ".map");
+				if(endNextMap==NULL || (endNextMap-&nextMap[1])>9)
+				{
+					char* firstMap = strstr(result, "\n");
+					if(firstMap==NULL)
+					{
+						//char* ret = new char[13];
+						strcpy(ret, mapGetName());
+						strcat(ret, ".map");
+						ret[strlen(mapGetName())+4]=NULL;
+						delete [] data;
+						mapCyclePosition=0;
+						return ret;
+					}
+					char* check = strstr(&firstMap[1], ".map");
+					if(check==NULL || (check-&firstMap[1])>9)
+					{
+						//char* ret = new char[13];
+						strcpy(ret, mapGetName());
+						strcat(ret, ".map");
+						ret[strlen(mapGetName())+4]=NULL;
+						delete [] data;
+						mapCyclePosition=0;
+						return ret;
+					}
+					//char* ret = new char[13];
+					strncpy(ret, &firstMap[1], (check-&firstMap[1]+4));
+					mapCyclePosition=&firstMap[1]-data;
+					delete [] data;
+					return ret;
+				}
+			}*/
+			strncpy(ret, &nextMap[1], (endNextMap-&nextMap[1]+4));
+			char dot=ret[(endNextMap-&nextMap[1])];
+			ret[(endNextMap-&nextMap[1])]=NULL;
+			if(!mapLoadFromFile((void*)ret))
+			{
+				mapCyclePosition=&nextMap[1]-data;
+				strcpy(mapCyclePrevMap, ret);
+				return mapCycleNext();
+			}
+			ret[(endNextMap-&nextMap[1])]=dot;
+			ret[(endNextMap-&nextMap[1]+4)]=NULL;
+			mapCyclePosition=&nextMap[1]-data;
+			delete [] data;
+			mapCycleTries=0;
+			mapCyclePrevMap[0]=NULL;
+			return ret;
+		}
+		char* ret = new char[13];
+		strcpy(ret, mapGetName());
+		strcat(ret, ".map");
+		ret[12]=NULL;
+		mapCyclePosition=0;
+		mapCycleTries=0;
+		mapCyclePrevMap[0]=NULL;
+		//delete [] data;
+		return ret;
+	}
+
 	int formGame(lua_State *L)
 	{
 		lua_settop(L,1);
@@ -526,7 +861,7 @@ namespace
 			else
 			{
 				if(noxMapCycleEnabledCheck())
-					result=noxMapCycleNext();
+					result=mapCycleNext();
 				else
 				{
 					mapNextSameForced=true;
@@ -538,7 +873,7 @@ namespace
 		else
 		{
 			if(noxMapCycleEnabledCheck())
-				result=noxMapCycleNext();
+				result=mapCycleNext();
 			else
 			{
 				mapNextSameForced=true;
@@ -672,6 +1007,8 @@ namespace
 			authorisedLogins[i]="";
 			authSendWelcomeMsg[i]=0;
 		}
+		mapCyclePosition=0;
+		mapCyclePrevMap[0]=NULL;
 		return getConfigData();
 	}
 	void doFormGame()
