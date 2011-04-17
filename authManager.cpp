@@ -7,6 +7,41 @@
 #include <process.h>
 #include "Libs/csha1/SHA1.h"
 
+
+#ifdef WIN32
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <winsock.h>
+#include <winsock2.h>
+#pragma comment(lib,"wsock32.lib")
+#pragma comment (lib, "Ws2_32.lib")
+#define snprintf _snprintf_s
+#define S_ISREG(x) (0!=((x) & S_IFREG ))
+#define S_ISDIR(x) (0!=((x) & S_IFDIR ))
+
+#else
+#include <os.h>
+#include <dirent.h>
+#define closesocket close
+#endif
+
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <varargs.h>
+#include <sys/stat.h>
+//#include <process.h>
+//#include <queue>
+//#include "stdafx.h"
+using namespace std ;
+#define SERVER "Nox UniMod/0.4.1"
+#define PROTOCOL "HTTP/1.0"
+#define RFC1123FMT "%a, %d %b %Y %H:%M:%S GMT"
+#define PORT 80
+
+
 using namespace std;
 
 extern byte authorisedState[0x20];
@@ -14,12 +49,27 @@ extern char* authorisedLogins[0x20];
 extern bool specialAuthorisation; //Отключение альтернативной авторизации
 extern char authSendWelcomeMsg[0x20];
 
+
 namespace
 {
 	queue<bool> updateAuthDB;
+	
 	map<byte, char*> notLoggedIn;
+
 	bool authUpdating=false;
 	HANDLE authUpdate;
+
+	char* remoteCommand;
+	int lastAuthResultCode;
+	bool specialAuthRemote=false;
+	bool remoteAuthUpdating=false;
+	HANDLE remoteAuthUpdate;
+	queue<char*> remoteCommandList;
+
+	int lastAuthResultCodeL;
+	HANDLE remoteAuthLogin;
+	bool remoteAuthLoggingIn=false;
+	queue <byte>notLoggedInRemote;
 
 	struct sha1hash
 	{
@@ -65,7 +115,272 @@ namespace
 	typedef map<sha1hash, account> authMap;
 	authMap authData;
 
+
+	string urlencode(const string &c);
+	string char2hex( char dec );
+
+	string urlencode(const string &c)
+	{
+	    
+		string escaped="";
+		int max = c.length();
+		for(int i=0; i<max; i++)
+		{
+			if ( (48 <= c[i] && c[i] <= 57) ||//0-9
+				 (65 <= c[i] && c[i] <= 90) ||//abc...xyz
+				 (97 <= c[i] && c[i] <= 122) || //ABC...XYZ
+				 (c[i]=='~' || c[i]=='!' || c[i]=='*' || c[i]=='(' || c[i]==')' || c[i]=='\'')
+			)
+			{
+				escaped.append( &c[i], 1);
+			}
+			else
+			{
+				escaped.append("%");
+				escaped.append( char2hex(c[i]) );//converts char 255 to string "ff"
+			}
+		}
+		return escaped;
+	}
+
+	string char2hex( char dec )
+	{
+		char dig1 = (dec&0xF0)>>4;
+		char dig2 = (dec&0x0F);
+		if ( 0<= dig1 && dig1<= 9) dig1+=48;    //0,48inascii
+		if (10<= dig1 && dig1<=15) dig1+=97-10; //a,97inascii
+		if ( 0<= dig2 && dig2<= 9) dig2+=48;
+		if (10<= dig2 && dig2<=15) dig2+=97-10;
+
+		string r;
+		r.append( &dig1, 1);
+		r.append( &dig2, 1);
+		return r;
+	}
 	
+
+	unsigned __stdcall authRemoteCommand(void* command)
+	{
+		string urlEncode((char*)command);
+		string urlEncoded=urlencode(urlEncode);
+		char* resultCommand=new char[strlen(urlEncoded.c_str())+strlen(remoteCommand)+1];
+		strcpy(resultCommand, remoteCommand);
+		strcat(resultCommand, urlEncoded.c_str());
+		const char *Src=0,*Host=0,*Port=0,*Href=0,*P;
+		Src=(char*)resultCommand;
+		if (0==strncmp(Src,"http://",7))
+			Src+=7;
+		Host=Src;
+		Port=strchr(Src,':');
+		P=strchr(Src,'/');
+		if (Port!=NULL)
+		{
+			if (P!=NULL)
+			{
+				if (Port>P)
+				{
+					Port=NULL;
+				}
+			}
+			else
+				P=Port;
+		}
+		if (P==NULL)
+			P=Host+strlen(Host);
+		char Buf[0x400]={0};// нефиг юзать более длинные страницы
+		int PortV=80;
+		sockaddr_in so;
+		memset(&so,0,sizeof(so));
+		if (Port!=NULL)
+		{
+			strncpy(Buf,&Port[1],P-Port);
+			Buf[P-Port-1]=NULL;
+			PortV=atoi(Buf);
+			strncpy(Buf,Host,Port-Host);
+		}
+		else
+			strncpy(Buf,Host,P-Host);
+
+		struct addrinfo *result;
+		char HostAddr[0x100] = {0};
+		strcpy(HostAddr, Buf);
+		if (0!=getaddrinfo(Buf,NULL,NULL,&result))
+		{
+			//lua_pushstring(L,"httpGet - unable to resolve address");
+			//lua_error(L);
+			return 0;
+		}
+		memcpy(&so,result->ai_addr,result->ai_addrlen);
+		so.sin_port=htons(PortV);
+		so.sin_family=AF_INET;
+		freeaddrinfo(result);
+		SOCKET sock=0;
+		sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		int R=0;
+		if ( 0!= connect(sock,(sockaddr*)&so,sizeof(so)))
+		{
+			R=WSAGetLastError();
+			closesocket(sock);
+			//lua_pushstring(L,"httpGet - connect failed");
+			//lua_error(L);
+		}
+		strcpy(Buf,"GET ");
+		if (*P==0)
+			P="/";
+		strcat(Buf,P);
+		strcat(Buf," HTTP/1.0\r\nHost: ");
+		strcat(Buf, HostAddr);
+		strcat(Buf,"\r\n\r\n");
+		R=send(sock,Buf,strlen(Buf),0);
+		//char httpGetResultData[0x400];
+		int resultCode=0;
+		if (R<0)
+		{
+			R=WSAGetLastError();
+			if (R==WSANOTINITIALISED)
+				R++;
+
+		}
+		else
+		{
+			shutdown(sock,SD_SEND);
+			int R=0;
+			if ((R=recv(sock,Buf,sizeof(Buf),0))>=0)
+			{
+				char* statCodeSearch=strstr(Buf, "\r\n");
+				if(statCodeSearch!=NULL && (statCodeSearch-Buf)<50)
+				{
+					char* statCode = strstr(Buf, "200");
+					if(statCode!=NULL)
+						resultCode=200;
+				}
+				/*P=strstr(Buf,"\r\n\r\n");
+				if (P!=NULL)
+					strcpy(httpGetResultData, P+4);*/
+			}
+			else
+			{
+				R=WSAGetLastError();
+				//httpGetResult=NULL;
+			}
+		}
+		closesocket(sock);
+		//strcpy(httpGetSrc, Src);
+		lastAuthResultCode=resultCode;
+		return 0;
+	}
+
+	unsigned __stdcall authRemoteLogin(void* command)
+	{
+		string urlEncode((char*)command);
+		string urlEncoded=urlencode(urlEncode);
+		char* resultCommand=new char[strlen(urlEncoded.c_str())+strlen(remoteCommand)+1];
+		strcpy(resultCommand, remoteCommand);
+		strcat(resultCommand, urlEncoded.c_str());
+		const char *Src=0,*Host=0,*Port=0,*Href=0,*P;
+		Src=(char*)resultCommand;
+		if (0==strncmp(Src,"http://",7))
+			Src+=7;
+		Host=Src;
+		Port=strchr(Src,':');
+		P=strchr(Src,'/');
+		if (Port!=NULL)
+		{
+			if (P!=NULL)
+			{
+				if (Port>P)
+				{
+					Port=NULL;
+				}
+			}
+			else
+				P=Port;
+		}
+		if (P==NULL)
+			P=Host+strlen(Host);
+		char Buf[0x400]={0};// нефиг юзать более длинные страницы
+		int PortV=80;
+		sockaddr_in so;
+		memset(&so,0,sizeof(so));
+		if (Port!=NULL)
+		{
+			strncpy(Buf,&Port[1],P-Port);
+			Buf[P-Port]=NULL;
+			PortV=atoi(Buf);
+			strncpy(Buf,Host,Port-Host);
+		}
+		else
+			strncpy(Buf,Host,P-Host);
+
+		struct addrinfo *result;
+		char HostAddr[0x100] = {0};
+		strcpy(HostAddr, Buf);
+		if (0!=getaddrinfo(Buf,NULL,NULL,&result))
+		{
+			//lua_pushstring(L,"httpGet - unable to resolve address");
+			//lua_error(L);
+			return 0;
+		}
+		memcpy(&so,result->ai_addr,result->ai_addrlen);
+		so.sin_port=htons(PortV);
+		so.sin_family=AF_INET;
+		freeaddrinfo(result);
+		SOCKET sock=0;
+		sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		int R=0;
+		if ( 0!= connect(sock,(sockaddr*)&so,sizeof(so)))
+		{
+			R=WSAGetLastError();
+			closesocket(sock);
+			//lua_pushstring(L,"httpGet - connect failed");
+			//lua_error(L);
+		}
+		strcpy(Buf,"GET ");
+		if (*P==0)
+			P="/";
+		strcat(Buf,P);
+		strcat(Buf," HTTP/1.0\r\nHost: ");
+		strcat(Buf, HostAddr);
+		strcat(Buf,"\r\n\r\n");
+		R=send(sock,Buf,strlen(Buf),0);
+		//char httpGetResultData[0x400];
+		int resultCode=0;
+		if (R<0)
+		{
+			R=WSAGetLastError();
+			if (R==WSANOTINITIALISED)
+				R++;
+
+		}
+		else
+		{
+			shutdown(sock,SD_SEND);
+			int R=0;
+			if ((R=recv(sock,Buf,sizeof(Buf),0))>=0)
+			{
+				char* statCodeSearch=strstr(Buf, "\r\n");
+				if(statCodeSearch!=NULL && (statCodeSearch-Buf)<50)
+				{
+					char* statCode = strstr(Buf, "200");
+					if(statCode!=NULL)
+						resultCode=200;
+				}
+				/*P=strstr(Buf,"\r\n\r\n");
+				if (P!=NULL)
+					strcpy(httpGetResultData, P+4);*/
+			}
+			else
+			{
+				R=WSAGetLastError();
+				//httpGetResult=NULL;
+			}
+		}
+		closesocket(sock);
+		//strcpy(httpGetSrc, Src);
+		lastAuthResultCodeL=resultCode;
+		return 0;
+	}
+
 	unsigned __stdcall saveAuthData(void* Data)
 	{
 		ofstream file("authData.bin", ios::out | ios::trunc | ios::binary);
@@ -189,6 +504,7 @@ namespace
 			sha.Final();
 			sha.GetHash(authData[sha1hash(lhash)].phash);
 			sha.Reset();
+			updateAuthDB.push(true);
 			return true;
 		}
 		return false;
@@ -196,7 +512,40 @@ namespace
 
 	void authentificate()
 	{
-		if(notLoggedIn.empty()!=true)
+		/*int lastAuthResultCodeL;
+		HANDLE remoteAuthLogin;
+		bool remoteAuthLoggingIn=false;
+		queue <byte>notLoggedInRemote;*/
+		if(WAIT_OBJECT_0==WaitForSingleObject(remoteAuthLogin, 0) && remoteAuthLoggingIn==true && specialAuthRemote==true)
+		{
+			byte playerIdx = notLoggedInRemote.front();
+			notLoggedIn.erase(playerIdx);
+			notLoggedInRemote.pop();
+			if(lastAuthResultCodeL==200)
+				authorisedState[playerIdx]++;
+			else
+			{
+				authorisedState[playerIdx]-=2;
+				delete [] authorisedLogins[playerIdx];
+				authorisedLogins[playerIdx]="";
+			}
+			authSendWelcomeMsg[playerIdx]=-1;
+			remoteAuthLoggingIn=false;
+		}
+		if(notLoggedInRemote.empty()==false && remoteAuthLoggingIn==false && specialAuthRemote==true)
+		{
+			byte playerIdx = notLoggedInRemote.front();
+			char* command=new char[11+6+5+2+2+strlen(authorisedLogins[playerIdx])+strlen(notLoggedIn[playerIdx])+4+1];
+			strcpy(command, "authLogin({login=\"");
+			strcat(command, authorisedLogins[playerIdx]);
+			strcat(command, "\",pass=\"");
+			strcat(command, notLoggedIn[playerIdx]);
+			strcat(command, "\"})");
+			remoteCommandList.push(command);
+			remoteAuthLogin = (HANDLE)_beginthreadex(NULL, 0, &authRemoteLogin, (void*)command, 0, NULL);
+			remoteAuthLoggingIn=true;
+		}
+		if(notLoggedIn.empty()!=true && specialAuthRemote==false)
 		{
 			for (map<byte, char*>::const_iterator it = notLoggedIn.begin(); it != notLoggedIn.end(); ++it)
 			{
@@ -245,7 +594,17 @@ namespace
 				lua_pushstring(L,"wrong args!");
 				lua_error_(L);
 			}
-			if(!authRegister(login, pass))
+			if(specialAuthRemote)
+			{
+				char *command=new char[14+6+5+2+2+strlen(login)+strlen(pass)+4+1];
+				strcpy(command, "authRegister({login=\"");
+				strcat(command, login);
+				strcat(command, "\",pass=\"");
+				strcat(command, pass);
+				strcat(command, "\"})");
+				remoteCommandList.push(command);
+			}
+			else if(!authRegister(login, pass))
 			{
 				lua_pushstring(L,"couldn't register");
 				lua_error_(L);
@@ -292,7 +651,17 @@ namespace
 				lua_pushstring(L,"wrong args!");
 				lua_error_(L);
 			}
-			if(!authChangePass(login, pass))
+			if(specialAuthRemote)
+			{
+				char *command=new char[16+6+5+2+2+strlen(login)+strlen(pass)+4+1];
+				strcpy(command, "authChangePass({login=\"");
+				strcat(command, login);
+				strcat(command, "\",pass=\"");
+				strcat(command, pass);
+				strcat(command, "\"})");
+				remoteCommandList.push(command);
+			}
+			else if(!authChangePass(login, pass))
 			{
 				lua_pushstring(L,"couldn't change password");
 				lua_error_(L);
@@ -339,7 +708,17 @@ namespace
 				lua_pushstring(L,"wrong args!");
 				lua_error_(L);
 			}
-			if(!authLogin(login, pass))
+			if(specialAuthRemote)
+			{
+				char *command=new char[11+6+5+2+2+strlen(login)+strlen(pass)+4+1];
+				strcpy(command, "authLogin({login=\"");
+				strcat(command, login);
+				strcat(command, "\",pass=\"");
+				strcat(command, pass);
+				strcat(command, "\"})");
+				remoteCommandList.push(command);
+			}
+			else if(!authLogin(login, pass))
 			{
 				lua_pushstring(L,"couldn't login");
 				lua_error_(L);
@@ -364,12 +743,21 @@ namespace
 			const char* loginc=lua_tostring(L, 1);
 			login=new char[strlen(loginc)+1];
 			strcpy(login, loginc);
-			authLock(login);
+			if(specialAuthRemote)
+			{
+				char *command=new char[10+strlen(login)+2+1];
+				strcpy(command, "authLock(\"");
+				strcat(command, login);
+				strcat(command, "\")");
+				remoteCommandList.push(command);
+			}
+			else
+				authLock(login);
 			delete [] login;
 		}
 		else
 		{
-			lua_pushstring(L,"couldn't register");
+			lua_pushstring(L,"wrong args");
 			lua_error_(L);
 		}
 		lua_pushstring(L, "ok");
@@ -384,12 +772,21 @@ namespace
 			const char* loginc=lua_tostring(L, 1);
 			login=new char[strlen(loginc)+1];
 			strcpy(login, loginc);
-			authDelete(login);
+			if(specialAuthRemote)
+			{
+				char *command=new char[12+strlen(login)+2+1];
+				strcpy(command, "authDelete(\"");
+				strcat(command, login);
+				strcat(command, "\")");
+				remoteCommandList.push(command);
+			}
+			else
+				authDelete(login);
 			delete [] login;
 		}
 		else
 		{
-			lua_pushstring(L,"couldn't delete");
+			lua_pushstring(L,"wrong args");
 			lua_error_(L);
 		}
 		lua_pushstring(L, "ok");
@@ -399,10 +796,63 @@ namespace
 	int authToggleL(lua_State *L)
 	{
 		if(specialAuthorisation)
+		{
 			specialAuthorisation=false;
+			specialAuthRemote=false;
+			remoteCommand=NULL;
+		}
 		else
 			specialAuthorisation=true;
-		lua_pushstring(L, "ok");
+		if (lua_type(L,1)==LUA_TTABLE && specialAuthorisation==true)
+		{
+			lua_getfield(L, 1, "host");
+			if(lua_type(L, -1)!=LUA_TSTRING)
+			{
+				lua_pushstring(L,"wrong args");
+				lua_error_(L);
+			}
+			const char* hostc=lua_tostring(L,-1);
+			char* host=new char[strlen(hostc)+1];
+			strcpy(host,hostc);
+			lua_getfield(L, 1, "port");
+			if(lua_type(L, -1)!=LUA_TSTRING && lua_type(L, -1)!=LUA_TNUMBER)
+			{
+				lua_pushstring(L,"wrong args");
+				lua_error_(L);
+			}
+			const char* portc=lua_tostring(L,-1);
+			char* port=new char[strlen(portc)+1];
+			strcpy(port,portc);
+			lua_getfield(L, 1, "pass");
+			bool passProvided=false;
+			char* pass;
+			if(lua_type(L, -1)==LUA_TSTRING)
+			{
+				passProvided=true;
+				const char* passc=lua_tostring(L,-1);
+				pass=new char[strlen(passc)+1];
+				strcpy(pass,passc);
+			}
+			char* commandString=new char[7+strlen(host)+1+strlen(port)+2+(passProvided?(2+strlen(pass)+1):(0))+2+1];
+			strcpy(commandString, "http://");
+			strcat(commandString, host);
+			strcat(commandString, ":");
+			strcat(commandString, port);
+			strcat(commandString, "/?");
+			if(passProvided)
+			{
+				strcat(commandString, "p=");
+				strcat(commandString, pass);
+				strcat(commandString, "&");
+			}
+			strcat(commandString, "r=");
+			delete [] host;
+			delete [] port;
+			if(passProvided)
+				delete [] pass;
+			remoteCommand=commandString;
+			specialAuthRemote=true;
+		}
 		return 1;
 	}
 
@@ -490,10 +940,46 @@ void updateAuthDBProcess()
 		authUpdating=true;
 	}
 	authentificate();
+	if(specialAuthRemote)
+	{
+		if(WAIT_OBJECT_0==WaitForSingleObject(remoteAuthUpdate, 0) && remoteAuthUpdating==true)
+		{
+			char buf[200];
+			strcpy(buf, remoteCommandList.front());
+			strcat(buf, " executed, state: ");
+			if(lastAuthResultCode==200)
+				strcat(buf, "success!");
+			else
+				strcat(buf, "error!");
+			conPrintI(buf);
+			delete [] remoteCommandList.front();
+			remoteCommandList.pop();
+			remoteAuthUpdating=false;
+		}
+		if(remoteCommandList.empty()==false && remoteAuthUpdating==false)
+		{
+			remoteAuthUpdate = (HANDLE)_beginthreadex(NULL, 0, &authRemoteCommand, (void*)remoteCommandList.front(), 0, NULL);
+			remoteAuthUpdating=true;
+		}
+	}
 	return;
 }
 
 void authCheckDelayed(byte playerIdx, char* pass)
 {
+	/*if(specialAuthRemote)
+	{
+		char command=new char[11+6+5+2+2+strlen(authorisedLogins[playerIdx])+strlen(pass)+4+1];
+		strcpy(command, 'authLogin({login="');
+		strcat(command, login);
+		strcat(command, '", pass="');
+		strcat(command, '"})');
+		remoteCommandList.push(command);
+	}*/
+
+	
+	
 	notLoggedIn.insert(pair<byte, char*>(playerIdx, pass));
+	if(specialAuthRemote)
+		notLoggedInRemote.push(playerIdx);
 }

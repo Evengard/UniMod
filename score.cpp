@@ -263,7 +263,7 @@ l1:
 		lua_newtable(L);
 		lua_pushinteger(L,*((short*)(P+0x864)));
 		lua_setfield(L,-2,"ping");
-		lua_pushinteger(L,*((int*)(P+0x85C)));
+		lua_pushinteger(L,*((int*)(P+0x858)));
 		lua_setfield(L,-2,"score");
 		char Name[0x50]={0};
 		wcstombs(Name,((wchar_t*)(P+0x1260)),0x50);
