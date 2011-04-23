@@ -645,7 +645,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 				{
 					case 0: 
 					case 3:
-						BufStart+=BufStart[0x4]*2+0x5;
+						BufStart+=BufStart[0x4]*2+0x7;
 						found=true;
 						break;
 					case 1:
@@ -657,7 +657,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 							authorisedLogins[playerIdx]=login;
 							authorisedState[playerIdx]++;
 							authSendWelcomeMsg[playerIdx]=-1;
-							BufStart+=BufStart[0x4]*2+0x5;
+							BufStart+=BufStart[0x4]*2+0x7;
 							found=true;
 							login = NULL;
 						}
@@ -681,7 +681,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 							authSendWelcomeMsg[playerIdx]=-1;
 							//authAddToList(data);
 							authCheckDelayed(playerIdx, pass);
-							BufStart+=BufStart[0x4]*2+0x5;
+							BufStart+=BufStart[0x4]*2+0x7;
 							found=true;
 							//data = NULL;
 							pass=NULL;
@@ -703,7 +703,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 			}
 			if(cmdTokenL>0 && found==false)
 			{
-				BufStart+=BufStart[0x4]*2+0x5;
+				BufStart+=BufStart[0x4]*2+0x7;
 				found=true;
 			}
 		}
