@@ -626,7 +626,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 				found=true;
 			}
 		}
-		else if(*P==0xBB && specialAuthorisation==true)
+		else if(*P==0xBB && specialAuthorisation==true && ((char)P[0x4])>0)
 		{
 			
 			void **PP=(void **)(((char*)MyPlayer)+0x2EC);
