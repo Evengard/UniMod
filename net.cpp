@@ -626,6 +626,87 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 				found=true;
 			}
 		}
+		else if(*P==0xBB && specialAuthorisation==true)
+		{
+			
+			void **PP=(void **)(((char*)MyPlayer)+0x2EC);
+			PP=(void**)(((char*)*PP)+0x114);
+			byte *Pl=(byte*)(*PP);
+			byte playerIdx = *((byte*)(Pl+0x810));
+			char *authCmd=" //auth ";
+			int cmdTokenL=0;
+			char *command = new char[BufStart[0x4]];
+			wcstombs(command,((wchar_t*)&BufStart[0x5]),BufStart[0x4]);
+			if(strncmp((char*)command, authCmd, ((BufStart[0x4]>strlen(authCmd))?(strlen(authCmd)):(BufStart[0x4])))==0)
+				cmdTokenL=strlen(authCmd);
+			if(playerIdx!=0x1F && authorisedState[playerIdx]>=0 && authorisedState[playerIdx]<4 && cmdTokenL==strlen(authCmd))
+			{
+				switch(authorisedState[playerIdx])
+				{
+					case 0: 
+					case 3:
+						BufStart+=BufStart[0x4]*2+0x5;
+						found=true;
+						break;
+					case 1:
+						// “ут только логин сейвим
+						{
+							char *login=NULL;
+							login = new char[P[0x4]-cmdTokenL];
+							strncpy(login, (char*)&command[cmdTokenL], P[0x4]-cmdTokenL);
+							authorisedLogins[playerIdx]=login;
+							authorisedState[playerIdx]++;
+							authSendWelcomeMsg[playerIdx]=-1;
+							BufStart+=BufStart[0x4]*2+0x5;
+							found=true;
+							login = NULL;
+						}
+						break;
+					case 2:
+						{
+							//char *data=NULL;
+							//data = new char[P[0x8]+1];
+							//char* pass = new char[P[0x8]-cmdTokenL];
+							//memcpy(data, &playerIdx, 1);
+							//strncpy(&data[1], (char*)&P[0xB], P[0x8]);
+							//strncpy(pass, (char*)&P[0xB+cmdTokenL], P[0x8]-cmdTokenL);
+							char* pass = new char[P[0x4]-cmdTokenL];
+							strncpy(pass, (char*)&command[cmdTokenL], P[0x4]-cmdTokenL);
+							// —юда добавить логику запуска аутентификации по http
+
+							// TEMPORARY!
+							//temp=data;
+							// TEMPORARY! END
+							authorisedState[playerIdx]++;
+							authSendWelcomeMsg[playerIdx]=-1;
+							//authAddToList(data);
+							authCheckDelayed(playerIdx, pass);
+							BufStart+=BufStart[0x4]*2+0x5;
+							found=true;
+							//data = NULL;
+							pass=NULL;
+						}
+						break;
+					/*case 3:
+						{
+							BufStart+=BufStart[0x8]+0xB;
+
+							// TEMPORARY!
+							if(strcmp(&temp[1], "password")==0)
+								authorisedState[playerIdx]++;
+							else
+								authorisedState[playerIdx]-=2;
+							// TEMPORARY! END
+						}
+						break;*/
+				}
+			}
+			if(cmdTokenL>0 && found==false)
+			{
+				BufStart+=BufStart[0x4]*2+0x5;
+				found=true;
+			}
+		}
 		else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
 		{
 			P++;
