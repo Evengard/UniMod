@@ -346,8 +346,8 @@ namespace
 		if((lua_gettop(L)>5)&& lua_toboolean(L,4))
 		{
 			float a=lua_tonumber(L,3),v=lua_tonumber(L,2);
-			*((float*)(P+0x50))=v*cos(a);
-			*((float*)(P+0x54))=-v*sin(a);
+			*((float*)(P+0x50))=v*a;
+			*((float*)(P+0x54))=-v*a;
 		}
 		else
 		{
