@@ -16,6 +16,23 @@ extern int (__cdecl *audSyllStartSpeak)(int SpellN);
 extern bigUnitStruct **unitCreatedList;
 namespace
 {
+
+	int buffApplyL(lua_State*L)
+	{
+		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA || lua_type(L,2)!=LUA_TNUMBER || lua_type(L,3)!=LUA_TNUMBER)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		int Buff=lua_tointeger(L,2);
+		if (Buff<0 || Buff>31)
+			return 0;
+		int delay=lua_tointeger(L,3);
+		if (delay<0) 
+			return 0;
+		applyToTarget(lua_touserdata(L,1),Buff,delay,5);
+		return 0;
+	}
 	/// колдует спелл кем-то (списано с нокса)
 	/// когда моб чего-нить колдует - мы об этом узнаем
 	int myCastSpellByUserPlayer(int Spell, void *Caster, SpellTargetBlock *TargetBlock)
@@ -327,6 +344,7 @@ void spellsInit()
 	registerserver("spellSync",&spellSync);
 	registerserver("spellApply",&spellApplyL);
 	registerserver("spellBuff",&spellBuff);
+	registerserver("buffApply",&buffApplyL);
 
 	lua_newtable(L);// в таблицу будем класть  интересных нам мобов
 	registerServerVar("unitOnCastList");
