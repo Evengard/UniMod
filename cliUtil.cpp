@@ -8,6 +8,7 @@ void (__cdecl *sub_4738E0) ();
 extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
 extern DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
+int (__cdecl *mathAnglTo256) (void *xycords);
 
 void *noxSpriteLast=0;
 DWORD *gameFPS=(DWORD*)0x0085B3FC;
@@ -322,6 +323,30 @@ namespace
 		return 1;
 	}
 	
+	struct xyCoords
+	{
+		float x;
+		float y;
+	};
+	int directL(lua_State*L)
+	{
+		if (lua_type(L,1)!=LUA_TNUMBER ||
+			lua_type(L,2)!=LUA_TNUMBER ||
+			lua_type(L,3)!=LUA_TNUMBER ||
+			lua_type(L,4)!=LUA_TNUMBER)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		float x=lua_tonumber(L,1) - lua_tonumber(L,3);
+		float y=lua_tonumber(L,2) - lua_tonumber(L,4);
+		xyCoords xy;
+		xy.x=x; xy.y=y;
+		int ang=mathAnglTo256(&xy);
+		lua_pushinteger(L,ang);
+		return 1;
+	}
+	
 }
 
 extern void InjectOffs(DWORD Addr,void *Fn);
@@ -332,6 +357,8 @@ void cliUntilInit()
 	ASSIGN(createTextBubble,0x0048D880);
 	ASSIGN(sub_4738E0,0x4738E0);
 	ASSIGN(noxSpriteLast,0x6D3DC0);
+	ASSIGN(mathAnglTo256,0x509ED0); // arrrr
+
 
 	lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
 	lua_newtable(L);
@@ -352,6 +379,7 @@ void cliUntilInit()
 	registerserver("createBubble",&createBubble);
 	registerclient("spriteGetPos",&spriteGetPosL);
 	registerclient("spriteThingType",&spriteThingTypeL);
+	registerclient("directGet",&directL);
 	netRegClientPacket(upSendBubble,&netOnBubble);
 
 	InjectJumpTo(0x436358,&asmToCliTimer);
