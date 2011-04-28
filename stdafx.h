@@ -439,4 +439,29 @@ struct ParseAttrib /// для всяких парсеров всяких структур
 	int argA;
 	void *argB;
 };
+struct FxBuffer_t
+{
+	FxBuffer_t *Next;
+	int Size;
+	int FreeSize;
+	int SelIdx;
+	DWORD Data[];
+	FxBuffer_t(int Sz):Next(0),Size(Sz){}
+	~FxBuffer_t(){ if(Next) delete Next; }
+	void getValues(int First,int Len); /// для запроса по сети
+	void addItem(int Val){((int*)Data)[SelIdx++]=Val;}
+	void addItemD(DWORD Val){Data[SelIdx++]=Val;}
+
+	static FxBuffer_t *addBlock(int Size,int *Id); //начинаем добавлять элементы, возвращаем айди
+	static bool delBlock(int Id); //удаляем блок
+	static void drawBuffers();
+};
+extern const int *noxScreenX;
+extern const int *noxScreenY;
+
+#include <map>
+typedef std::map <BYTE,netClientFn_s> ClientMap_s;
+typedef std::map <BYTE,netServFn_s> ServerMap_s;
+
+
 #define goto wtf юзать гоуту нельзя

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <map>
 
 int UnimodVersion=0x000402;/// 00.04.02 
 
@@ -428,12 +427,17 @@ namespace {
 		lua_pushinteger(L,UnimodVersion);
 		return 1;
 	}
+	int netSendFx(lua_State*L)
+	{
+		lua_pushstring(L,"not implemented yet");
+		lua_error(L);
+		return 1;
+	}
+}
 /* пускай будет регистрация */
-	typedef std::map <BYTE,netClientFn_s> ClientMap_s;
-	typedef std::map <BYTE,netServFn_s> ServerMap_s;
 	ClientMap_s ClientRegMap;
 	ServerMap_s ServerRegMap;
-};
+
 void netRegClientPacket(uniPacket_e Event,netClientFn_s Fn)
 {
 	ClientRegMap.insert(std::make_pair(Event,Fn));
@@ -808,6 +812,7 @@ void netInit()
 	registerserver("sendChat",&sendChat);
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
+	registerclient("netSendFx",&netSendFx);
 	char Buf[40]="";
 	sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
 	registerclient(Buf,&sendToServer);
