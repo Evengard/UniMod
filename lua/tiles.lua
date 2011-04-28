@@ -10,6 +10,7 @@ local listStore -- список сохраненных
 local tileStoreSel=0 -- выбранный элемент списка
 local tileStore={}
 local tileMode
+local drawId
 --[[
 1 - режим выбора одного тайла
 2 - режим рисования с бордюром
@@ -21,12 +22,20 @@ local list
 local format=string.format
 local parseR
 
-function tileSel()
+local function tileSel()
 	if me==nil then setMe() end
 	local a,b=playerMouse(me)
-	local r=tileGet(a,b)
+	a,b=math.floor(a/23),math.floor(b/23)
+	local r=tileGet(a*23,b*23)
 	if dlg~=nil then
-		wndSetText(textCoords,format('(%d,%d)',math.floor(a/23),math.floor(b/23)))
+		if drawId~=nil then cliDelLines(drawId); drawId=nil end
+		local clr='#CC0000'
+		drawId = cliFloorLines(clr, a*23,b*23, (a+1)*23,(b+1)*23 )
+		drawId = cliFloorLines(clr, (a+1)*23,(b+1)*23, (a)*23,(b+2)*23 )
+		drawId = cliFloorLines(clr, (a)*23,(b+2)*23, (a-1)*23,(b+1)*23 )
+		drawId = cliFloorLines(clr, (a-1)*23,(b+1)*23, a*23,b*23 )
+
+		wndSetText(textCoords,format('(%d,%d)',a,b))
 		if #r>0 then
 			listOthersSel=0
 		else
@@ -35,7 +44,8 @@ function tileSel()
 		parseR(r)
 	end
 end
-
+local function onTileSelect()
+end
 parseR=function (r)
 	wndLbClear(listOthers)
 	if r~=nil and r[1]~=nil then
@@ -68,7 +78,7 @@ local function tilePaint(dst)
 	if me==nil then setMe() end
 	local x,y=playerMouse(me)
 	-- надо какое-то уточнение координат
-	if dst==nil then tileSet(x,y,{}) return end -- просто удаляем
+	if dst==nil then tileSet2(x,y,{}) return end -- просто удаляем
 	local src=tileGet(x,y)
 	local srcLen=#src
 	local dstLen=#dst
@@ -78,7 +88,7 @@ local function tilePaint(dst)
 	end
 
 	if src==nil or src[1]~=dst[1] or srcLen~=dstLen then
-		tileSet(x,y,t)
+		tileSet2(x,y,t)
 	end
 
 	local tr=table.remove
@@ -108,7 +118,6 @@ local function tilePaint(dst)
 
 	}
 	local px,py=x,y
-	local dt=1
 	for _,k in ipairs(items) do -- проверяем соседей
 		x,y=px+23*k[1],py+23*k[2]
 		if x>=0 and x<=255*23 and y>=0 and y<=255*23 then
@@ -145,8 +154,7 @@ local function tilePaint(dst)
 					ti(src,k[3])
 				end
 				local a,b=x,y
-				setTimeout(function () tileSet(a,b,src) end,dt)
-				dt=dt+1
+				tileSet2(a,b,src)
 			end
 		end
 	end
@@ -172,9 +180,10 @@ local function updateStore()
 end
 function tileDlg()
 	if dlg~=nil then return end
-	local width=175
+	local width=200
 	local y=10
 	local ti=table.insert
+	local tr=table.remove
 	local t
 	dlg={
 		x=200,y=200,w=width,h=100,
@@ -237,24 +246,20 @@ function tileDlg()
 				for y=0,y2 do
 					for x=0,x2 do
 						local a,b=transpose(x,y)
-						setTimeout(function()
-							local i=1
-							while r[i]~=nil do
-								t[i]=r[i]
-								if  r[i+1]==-1 then
-									t[i+1] = rnd(0,tileMaxVari(t[i])-1 )
-								else
-									t[i+1] =r[i+1]
-								end
-								t[i+2]=r[i+2]
-								t[i+3]=r[i+3]
-								
-								i=i+4
+						local i=1
+						while r[i]~=nil do
+							t[i]=r[i]
+							if  r[i+1]==-1 then
+								t[i+1] = rnd(0,tileMaxVari(t[i])-1 )
+							else
+								t[i+1] =r[i+1]
 							end
-							t[i]=nil
-							--print (,table.concat(t,' '))
-							tileSet(a,b,t)
-							end,i)
+							t[i+2]=r[i+2]
+							t[i+3]=r[i+3]
+							i=i+4
+						end
+						t[i]=nil
+						tileSet2(a,b,t)
 						i=i+1
 					end
 				end
@@ -294,7 +299,11 @@ function tileDlg()
 			textColor='#E6A541';
 			text="Close";
 			tooltip="Закрыть окно нафиг";
-			onClick=function(a,b) wndClose(b) dlg=nil end,
+			onClick=function(a,b)
+				if drawId~=nil then cliDelLines(drawId); drawId=nil end
+				wndClose(b)
+				dlg=nil
+			end,
 		}
 	y=y + t.h +10
 	ti(dlg,t)
@@ -405,11 +414,12 @@ function tileDlg()
 					local r=b.data
 					if r==nil or listOthersSel==-1 then return end
 					local i=listOthersSel*4 + 1
-					local out=tonumber(wndGetText(a))
+					local out=string.match(wndGetText(a),'%d+')
+
 					if out==nil then
 						print ('use Tile number please')
 					else
-						r[i]=out
+						r[i]=tonumber(out)
 						local s=tileGetName(out)..'('..out..')'
 						wndSetText(a,s )
 						parseR(dlg.data)
@@ -559,6 +569,66 @@ function tileDlg()
 			end,
 		}
 	ti(dlg,t)
+	t={
+			type="PUSHBUTTON",
+			status="ENABLED",
+			style="MOUSETRACK",
+			x=(10+15+5),y=(y+5),w=15,h=15,
+			offsetX=0,offsetY=-1,
+			selectedColor="#303030";
+			hiliteColor="#104040";
+			bgcolor="#101010";
+			textColor='#E6A541';
+			text="-";
+			tooltip="Удалить строчку";
+			onClick=function(me,parent)
+				local r=parent.data
+				local idx=listOthersSel
+				if idx==-1 then return end
+				tr(r,idx*4 + 1)
+				tr(r,idx*4 + 1)
+				tr(r,idx*4 + 1)
+				tr(r,idx*4 + 1)
+				parseR(r)
+			end,
+		}
+	ti(dlg,t)
+	t={
+			type="PUSHBUTTON",
+			status="ENABLED",
+			style="MOUSETRACK",
+			x=(10+15+5+15+5),y=(y+5),w=15,h=15,
+			offsetX=0,offsetY=-1,
+			selectedColor="#303030";
+			hiliteColor="#104040";
+			bgcolor="#101010";
+			textColor='#E6A541';
+			text=">";
+			tooltip="Открыть окно выбора";
+			onClick=function(me,parent)
+
+				local data
+				local function fnOk(x,y,z)
+					local r=parent.data
+					if r==nil then
+						parent.data={}
+					end
+					if #r==0 then
+						listOthersSel=0
+						ti(r,0)
+						ti(r,0)
+						ti(r,0)
+						ti(r,0)
+					end
+					wndSetText(textTile,x)
+					textTile.onFocus(textTile,dlg,0)
+					listVari.onSelChange(listVari,dlg,0)
+				end
+				local fnArg
+				selectItem(data,fnOk,fnArg)
+			end,
+		}
+	ti(dlg,t)
 	y=y+t.h+10+10
 	listOthers={
 			type="SCROLLLISTBOX",
@@ -602,7 +672,7 @@ function tileDlg()
 			text="Store";
 			tooltip="Записать в лист";
 			onClick=function(a,b)
-				print(tostring(b.data),' ',b.data[1],json.encode(tileStore))
+				--print(tostring(b.data),' ',b.data[1],json.encode(tileStore))
 				if b.data==nil or b.data[1]==nil then return end
 				ti(tileStore,b.data)
 				updateStore()
@@ -662,7 +732,7 @@ function tileDlg()
 	dlg.onGrabMouse=function (me)
 		if tileMode~=nil and tileMode==2 then
 			local a,b=pcall(tilePaint,me.data)
-			if not a then print(b) 
+			if not a then print(b)
 			else
 				wndGrabMouse(me)
 			end
@@ -677,16 +747,13 @@ function tileDlg()
 	updateStore()
 end
 local resizeButton
-local recreate
 resizeButton=function ()
 	local x,y=wndScreenSize()
 	if uniPanel==nil then
-		if recreate==true then return end
-		recreate=true
 		uniPanel=
 		{
 			bgcolor='#303030';
-			y=0,w=20,h=40,
+			y=5,w=20,h=40,
 			{
 				type="PUSHBUTTON",
 				x=0,y=0,w=20,h=20,
@@ -706,9 +773,10 @@ resizeButton=function ()
 				end
 			};
 		}
-		uniPanel.x= x - uniPanel.w
+		uniPanel.x= x - 5 - uniPanel.w
+		--print(uniPanel.x,' ',uniPanel.y)
 		wndCreate(uniPanel)
 	end
-	setTimeout(resizeButton,150)
+--	setTimeout(resizeButton,150)
 end
 setTimeout(resizeButton,1)

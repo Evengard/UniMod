@@ -145,9 +145,9 @@ B - ChildId
 			}
 		}
 		lua_settop(L,Top);
-		char Buf[40]="";
+/*		char Buf[40]="";
 		sprintf(Buf,"%04x %p %p",Msg,A,B);
-		conPrintI(Buf);
+		conPrintI(Buf);*/
 
 		if (getChildLuaByPtr((void*)A))
 			switch (Msg)
@@ -209,13 +209,16 @@ B - ChildId
 				lua_settable(L,-3);
 				break;
 			case 0x01:
-			case 0x16:// создано дочернее окно + A= ID
 				lua_pushlightuserdata(L,&noxWndLoad);
 				lua_gettable(L,LUA_REGISTRYINDEX);
 				lua_pushinteger(L,nowCreating);
 				lua_gettable(L,-2);
 				if(lua_type(L,-1) ==LUA_TNIL)
 					break;
+				lua_pushlightuserdata(L,Window);
+				lua_pushvalue(L,-2);
+				lua_settable(L,-4);
+
 				lua_getfield(L,-1,"wndProc");
 				if(lua_type(L,-1)==LUA_TFUNCTION)
 				{
@@ -238,12 +241,15 @@ B - ChildId
 				}
 				break;
 			case 0x17:/// уничтожено дочернее окно
+/*здесь надо дочернее удалить
 				lua_pushlightuserdata(L,&noxWndLoad);
 				lua_gettable(L,LUA_REGISTRYINDEX);
 				lua_pushlightuserdata(L,Window);// Удаляем таблицу из реестра
 				lua_pushnil(L);
-				lua_settable(L,-3);
+				lua_settable(L,-3);*/
 			/// прочие случаи
+			case 0x16:// создано дочернее окно + A= ID
+/// надо добавить
 			case 0x04:/// RB click MB
 			case 0x05:/// LB Down
 			case 0x06:/// LB Up - причем даже после драга
@@ -294,6 +300,25 @@ B - ChildId
 		}
 		lua_settop(L,Top);
 		return Ret;
+	}
+	int __cdecl newDrawProc(byte *Window,byte *drawData)
+	{
+		int Top=lua_gettop(L);
+		lua_pushlightuserdata(L,&noxWndLoad);
+		lua_gettable(L,LUA_REGISTRYINDEX);
+		lua_pushlightuserdata(L,Window);
+		lua_gettable(L,-2);
+		if (lua_type(L,-1)!=LUA_TTABLE)
+		{
+			lua_settop(L,Top);
+			return 0;
+		}
+		lua_getfield(L,-1,"drawFn");
+		lua_pushlightuserdata(L,Window);
+		lua_pcall(L,1,0,0);
+
+		lua_settop(L,Top);
+		return 0;
 	}
 	ParseAttrib attrOffsets[]=
 	{
@@ -781,6 +806,7 @@ public:
 			hiliteImage="somename"
 			text="Test1";
 			tooltip="Test1 tooltip";
+			drawFn=function (me) end
 		}
 	}
 	)
@@ -940,6 +966,13 @@ public:
 		lua_pushstring(L,"childId");
 		lua_pushinteger(L,nextChildId++);
 		lua_settable(L,1);
+
+		lua_getfield(L,1,"drawFn");
+		if (lua_type(L,-1)==LUA_TFUNCTION)
+		{
+			*((void**)(Wnd+0x17C))=&newDrawProc;
+		}
+		lua_settop(L,1);
 
 		lua_pushlightuserdata(L,Wnd);
 		lua_pushvalue(L,1);

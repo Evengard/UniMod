@@ -475,6 +475,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\fxBuff.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\gui.cpp"
 					>
 				</File>
