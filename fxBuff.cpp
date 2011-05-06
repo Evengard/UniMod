@@ -6,7 +6,12 @@ extern void (__cdecl *noxRasterDrawLines)();
 
 extern int (__cdecl *noxSetRectColorMB) (int);
 
+extern DWORD *GameFlags;
 FxBuffer_t *FxFirstBuffer=0;
+extern BYTE **clientPlayerInfoPtr;
+extern bigUnitStruct* (__cdecl *playerFirstUnit)();
+extern bigUnitStruct* (__cdecl *playerNextUnit)(void* Prev);
+
 void FxBuffer_t::getValues(int First,int Len)
 {
 	//еще не готово
@@ -16,6 +21,7 @@ bool FxBuffer_t::delBlock(int Id) //удаляем блок
 	int State=0;
 	int Cnt=0;
 	int Free;
+	int Start=0;
 	DWORD *CntPtr=0;
 	for (FxBuffer_t *Buf=FxFirstBuffer;Buf!=NULL;Buf=Buf->Next)
 	{
@@ -27,14 +33,21 @@ bool FxBuffer_t::delBlock(int Id) //удаляем блок
 			case 0:
 				if (0==*P)
 				{
-					*P=1;// пропуск
+					if (Id==(Start + P- Buf->Data))
+					{
+						*P=1;// пропуск
+						State=3;
+						return true;//TODO
+					}
+					State=1;
+				}else if (1==*P)
+				{
 					State=1;
 				}
 				break;
-			case 1:
+			case 1: // грузим счетчик
 				CntPtr=P;
 				Cnt=*P;
-				Free+=Cnt+2;
 				State=2;
 				break;
 			case 2:
@@ -42,14 +55,12 @@ bool FxBuffer_t::delBlock(int Id) //удаляем блок
 					Cnt--;
 				else 
 				{
-					if (*P==1)
-						State=1;
-					else 
-						return true;
+					State=1;
 				}
 				
 				break;
 			}//switch
+			Start +=Buf->Size - Buf->FreeSize;
 			P++;
 		}
 		if (State==2)
@@ -112,6 +123,7 @@ FxBuffer_t *FxBuffer_t::addBlock(int Size,int *Id)
 	Ret->FreeSize -= Size;
 	Ret->addItem(0);
 	Ret->addItem(Size-2);
+	*Id=Idx;
 	return Ret;
 }
 
@@ -250,8 +262,49 @@ void FxBuffer_t::drawBuffers()
 						sp++;
 
 					}
+					State=0;
 				}
 				break;
+			case 15: //line to cursor
+				X1 = *((int*)(P++));
+				State=114;
+				break;
+			case 114:
+				Y1 = *((int*)(P++));
+				State=115;
+				break;
+			case 115:
+				if ((*GameFlags&1)==0) //client
+				{
+					int *pI=(int*)(*clientPlayerInfoPtr+0x8EC);
+					X2=*(pI++);
+					Y2=*pI;
+				}
+				else 
+				{
+					X2=-1;
+					for (bigUnitStruct *Pl=playerFirstUnit();Pl!=NULL;Pl=playerNextUnit(Pl))
+					{
+						char *Uc=(char *)Pl->unitController;
+						Uc=*((char **)(Uc+0x114));
+						if (Uc[0x810]!=*P)
+							continue;
+						int *pI=(int*)(Uc+0x8EC);
+						X2=*(pI++);
+						Y2=*pI;
+						break;
+					}
+				}
+				P++;
+				if (X2>0)
+				{
+					noxRasterPoint(X1 - OfsX,Y1 - OfsY);
+					noxRasterPoint(X2 - OfsX,Y2 - OfsY);
+					noxRasterDrawLines();				
+				}
+				State=0;
+				break;
+			case 16:
 			default:
 				P++;
 				break;
