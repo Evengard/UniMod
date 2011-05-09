@@ -257,7 +257,8 @@ l1:
 			lua_pushstring(L,"wrong args: unit is not a player!");
 			lua_error_(L);
 		}
-		void **PP=(void **)(((char*)lua_touserdata(L,1))+0x2EC);
+		BYTE *unit=(BYTE*)lua_touserdata(L,1);
+		void **PP=(void **)(((char*)unit)+0x2EC);
 		PP=(void**)(((char*)*PP)+0x114);
 		byte *P=(byte*)(*PP);
 		lua_newtable(L);
@@ -297,11 +298,11 @@ l1:
 		else
 			lua_pushstring(L,"");
 		lua_setfield(L,-2,"login");
-		int TeamId=*(Common+4);
+		int TeamId=*((int*)(unit+0x34));
 		byte *Team=NULL;
 		if (TeamId>0)
 		{
-			Team=(byte *)noxGetTeamByN(lua_tointeger(L,1));
+			Team=(byte *)noxGetTeamByN(TeamId);
 		}
 		if (Team!=NULL)
 		{
