@@ -15,6 +15,7 @@ void (__cdecl *noxMapDelWallAtPt)(int x,int y);
 int (__cdecl *mapTraceRay)(noxRect *Ray,int arg4,int arg8,int Flags);
 // arg4,arg8 - ret structs [0],[4] - some vals
 void (__cdecl *netWallCreate)(void *PrevCmd,wallRec *Wall,int newWall,int tileName,int facing, int vari);
+int (__cdecl *noxMapGetMaxVari) (int,int,int);
 //newWall=1 если новая стена, 0 - если модифицирована старая
 
 DWORD *wallNextBreakableId;
@@ -31,6 +32,7 @@ void (__cdecl *scriptPushValue)(DWORD X);
 char **scriptKey; // все строчки лежат там
 DWORD (__cdecl *mapWaypoint)();
 void (__cdecl *mapInitialize)();
+
 
 bigUnitStruct **scriptCallerUnit;
 bigUnitStruct **scriptTriggerUnit;
@@ -163,6 +165,35 @@ namespace {
 		}
 		return -1;
 	}
+	
+	int mapInfoL(lua_State *L)
+	{
+		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		wallRec *P=(wallRec*)lua_touserdata(L,1);
+		lua_newtable(L);
+		lua_pushinteger(L,P->tileName);
+		lua_setfield(L,-2,"tile");
+		lua_pushinteger(L,P->posX);
+		lua_setfield(L,-2,"x");
+		lua_pushinteger(L,P->posY);
+		lua_setfield(L,-2,"y");
+		lua_pushinteger(L,P->Dir);
+		lua_setfield(L,-2,"dir");
+		lua_pushinteger(L,P->wallFlags);
+		lua_setfield(L,-2,"flags");
+		lua_pushinteger(L,P->variation);
+		lua_setfield(L,-2,"vari");
+		lua_pushinteger(L,P->unk3);
+		lua_setfield(L,-2,"unk3");
+		lua_pushinteger(L,P->HP);
+		lua_setfield(L,-2,"hp");
+		return 1;
+	}
+
 	int getWallAtPtL(lua_State *L)
 	{
 		if(lua_type(L,1)==LUA_TTABLE)
@@ -180,28 +211,16 @@ namespace {
 		}
 		int x=lua_tointeger(L,1),y=lua_tointeger(L,2);
 		x=(x-x%23)/23;y=(y-y%23)/23;
-			wallRec *P=noxGetWallAtPt(x,y);
-			if(P==NULL)
-			{
-				lua_pushnil(L);
-				return 1;
-			}
-			if ((lua_gettop(L)>2)&& lua_toboolean(L,3)) // тут
-			{
-			    lua_pushlightuserdata(L,P);
-				return 1;
-			}
-			else
-			{
-				lua_pushinteger(L,P->tileName);
-				lua_pushinteger(L,x);lua_pushinteger(L,y);
-				lua_pushinteger(L,P->Dir);
-				lua_pushinteger(L,P->wallFlags);
-				lua_pushinteger(L,P->variation);
-				lua_pushinteger(L,P->unk3);
-				lua_pushinteger(L,P->HP);
-				return 8;
-			}
+		wallRec *P=noxGetWallAtPt(x,y);
+		if(P==NULL)
+		{
+			lua_pushnil(L);
+			return 1;
+		} else
+		{
+		    lua_pushlightuserdata(L,P);
+			return 1;
+		}
 	}
 
  int setWallAtPtL(lua_State *L)
@@ -345,6 +364,25 @@ namespace {
 		lua_pushstring(L,Tile);
 		return 1;
 	}
+
+	int mapMaxVariL(lua_State *L)
+	{
+		if (lua_type(L,1)!=LUA_TNUMBER || lua_type(L,2)!=LUA_TNUMBER)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		int tile=lua_tointeger(L,1);
+		int dir=lua_tointeger(L,2);
+		if (tile<0 || dir<0)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		lua_pushinteger(L,noxMapGetMaxVari(tile,dir,0));
+		return 1;
+	}
+
 	DWORD *mapDoInitialize;
 	bool firstRun=true;
 }
@@ -419,7 +457,8 @@ void mapInit()
 	ASSIGN(mapTraceRay,0x535250);
 	ASSIGN(netWallCreate,0x4FFE80);
 	ASSIGN(mapGetName,0x409B40);
-	
+	ASSIGN(noxMapGetMaxVari,0x410DD0);
+
 	ASSIGN(noxWallBreackableListAdd,0x00410840);
 	ASSIGN(noxWallBreackableListRemove,0x00410890);
 	ASSIGN(noxGetFirstBreakableList,0x00410870);
@@ -427,12 +466,14 @@ void mapInit()
 	ASSIGN(wallNextBreakableId,0x00689574);
 
 	registerserver("mapGet",&getWallAtPtL);
+	registerserver("mapInfo",&mapInfoL);
 	registerserver("mapSet",&setWallAtPtL);
 	registerserver("mapDel",&mapDelWallAtPtL);
 	registerserver("mapTraceRay",&mapTraceRayL);
-	registerserver("mapGetTileByName",&mapGetTileByNameL);
+	registerserver("mapTileByName",&mapGetTileByNameL);
 
-	registerclient("tileGetName",&mapGetNameByTileL);
-	registerclient("mapName",&mapGetNameL);
+	registerclient("mapMaxVari",&mapMaxVariL);
+	registerclient("mapNameByTile",&mapGetNameByTileL);
+	registerclient("mapGetName",&mapGetNameL);
 }
 
