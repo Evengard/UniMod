@@ -25,9 +25,47 @@ extern int (__cdecl *noxDrawGetStringSize) (void *FontPtr, const wchar_t*String,
 extern int (__cdecl *noxSetRectColorMB) (int);
 
 extern bool justDoNoxCmd;
+int *dword_69FE50=(int*) 0x69FE50;
 
 namespace
 {
+	void __cdecl onPrintConsole(int color,wchar_t* str)
+	{
+		int Top=lua_gettop(L);
+		getServerVar("onConPrint");
+		if (lua_isfunction(L,-1))
+		{
+			char conStr[0x208]={0};
+			wcstombs(conStr,str,0x208);
+			lua_pushstring(L,conStr);
+			lua_pushinteger(L,color);
+			lua_pcall(L,2,0,0);
+		}
+		lua_settop(L,Top);
+	}
+
+
+
+	int __declspec(naked) onPrintConsoleTrap()
+	{
+		__asm
+		{
+			mov eax,[dword_69FE50+0]
+			mov eax,[eax+0]
+			push eax
+			mov eax,[esp+4+8]
+			push eax
+			mov eax,[esp+8+4]
+			push eax
+			call onPrintConsole
+			add esp,8
+			pop eax
+			push 450B95h
+			ret
+		};
+	}
+
+
 	int conCur=0; // 0 - курсор в самом самом начале, 1 - перед 1 буквой. » т. д.
 	int lenStrOld=0;
 
@@ -281,7 +319,8 @@ void consoleInit()
 
 	InjectAddr(0x00450E4C+1,&consoleEditProcNew);
 	InjectJumpTo(0x004884C5 ,&consoleEditDraw); // ћен€ем размеры
-	
+	InjectJumpTo(0x450B90 ,&onPrintConsoleTrap);
+
 	lua_newtable(L); // делаем таблицу дл€ строк
 	lua_pushinteger(L,1);
 	lua_setfield(L,-2,"lastItem");
