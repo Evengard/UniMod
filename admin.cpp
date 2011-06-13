@@ -180,9 +180,38 @@ namespace
 				data[i]=tolower(data[i]);
 			}
 			//if(mapLoadFromFile((void*)&Data->mapName))
-			if(mapCyclePosition>0)
+			char mode[0x20];
+			switch(currentMode)
 			{
-				char* textPosition=data+mapCyclePosition;
+			case 0x80:
+				strcpy(mode,"[chat]");
+				break;
+			case 0x100:
+				strcpy(mode,"[deathmatch]");
+				break;
+			case 0x400:
+				strcpy(mode,"[elimination]");
+				break;
+			case 0x20:
+				strcpy(mode,"[capture the flag]");
+				break;
+			case 0x40:
+				strcpy(mode,"[flagball]");
+				break;
+			case 0x10:
+				strcpy(mode,"[king of the realm]");
+				break;
+			default:
+				strcpy(mode,"[other]");
+				break;
+			}
+			char* result=strstr(data, mode);
+			char* textPosition=data+mapCyclePosition;
+			char* nextMode=strstr(result+1, "[");
+			if(mapCyclePosition>0 && textPosition>result && nextMode>textPosition)
+			{
+				
+				
 				/*char curMapName[9];
 				strcpy(curMapName, mapGetName());
 				for(int i=0; i<9; i++)
@@ -218,32 +247,6 @@ namespace
 				}
 				//}
 			}
-			char mode[0x20];
-			switch(currentMode)
-			{
-			case 0x80:
-				strcpy(mode,"[chat]");
-				break;
-			case 0x100:
-				strcpy(mode,"[deathmatch]");
-				break;
-			case 0x400:
-				strcpy(mode,"[elimination]");
-				break;
-			case 0x20:
-				strcpy(mode,"[capture the flag]");
-				break;
-			case 0x40:
-				strcpy(mode,"[flagball]");
-				break;
-			case 0x10:
-				strcpy(mode,"[king of the realm]");
-				break;
-			default:
-				strcpy(mode,"[other]");
-				break;
-			}
-			char* result=strstr(data, mode);
 			if(result==NULL)
 			{
 				char* ret = new char[13];
