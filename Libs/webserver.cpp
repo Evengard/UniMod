@@ -52,7 +52,7 @@ extern byte authorisedState[0x20];
 extern char* authorisedLogins[0x20];
 extern DWORD* currentIP;
 extern unsigned __int16 *currentPort;
-
+std::pair<int, char*> httpGetInternal(char* uri);
 
 bool tgets(char *Buf, int size,SOCKET s,char *&Remain)
 {
@@ -328,95 +328,9 @@ int httpGet(lua_State *L)
 
 unsigned __stdcall httpGetThread(void *Src1)
 {
-	const char *Src=0,*Host=0,*Port=0,*Href=0,*P;
-	Src=(char*)Src1;
-	if (0==strncmp(Src,"http://",7))
-		Src+=7;
-	Host=Src;
-	Port=strchr(Src,':');
-	P=strchr(Src,'/');
-	if (Port!=NULL)
-	{
-		if (P!=NULL)
-		{
-			if (Port>P)
-			{
-				Port=NULL;
-			}
-		}
-		else
-			P=Port;
-	}
-	if (P==NULL)
-		P=Host+strlen(Host);
-	char Buf[0x400]={0};// нефиг юзать более длинные страницы
-	int PortV=80;
-	sockaddr_in so;
-	memset(&so,0,sizeof(so));
-	if (Port!=NULL)
-	{
-		strncpy(Buf,Host,Port-Host);
-		PortV=htons(atoi(Port));
-	}
-	else
-		strncpy(Buf,Host,P-Host);
-
-	struct addrinfo *result;
-	char HostAddr[0x100] = {0};
-	strcpy(HostAddr, Buf);
-	if (0!=getaddrinfo(Buf,NULL,NULL,&result))
-	{
-		//lua_pushstring(L,"httpGet - unable to resolve address");
-		//lua_error(L);
-		return 0;
-	}
-	memcpy(&so,result->ai_addr,result->ai_addrlen);
-	so.sin_port=htons(PortV);
-	so.sin_family=AF_INET;
-	freeaddrinfo(result);
-	SOCKET sock=0;
-	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	int R=0;
-	if ( 0!= connect(sock,(sockaddr*)&so,sizeof(so)))
-	{
-		R=WSAGetLastError();
-		closesocket(sock);
-		//lua_pushstring(L,"httpGet - connect failed");
-		//lua_error(L);
-	}
-	strcpy(Buf,"GET ");
-	if (*P==0)
-		P="/";
-	strcat(Buf,P);
-	strcat(Buf," HTTP/1.0\r\nHost: ");
-	strcat(Buf, HostAddr);
-	strcat(Buf,"\r\n\r\n");
-	R=send(sock,Buf,strlen(Buf),0);
-	if (R<0)
-	{
-		R=WSAGetLastError();
-		if (R==WSANOTINITIALISED)
-			R++;
-
-	}
-	else
-	{
-		shutdown(sock,SD_SEND);
-		int R=0;
-		if ((R=recv(sock,Buf,sizeof(Buf),0))>=0)
-		{
-			P=strstr(Buf,"\r\n\r\n");
-			if (P!=NULL)
-				strcpy(httpGetResult, P+4);
-		}
-		else
-		{
-			R=WSAGetLastError();
-			//httpGetResult=NULL;
-		}
-	}
-	closesocket(sock);
-	strcpy(httpGetSrc, Src);
+	std::pair<int, char*> res=httpGetInternal((char*)Src1);
+	strcpy(httpGetResult, res.second);
+	delete[] res.second;
 	return 0;
 }
 
@@ -467,4 +381,111 @@ void httpGetCallback(lua_State *L)
 		lua_settop(L,Top);
 	}
 	return;
+}
+
+std::pair<int, char*> httpGetInternal(char* uri)
+{
+	char* returnData = new char[0x400];
+	const char *Src=0,*Host=0,*Port=0,*Href=0,*P;
+	Src=(char*)uri;
+	if (0==strncmp(Src,"http://",7))
+		Src+=7;
+	Host=Src;
+	Port=strchr(Src,':');
+	P=strchr(Src,'/');
+	if (Port!=NULL)
+	{
+		if (P!=NULL)
+		{
+			if (Port>P)
+			{
+				Port=NULL;
+			}
+		}
+		else
+			P=Port;
+	}
+	if (P==NULL)
+		P=Host+strlen(Host);
+	char Buf[0x400]={0};// нефиг юзать более длинные страницы
+	int PortV=80;
+	sockaddr_in so;
+	memset(&so,0,sizeof(so));
+	if (Port!=NULL)
+	{
+		strncpy(Buf,&Port[1],P-Port);
+		Buf[P-Port-1]=NULL;
+		PortV=atoi(Buf);
+		strncpy(Buf,Host,Port-Host);
+	}
+	else
+		strncpy(Buf,Host,P-Host);
+
+	struct addrinfo *result;
+	char HostAddr[0x100] = {0};
+	strcpy(HostAddr, Buf);
+	if (0!=getaddrinfo(Buf,NULL,NULL,&result))
+	{
+		//lua_pushstring(L,"httpGet - unable to resolve address");
+		//lua_error(L);
+		return std::make_pair(0, returnData);
+	}
+	memcpy(&so,result->ai_addr,result->ai_addrlen);
+	so.sin_port=htons(PortV);
+	so.sin_family=AF_INET;
+	freeaddrinfo(result);
+	SOCKET sock=0;
+	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	int R=0;
+	if ( 0!= connect(sock,(sockaddr*)&so,sizeof(so)))
+	{
+		R=WSAGetLastError();
+		closesocket(sock);
+		//lua_pushstring(L,"httpGet - connect failed");
+		//lua_error(L);
+	}
+	strcpy(Buf,"GET ");
+	if (*P==0)
+		P="/";
+	strcat(Buf,P);
+	strcat(Buf," HTTP/1.0\r\nHost: ");
+	strcat(Buf, HostAddr);
+	strcat(Buf,"\r\n\r\n");
+	R=send(sock,Buf,strlen(Buf),0);
+	char httpGetResultData[0x400];
+	int resultCode=0;
+	if (R<0)
+	{
+		R=WSAGetLastError();
+		if (R==WSANOTINITIALISED)
+			R++;
+
+	}
+	else
+	{
+		shutdown(sock,SD_SEND);
+		int R=0;
+		if ((R=recv(sock,Buf,sizeof(Buf),0))>=0)
+		{
+			char* statCodeSearch=strstr(Buf, "\r\n");
+			if(statCodeSearch!=NULL && (statCodeSearch-Buf)<50)
+			{
+				char* statCode = strstr(Buf, "200");
+				if(statCode!=NULL)
+					resultCode=200;
+			}
+			P=strstr(Buf,"\r\n\r\n");
+			if (P!=NULL)
+				strcpy(httpGetResultData, P+4);
+		}
+		else
+		{
+			R=WSAGetLastError();
+			//httpGetResult=NULL;
+		}
+	}
+	closesocket(sock);
+	//strcpy(httpGetSrc, Src);
+	strcpy(returnData, httpGetResultData);
+	return std::make_pair(resultCode, returnData);
 }
