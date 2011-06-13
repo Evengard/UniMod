@@ -1280,11 +1280,7 @@ namespace
 	{
 		guiUpdate();
 		httpGetCallback(L);
-		bool useGetAuth=false;
-		if(useGetAuth==true)
-			AuthProcess();
-		else
-			updateAuthDBProcess();
+		updateAuthDBProcess();
 		if (needToFormGame)
 		{
 			needToFormGame=false;

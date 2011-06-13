@@ -35,7 +35,6 @@ byte authorisedState[0x20];
 char *authorisedLogins[0x20];
 
 //char *temp; //Временная переменная
-extern void authAddToList(char* Data);
 
 extern void authCheckDelayed(byte playerIdx, char* pass);
 
@@ -602,7 +601,6 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 							// TEMPORARY! END
 							authorisedState[playerIdx]++;
 							authSendWelcomeMsg[playerIdx]=-1;
-							//authAddToList(data);
 							authCheckDelayed(playerIdx, pass);
 							BufStart+=BufStart[0x8]+0xB;
 							found=true;
@@ -683,7 +681,6 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 							// TEMPORARY! END
 							authorisedState[playerIdx]++;
 							authSendWelcomeMsg[playerIdx]=-1;
-							//authAddToList(data);
 							authCheckDelayed(playerIdx, pass);
 							BufStart+=BufStart[0x4]*2+0x7;
 							found=true;
