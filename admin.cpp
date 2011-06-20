@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
 //:004317B0 configLoad(const char*)
 //00433290 configSave
 extern bool serverStart(int port);
@@ -70,9 +73,14 @@ extern bool specialAuthorisation;
 using namespace std;
 char authSendWelcomeMsg[0x20];
 
-int mapCyclePosition=0;
+/*int mapCyclePosition=0;
 char mapCyclePrevMap[9];
-int mapCycleTries=0;
+int mapCycleTries=0;*/
+
+
+vector<string> mapCycleCurrentList;
+__int16 mapCycleLastModeId;
+int mapCycleCurrentPosition;
 
 bool serverRequest(int f,char *path)
 {
@@ -152,9 +160,100 @@ namespace
 	};
 	bool needToFormGame=false;
 
+	vector<string> mapCycleFormListMode(__int16 modeId)
+	{
+		string mode;
+		vector<string> formedMapcycle;
+		switch(modeId)
+		{
+		case 0x80:
+			mode="[chat]";
+			break;
+		case 0x100:
+			mode="[deathmatch]";
+			break;
+		case 0x400:
+			mode="[elimination]";
+			break;
+		case 0x20:
+			mode="[capture the flag]";
+			break;
+		case 0x40:
+			mode="[flagball]";
+			break;
+		case 0x10:
+			mode="[king of the realm]";
+			break;
+		default:
+			mode="[other]";
+			break;
+		}
+		ifstream file("mapcycle.txt", ios::in | ios::binary);
+		if(file.is_open())
+		{
+			file.seekg(0, ios::end);
+			size_t filesize=file.tellg();
+			file.seekg(0, ios::beg);
+			char searchMode=0;
+			string fileLine;
+			while(searchMode<2)
+			{
+				getline(file, fileLine);
+				if(!file.eof())
+				{
+					transform(fileLine.begin(), fileLine.end(), fileLine.begin(), tolower);
+					if(searchMode==1 && fileLine[0]!='[')
+					{
+						size_t position = fileLine.rfind(".map");
+						if(position!=string::npos)
+						{
+							fileLine.erase(position, 4);
+						}
+						if(mapLoadFromFile((void*)fileLine.c_str()))
+							formedMapcycle.push_back(fileLine);
+					}
+					else if(searchMode==1)
+					{
+						searchMode++;
+						break;
+					}
+					if(searchMode==0 && fileLine==mode)
+						searchMode++;
+				}
+				else
+				{
+					searchMode=2;
+					break;
+				}
+			}
+		}
+		return formedMapcycle;
+	}
+
 	void* mapCycleNext()
 	{
-		if(mapCycleTries>=10)
+		__int16 currentMode = ((__int16)*GameFlags)&0x1FF0;
+		int nextPosition=mapCycleCurrentPosition+1;
+		if(currentMode!=mapCycleLastModeId || mapCycleCurrentList.size()<=nextPosition)
+		{
+			mapCycleLastModeId=currentMode;
+			//mapCycleCurrentPosition=0;
+			mapCycleCurrentList=mapCycleFormListMode(mapCycleLastModeId);
+			nextPosition=0;
+		}
+		char* ret = new char[13];
+		
+		if(mapCycleCurrentList.size()<=nextPosition)
+		{
+			strcpy(ret, mapGetName());
+			strcat(ret, ".map");
+			return ret;
+		}
+		strcpy(ret, mapCycleCurrentList[nextPosition].c_str());
+		strcat(ret, ".map");
+		mapCycleCurrentPosition=nextPosition;
+		return ret;
+		/*if(mapCycleTries>=10)
 		{
 			mapCycleTries=0;
 			mapCyclePrevMap[0]=NULL;
@@ -219,7 +318,7 @@ namespace
 					curMapName[i]=tolower(curMapName[i]);
 				}
 				if(strncmp(curMapName, textPosition, 8)==0)
-				{*/
+				{*
 				char* nextMap=strstr(textPosition, "\n");
 				if(nextMap!=NULL)
 				{
@@ -454,7 +553,7 @@ namespace
 					delete [] data;
 					return ret;
 				}
-			}*/
+			}*
 			strncpy(ret, &nextMap[1], (endNextMap-&nextMap[1]+4));
 			char dot=ret[(endNextMap-&nextMap[1])];
 			ret[(endNextMap-&nextMap[1])]=NULL;
@@ -480,8 +579,9 @@ namespace
 		mapCycleTries=0;
 		mapCyclePrevMap[0]=NULL;
 		//delete [] data;
-		return ret;
+		return ret;*/
 	}
+		
 
 	int formGame(lua_State *L)
 	{
@@ -1010,8 +1110,8 @@ namespace
 			authorisedLogins[i]="";
 			authSendWelcomeMsg[i]=0;
 		}
-		mapCyclePosition=0;
-		mapCyclePrevMap[0]=NULL;
+		mapCycleLastModeId=((__int16)*GameFlags)&0x1FF0;
+		mapCycleCurrentPosition=0;
 		return getConfigData();
 	}
 	void doFormGame()
