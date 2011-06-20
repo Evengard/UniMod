@@ -69,7 +69,7 @@ function setWall()
 		else
 			dir=wallP.dir
 		end
-		if wallP.flag==0 then
+		if wallP.flag~=192 then
 			if wallP.var==-1 then
 					var=math.random(0,mapMaxVari(wallP.tile,dir)-1)
 				else
