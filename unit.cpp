@@ -11,6 +11,7 @@ void (__cdecl *noxUnFrozen) (void* Unit,int Num);
 void (__cdecl *unitMove)(void *Who,noxPoint *Pt);
 void (__cdecl *unitActivate) (void *Unit);
 void (__cdecl *dropAllItems)(void*Unit);
+void (__cdecl *noxUnitHunt) (void *Unit);
 
 void (__cdecl *inventoryPut)(void *Who,void *What,int A);
 
@@ -251,6 +252,18 @@ namespace
 		unitBecomePet(P2,P1);/// Âûחûגאועסÿ םאמבמנמע
 		return 0;
 	}
+
+	int unitHuntL(lua_State*L)
+	{
+		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA )
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		noxUnitHunt(lua_touserdata(L,1));
+		return 0;
+	}
+
 	int unitCopyUcL(lua_State*L)
 	{
 		if ( (lua_type(L,1)!=LUA_TLIGHTUSERDATA) )
@@ -403,6 +416,7 @@ void unitInit()
 	ASSIGN(noxUnFrozen,0x004E7A60);
 	ASSIGN(inventoryPut,0x004F3070);
 	ASSIGN(dropAllItems,0x004EDA40);
+	ASSIGN(noxUnitHunt,0x5449D0); 
 
 	registerserver("unitSetFollow",&unitSetFollowL);
 	registerserver("unitBecomePet",&unitBecomePetL);
@@ -414,6 +428,7 @@ void unitInit()
 	registerserver("unitFreeze",&unitFreezL);
 	registerserver("unitUnFreeze",&unitUnFreezL);
 	registerserver("unitPick",&unitPickL);
+	registerserver("unitHunt",&unitHuntL);
 
 	registerserver("playerList",&playersListL);
 	registerserver("playerMouse",&playerMouseL);
