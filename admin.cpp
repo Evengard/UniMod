@@ -207,7 +207,7 @@ namespace
 						fileLine = fileLine.substr(0,8); // А без .map может быть только 8 символов. Опять таки отрезаем лишнее.
 						if(fileLine[fileLine.size()-1]=='\r')
 							fileLine.erase((fileLine.size()-1), 1); // Тут мы CR удаляем. Тот самый атавизм со времён печатных машинок
-						if(mapLoadFromFile((char*)fileLine.c_str())) // Проверка, а валидный ли это вообще файл карты...
+						if(mapLoadFromFile((char*)fileLine.c_str()) && mapLoadFlags(mapLoadData)&modeId) // Проверка, а валидный ли это вообще файл карты... И нужного ли режима!
 						{
 							fileLine.append(".map"); // Аппендим обратно .map. Требуется для собственно загрузчика карт мапцикла
 							formedMapcycle.push_back(fileLine); // Загоняем в список
