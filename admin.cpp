@@ -80,6 +80,9 @@ vector<string> mapCycleCurrentList;
 __int16 mapCycleLastModeId;
 int mapCycleCurrentPosition;
 
+extern void* getPlayerUDataFromAddr(void *addr);
+
+
 bool serverRequest(int f,char *path)
 {
 	int Top=lua_gettop(L);
@@ -1062,11 +1065,22 @@ namespace
 
 	void* onPlayerLeave(byte Index)
 	{
+		void* result = playerGetDataFromIndex(Index);
 		authorisedState[Index]=0;
 		if(strcmp(authorisedLogins[Index], "")!=0)
 			delete [] authorisedLogins[Index];
 		authorisedLogins[Index]="";
-		return playerGetDataFromIndex(Index);
+		int Top=lua_gettop(L);
+		getServerVar("playerOnLeave");
+		if (lua_isfunction(L,-1))
+		{
+			void* Player = getPlayerUDataFromAddr(result);
+			lua_pushlightuserdata(L,Player);
+			if (0!=lua_pcall(L,1,0,0))
+				conPrintI(lua_tostring(L,-1));
+		}
+		lua_settop(L,Top);
+		return result;
 	}
 
 	void* onPlayerJoin(int Index)

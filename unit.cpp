@@ -2,6 +2,8 @@
 #include <math.h>
 
 int playersListL(lua_State *L);
+void* getPlayerUDataFromAddr(void *addr);
+
 void (__cdecl *unitSetFollow)(void* Me,void *Him);
 void (__cdecl *unitBecomePet)(void* Me,void *Him);
 void (__cdecl *noxFrozen) (void* Unit,int Num);
@@ -61,6 +63,26 @@ int playersListL(lua_State *L)
 	}
 	return 1;
 }
+
+
+void* getPlayerUDataFromAddr(void* addr)
+{
+	void *P;
+	P=playerFirstUnit();
+	while(P!=0)
+	{
+		BYTE *B=(BYTE *)P;
+		B+=0x2EC;//контроллер
+		B=*((BYTE**)B);
+		B+=0x114;//плэеринфо?
+		B=*((BYTE**)B);
+		if(addr==B)
+			return P;
+		P=playerNextUnit(P);
+	}
+	return 0;
+}
+
 
 namespace
 {
