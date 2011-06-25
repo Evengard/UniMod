@@ -101,6 +101,21 @@ struct wallRec
   int field_20;
 };
 
+struct wallSecret_s
+{
+	int NextWallSecret_s;
+	int X;
+	int Y;
+	int wallRec_Ptr;
+	int timeToClose;
+	BYTE timeToOpen;
+	BYTE bitAuto;
+	BYTE chetchickOpen;
+	BYTE field_17;
+	int ChetchickClose;
+	int field_1c;
+};
+
 struct waypoint_s
 {
 	int Id;

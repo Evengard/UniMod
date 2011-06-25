@@ -6,7 +6,7 @@ struct wallBreakable_s
 	wallRec *wall;
 };
 
-
+extern void *(__cdecl *noxAlloc)(int Size);
 int getTileByName(const char*);
 wallRec *(__cdecl *noxGetWallAtPt)(int x,int y);
 int (__cdecl *noxWallTileByName)(const char *Name);
@@ -16,6 +16,8 @@ int (__cdecl *mapTraceRay)(noxRect *Ray,int arg4,int arg8,int Flags);
 // arg4,arg8 - ret structs [0],[4] - some vals
 void (__cdecl *netWallCreate)(void *PrevCmd,wallRec *Wall,int newWall,int tileName,int facing, int vari);
 int (__cdecl *noxMapGetMaxVari) (int,int,int);
+
+void (__cdecl *noxWallSecretBlock_410760) (void*);
 //newWall=1 если новая стена, 0 - если модифицирована старая
 
 DWORD *wallNextBreakableId;
@@ -42,6 +44,10 @@ extern void mapUnloadFilesystem();
 extern void mapUnloadUtil();
 extern void mapLoadFilesystem(const char *);
 extern void mapLoadSpells();
+
+int *wallNextSecretId=(int*)0x68957C;
+
+
 namespace {
 	DWORD myWaypoint()
 	{
@@ -122,6 +128,20 @@ namespace {
 		lua_pushstring(L,mapGetName());
 		return 1;
 	}
+	void wallSecretListUpdate(wallRec *P)
+	{
+		wallSecret_s *WS=(wallSecret_s*) noxAlloc(0x20);
+		P->doorPtr=(int)WS;
+		WS->X=P->posX;
+		WS->Y=P->posY;
+		WS->wallRec_Ptr=(int)P;
+		WS->bitAuto=1;
+		WS->timeToClose=3;
+		WS->timeToOpen=6;
+		P->wallId=(*wallNextSecretId)++;	
+		noxWallSecretBlock_410760((void*)WS);
+	}
+
 	void wallBreakListUpdate(wallRec *P)
 	{
 		bool Add=(P->wallFlags&8);
@@ -268,6 +288,8 @@ namespace {
 	  {
 			P->wallId=(*wallNextBreakableId)++;
 	  }
+	  if (P->wallFlags & 4)
+		  wallSecretListUpdate(P);
 	  netWallCreate(NULL,P,1,P->tileName,P->Dir,P->variation);
 	  BYTE Buf[256],*Out=Buf;
 	  int Size=sizeof(*P)+2;
@@ -426,6 +448,8 @@ void netOnWallChanged(wallRec *newData)
 	if (P==NULL)
 	{
 		P=noxWallCreateAt(x,y);
+		if (newData->wallFlags & 4)
+			wallSecretListUpdate(P);
 	}
 	if (P==NULL)
 		return;
@@ -463,6 +487,8 @@ void mapInit()
 	ASSIGN(noxWallBreackableListRemove,0x00410890);
 	ASSIGN(noxGetFirstBreakableList,0x00410870);
 	
+	ASSIGN(noxWallSecretBlock_410760,0x410760);
+
 	ASSIGN(wallNextBreakableId,0x00689574);
 
 	registerserver("mapGet",&getWallAtPtL);
