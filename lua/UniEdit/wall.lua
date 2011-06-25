@@ -132,10 +132,19 @@ function wallDel()
 	mapDel(x,y)
 end
 
+function wallInform()
+	local x,y=cliPlayerMouse()
+	x=x-x%23
+	y=y-y%23
+	local a=mapGet(x,y)
+	if a~=nil then print(json.encode(mapInfo(a))) end
+end
+
+
+
 function wallDlg()
 	if dlg~=nil then return end
-	local t,listWall,textTile,setBut,delBut,avtomBut,poluAvtomBut,RuchBut,razrurBut
-	butDir={}
+	local t,listWall,textTile,setBut,delBut,infBut,avtomBut,poluAvtomBut,RuchBut,razrurBut,OknoBut,secretBut,okonoRazBut
 	local butDir={}
 	local ti=table.insert
 	local width=410
@@ -160,6 +169,7 @@ function wallDlg()
 			wallP.hp=0
 			wallP.flag=0
 			wallP.dir=0
+			wallP.flag=0
 		end
 	}
 	ti(dlg,t)
@@ -212,6 +222,7 @@ function wallDlg()
 			else
 				wallP.mod=1
 				wndGrabMouse(b)
+				wndSetAttr(infBut,'textColor',"#E6A541")
 				wndSetAttr(delBut,'textColor',"#E6A541")
 				wndSetAttr(a,'textColor',"#FF0000")
 			end
@@ -240,13 +251,42 @@ function wallDlg()
 			else
 				wallP.mod=2
 				wndGrabMouse(b)
+				wndSetAttr(infBut,'textColor',"#E6A541")
 				wndSetAttr(setBut,'textColor',"#E6A541")
 				wndSetAttr(a,'textColor',"#FF0000")
 			end
 		end
 		}
-
 	ti(dlg,delBut)
+	infBut={
+		type="PUSHBUTTON",
+		status="ENABLED+IMAGE",
+		style="MOUSETRACK",
+		x=width-230,y=height-25,w=45,h=25,
+		offsetX=0,offsetY=-1,
+		selectedImage="UIButtonSmLit",
+		hiliteImage="UIButtonSmLit",
+		image="UIButtonSm",
+		disabledImage="UIButtonSmDis",
+		textColor='#E6A541',
+		text="Инфор.",
+		tooltip='Информация о стене',
+		onClick=function(a,b)
+			if wallP.mod==3 then
+				wallP.mod=0
+				wndUnGrabMouse(b)
+				wndSetAttr(a,'textColor',"#E6A541")
+
+			else
+				wallP.mod=3
+				wndGrabMouse(b)
+				wndSetAttr(delBut,'textColor',"#E6A541")
+				wndSetAttr(setBut,'textColor',"#E6A541")
+				wndSetAttr(a,'textColor',"#FF0000")
+			end
+		end
+	}
+	ti(dlg,infBut)
 	avtomBut={
 		type = "PUSHBUTTON",
 		x=175,y=35,w=70,h=22,
@@ -333,8 +373,12 @@ function wallDlg()
 		onClick=function(a)
 			if wallP.flag==192 then
 				wallP.flag=0 wndSetAttr(a,'textColor',"#E6A541")
+				wallP.hp=0
 			else
 				wallP.flag=192
+				wallP.hp=0
+				wndSetAttr(okonoRazBut,'textColor',"#E6A541")
+				wndSetAttr(secretBut,'textColor',"#E6A541")
 				wndSetAttr(razrurBut,'textColor',"#E6A541")
 				wndSetAttr(a,'textColor',"#FF0000")
 			end
@@ -361,17 +405,19 @@ function wallDlg()
 			else
 				wallP.flag=8
 				wallP.hp=1
+				wndSetAttr(okonoRazBut,'textColor',"#E6A541")
+				wndSetAttr(secretBut,'textColor',"#E6A541")
 				wndSetAttr(OknoBut,'textColor',"#E6A541")
 				wndSetAttr(a,'textColor',"#FF0000")
 			end
 		end
 	}
 	ti(dlg,razrurBut)
-	t={
+	secretBut={
 		type = "PUSHBUTTON",
 		x=175,y=65,w=70,h=22,
 		offsetX=0,offsetY=0,
-		status="IMAGE",
+		status="IMAGE+ENABLED",
 		style = "MOUSETRACK",
 		selectedImage="UIButtonLgLit",
 		hiliteImage="UIButtonLg",
@@ -380,14 +426,57 @@ function wallDlg()
 		textColor='#E6A541',
 		text="Секретная",
 		tooltip='Поставить секретную стену',
+		onClick=function(a)
+			if wallP.flag==4 then
+				wallP.flag=0
+				wallP.hp=0
+				wndSetAttr(a,'textColor',"#E6A541")
+			else
+				wallP.flag=4
+				wallP.hp=0
+				wndSetAttr(okonoRazBut,'textColor',"#E6A541")
+				wndSetAttr(razrurBut,'textColor',"#E6A541")
+				wndSetAttr(OknoBut,'textColor',"#E6A541")
+				wndSetAttr(a,'textColor',"#FF0000")
+			end
+		end
 	}
-	ti(dlg,t)
+	ti(dlg,secretBut)
+	okonoRazBut={
+		type = "PUSHBUTTON",
+		x=325,y=95,w=70,h=22,
+		offsetX=0,offsetY=0,
+		status="IMAGE+ENABLED",
+		style = "MOUSETRACK",
+		selectedImage="UIButtonLgLit",
+		hiliteImage="UIButtonLg",
+		image="UIButtonLg",
+		disabledImage='UIButtonLgDis',
+		textColor='#E6A541',
+		text="Раз. с окн.",
+		tooltip='Поставить разрушимую стену с окном',
+		onClick=function(a)
+			if wallP.flag==200 then
+				wallP.flag=0
+				wallP.hp=0
+				wndSetAttr(a,'textColor',"#E6A541")
+			else
+				wallP.flag=200
+				wallP.hp=1
+				wndSetAttr(secretBut,'textColor',"#E6A541")
+				wndSetAttr(razrurBut,'textColor',"#E6A541")
+				wndSetAttr(OknoBut,'textColor',"#E6A541")
+				wndSetAttr(a,'textColor',"#FF0000")
+			end
+		end
+	}
+	ti(dlg,okonoRazBut)
 
 
 	-- кнопки направления
 	t={
 		type = "PUSHBUTTON",
-		x=245,y=95,w=20,h=20,
+		x=225,y=95,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -405,7 +494,7 @@ function wallDlg()
 	ti(butDir,t)
 		t={
 		type = "PUSHBUTTON",
-		x=275,y=95,w=20,h=20,
+		x=255,y=95,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -423,7 +512,7 @@ function wallDlg()
 	ti(butDir,t)
 	t={
 		type = "PUSHBUTTON",
-		x=305,y=95,w=20,h=20,
+		x=285,y=95,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -441,7 +530,7 @@ function wallDlg()
 	ti(butDir,t)
 	t={
 		type = "PUSHBUTTON",
-		x=290,y=225,w=20,h=20,
+		x=270,y=225,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -459,7 +548,7 @@ function wallDlg()
 	ti(butDir,t)
 	t={
 		type = "PUSHBUTTON",
-		x=260,y=225,w=20,h=20,
+		x=240,y=225,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -477,7 +566,7 @@ function wallDlg()
 	ti(butDir,t)
 	t={
 		type = "PUSHBUTTON",
-		x=260,y=195,w=20,h=20,
+		x=240,y=195,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -495,7 +584,7 @@ function wallDlg()
 	ti(butDir,t)
 	t={
 		type = "PUSHBUTTON",
-		x=290,y=195,w=20,h=20,
+		x=270,y=195,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -513,7 +602,7 @@ function wallDlg()
 	ti(butDir,t)
 	t={
 		type = "PUSHBUTTON",
-		x=275,y=165,w=20,h=20,
+		x=255,y=165,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -531,7 +620,7 @@ function wallDlg()
 	ti(butDir,t)
 	t={
 		type = "PUSHBUTTON",
-		x=255,y=145,w=20,h=20,
+		x=235,y=145,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -549,7 +638,7 @@ function wallDlg()
 	ti(butDir,t)
 	t={
 		type = "PUSHBUTTON",
-		x=275,y=125,w=20,h=20,
+		x=255,y=125,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -567,7 +656,7 @@ function wallDlg()
 	ti(butDir,t)
 	t={
 		type = "PUSHBUTTON",
-		x=295,y=145,w=20,h=20,
+		x=275,y=145,w=20,h=20,
 		offsetX=0,offsetY=0,
 		status="IMAGE",
 		style = "MOUSETRACK",
@@ -599,7 +688,14 @@ function wallDlg()
 
 
 	dlg.onGrabMouse=function(a)
-		if wallP.mod==1 then setWall() else wallDel() end
+		if wallP.mod==1 then
+			setWall()
+			else if wallP.mod==2 then
+				wallDel()
+			else
+				wallInform()
+			end
+		end
 		wndGrabMouse(a)
 	end
 
