@@ -121,13 +121,13 @@ namespace {
 		}
 	}
 
-	int sendToServer(lua_State *L)
+	/*int sendToServer(lua_State *L)
 	{
 		const char *S=lua_tostring(L,1);
 		if (S)
 			conSendToServer(S);
 		return 0;
-	}
+	}*/
 	int netGetCodeServL(lua_State *L)
 	{
 		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
@@ -160,7 +160,6 @@ namespace {
 		int Code=lua_tointeger(L,-3);
 		// Внимание - коды нужно брать из netMsgNames причем только подходящие площадные
 		// причем позиция в списке +0x27
-		// следующий список: 0-10,21,25,31,34 - к этому прибавть 0x84
 		// несогласные получат крэш
 		// 0xA0-андед,0xA3  - манабомб
 		netSendPointFx(Code,&P);
@@ -206,7 +205,30 @@ namespace {
 		netSendShieldFx(lua_touserdata(L,-3),&Pt);
 		return 0;
 	}
-	int netFake(lua_State *L) 
+	int netRename(lua_State *L)
+	{
+		struct RenamePacket
+		{
+			byte Packet;
+			short NetCode;
+			wchar_t NameMB[0x30];
+			char Dummy63[1];
+			short A,B;
+			DWORD Unk68,Unk6C;
+			DWORD OrE60; //записывается в класс
+			byte Class,Sex;
+			
+
+		} RP;
+		memset(&RP,0,sizeof(RP));
+		RP.Packet=45;
+		RP.NetCode=lua_tointeger(L, 1);
+		static int Cnt=1;
+		wsprintfW(RP.NameMB,L"name %d",Cnt++);
+		netSendAll(&RP,sizeof(RP));
+		return 0;
+	}
+	/*int netFake(lua_State *L) 
 			/// высылает сообщение о смерти, но от этого помирает нокс 
 	{
 		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
@@ -223,7 +245,7 @@ namespace {
 		netSendAll(&B,sizeof(B));
 
 		return 0;
-	}
+	}*/
 	int netOnRespL(lua_State *L)
 	{
 		bigUnitStruct *Plr=(bigUnitStruct *)lua_touserdata(L,1);
@@ -267,7 +289,7 @@ namespace {
 		return 0;
 	}
 
-	void netLuaRq(BYTE *P,BYTE *End)
+	/*void netLuaRq(BYTE *P,BYTE *End)
 	{
 		BYTE Buf[255],*Pt=Buf;
 		size_t Size;
@@ -299,7 +321,7 @@ namespace {
 		}
 		lua_settop(L,From);
 
-	}
+	}*/
 	void netDelStatic(BYTE *Start,BYTE *End)
 	{
 		int Code=*((int*)(Start+0));
@@ -805,13 +827,15 @@ void netInit()
 	registerserver("netShieldFx",&netShieldFx);
 	registerserver("netReq",&netDoReq);
 
-	registerserver("netFake",&netFake);
+//	registerserver("netFake",&netFake);
 	registerserver("sendChat",&sendChat);
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
 	registerclient("netSendFx",&netSendFx);
 	char Buf[40]="";
 	sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
-	registerclient(Buf,&sendToServer);
+
+	registerclient("netRename",&netRename);
+//	registerclient(Buf,&sendToServer);
 }
 
