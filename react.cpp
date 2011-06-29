@@ -10,6 +10,7 @@ void (__cdecl *monsterActionPop)(void *Unit);
 extern bigUnitStruct *(__cdecl *unitDamageFindParent) (void *Unit);
 void (__cdecl *noxReportComplete)(void *Unit);
 void printI(const char *S);
+void (__cdecl *noxMonsterCallDieFn) (void *Unit);
 namespace
 {
 	void (unitFlyActivate)(int SpellType,void *Owner,void *Source,void *Carrier,
@@ -516,16 +517,37 @@ namespace
 	{
 		return unitSetAnyFnL(L,0x2C4,&pickupFn);
 	}
+
+	void __declspec(naked) asmOnDieMonster() // Важная хрень, что бы unitOnDie для мобов вызывался
+	{
+		__asm
+		{
+			mov eax,[esi+2D4h]
+			test eax,eax
+			jz l1
+			call eax 
+			add esp,4
+			push esi
+
+			l1:
+			call noxMonsterCallDieFn
+			push 0x4EE6AA
+			ret
+		}
+	}
 	
 }
+extern void InjectJumpTo(DWORD Addr,void *Fn);
 extern void InjectOffs(DWORD Addr,void *Fn);
 void reactInit()
 {
 	InjectOffs(0x004E96D5+1,&unitFlyActivate);
+	InjectJumpTo(0x4EE6A5,&asmOnDieMonster);
 	
 	ASSIGN(monsterActionPop,0x0050A160);
 	ASSIGN(monsterActionPush,0x0050A260);
 	ASSIGN(noxReportComplete,0x544FF0);
+	ASSIGN(noxMonsterCallDieFn,0x50A3D0);
 	void** V=(void **)(0x5BFEC8+0x204);
 	*V=&unitReportComplete;
 
