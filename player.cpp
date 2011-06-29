@@ -2,7 +2,8 @@
 
 void (__cdecl *playerObserveCre)(void *Player,void *Creature);
 void (__cdecl *playerObserveCreUndo)(void *Player);
-
+void (__cdecl *sub_4FC2B0) (void*);
+void (__cdecl *sub_4E6040) (void*);
 /// не вполне понятная функция
 void *(__cdecl *netUnitFromPacketMB)(int NetIdx);
 
@@ -47,6 +48,58 @@ namespace
 			and eax,[esp+4]
 			ret
 		};//просто это была функция CheckGameFlags :)
+	}
+
+	void __cdecl onPlayerLeaveObs(void *Player)
+	{
+		int Top=lua_gettop(L);
+		getServerVar("playerOnLeaveObs");
+		if (lua_isfunction(L,-1))
+		{
+			lua_pushlightuserdata(L,Player);
+			if (0!=lua_pcall(L,1,0,0))
+			conPrintI(lua_tostring(L,-1));
+		}
+		lua_settop(L,Top);
+	}
+
+	void __declspec(naked) onPlayerLeaveObservTrap()
+	{
+		__asm
+		{
+			push edi
+			call onPlayerLeaveObs
+			add esp,4
+			call sub_4E6040
+			push 4E6658h
+			ret
+		}
+	}
+
+	void __cdecl onPlayerGoObs(void *Player)
+	{
+		int Top=lua_gettop(L);
+		getServerVar("playerOnGoObs");
+		if (lua_isfunction(L,-1))
+		{
+			lua_pushlightuserdata(L,Player);
+			if (0!=lua_pcall(L,1,0,0))
+			conPrintI(lua_tostring(L,-1));
+		}
+		lua_settop(L,Top);
+	}
+
+	void __declspec(naked) onPlayerGoObservTrap()
+	{
+		__asm
+		{
+			push ebp
+			call onPlayerGoObs
+			add esp,4
+			call sub_4FC2B0
+			push 4E6896h
+			ret
+		}
 	}
 
 	void __cdecl onPlayerDie(BYTE* Player)
@@ -253,6 +306,10 @@ void playerInit()
 	ASSIGN(playerObserveCre,0x4DDE80);
 	ASSIGN(playerObserveCreUndo,0x4DDEF0);
 	ASSIGN(netUnitFromPacketMB,0x0004ECCB0);
+	
+
+	ASSIGN(sub_4FC2B0,0x4FC2B0);
+	ASSIGN(sub_4E6040,0x4E6040);
 
 	lua_newtable(L);
 	registerServerVar("playerOnSpell");//сюда кладем реакции на спеллы плеера
@@ -267,6 +324,8 @@ void playerInit()
 	InjectOffs(0x00491EB0+1,&clientOnJoin);
 
 	InjectJumpTo(0x54D2B0,&onPlayerDieTrap);
+	InjectJumpTo(0x4E6891,&onPlayerGoObservTrap);
+	InjectJumpTo(0x4E6653,&onPlayerLeaveObservTrap);
 
 	registerserver("playerLook",&playerLookL);
 	
