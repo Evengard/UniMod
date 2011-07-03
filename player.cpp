@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <vector>
 
 void (__cdecl *playerObserveCre)(void *Player,void *Creature);
 void (__cdecl *playerObserveCreUndo)(void *Player);
@@ -21,6 +22,23 @@ void *(__cdecl *playerAtCursor) (void *Player);
 extern DWORD *GameFlags;
 
 DWORD *dword_834ABC=(DWORD*)0x834ABC;
+
+
+extern void *(__cdecl *noxGetTeamFirst)();
+extern void *(__cdecl *noxGetTeamNext)(void *Prev);
+extern void (__cdecl *noxTeamDelete)(void *TeamPtr,int SendClient);
+
+extern int (__cdecl *noxGetUnitsInRect)(FloatRect *Rect, void (__cdecl *SomeFn)(void *Unit, void *Arg), void *Arg);
+
+extern unitBigStructPtr	(__cdecl* objectCreateByName)(char const *ObjName);
+extern void 			(__cdecl* noxCreateAt)(unitBigStructPtr Obj,unitBigStructPtr ParentUnit, float X,float Y);
+
+extern void (__cdecl *serverFlagsSet)(DWORD V);
+extern wchar_t *(__cdecl *noxTeamDefaultName)(int color);
+extern void *(__cdecl *noxTeamCreate)(int N);
+extern void (__cdecl *teamSendTeam)(void *TeamPtr);
+extern int teamAutoAssign(lua_State *L);
+
 namespace
 {
 	void __cdecl onPlayerJoin(void *Player)
@@ -254,6 +272,55 @@ l1:
 		return wcscmp(A,B);
 	}
 
+	void* __cdecl teamKotrGetFirstValidTeam()
+	{
+		BYTE* team = (BYTE*)noxGetTeamFirst();
+		if(team!=NULL)
+		{
+			BYTE* teamCrown = *((BYTE**)(team+0x4C));
+			if(teamCrown==NULL)
+			{
+				noxTeamDelete((void*)team,1);
+				teamAutoAssign(L);
+				return teamKotrGetFirstValidTeam();
+			}
+		}
+		return (void*)team;
+	}
+
+	void* __cdecl teamKotrGetNextValidTeam(void* prevTeam)
+	{
+		BYTE* team = (BYTE*)noxGetTeamNext(prevTeam);
+		if(team!=NULL)
+		{
+			BYTE* teamCrown = *((BYTE**)(team+0x4C));
+			if(teamCrown==NULL)
+			{
+				noxTeamDelete((void*)team,1);
+				teamAutoAssign(L);
+				return teamKotrGetFirstValidTeam();
+			}
+		}
+		return (void*)team;
+	}
+
+	void* __cdecl teamCreateNewCorrectly()
+	{
+		void *R=NULL;
+		R=noxTeamCreate(0);
+		if (R==NULL)
+		{
+			return R;
+		}
+		serverFlagsSet(4);/// включаем тимы
+		wchar_t* RR=NULL;
+		RR=noxTeamDefaultName(((byte*)R)[0x38]);//Получаем дефолтное название тимы - то что записано в CSF-ке, на основании цвета тимы
+		memcpy(R, RR, 0x28);
+		((byte*)R)[0x44]=1;
+		teamSendTeam(R); //Тут записывается информация о наличии тимы вообще - однако НАЗВАНИЕ тимы не посылается на клиент - клиент юзает СВОЁ ДЕФОЛТНОЕ название (!)
+		return R;
+	}
+
 }
 
 /// Вызывается перед попыткой колдовать спелл
@@ -306,7 +373,7 @@ void playerInit()
 	ASSIGN(playerObserveCre,0x4DDE80);
 	ASSIGN(playerObserveCreUndo,0x4DDEF0);
 	ASSIGN(netUnitFromPacketMB,0x0004ECCB0);
-	
+
 
 	ASSIGN(sub_4FC2B0,0x4FC2B0);
 	ASSIGN(sub_4E6040,0x4E6040);
@@ -322,6 +389,10 @@ void playerInit()
 	InjectOffs(0x004E67D2+1,&myPlayerControlBufferNext);
 	InjectOffs(0x004DD94B+1,&onPlayerJoinTrap);
 	InjectOffs(0x00491EB0+1,&clientOnJoin);
+
+	InjectOffs(0x004D216B+1,&teamKotrGetFirstValidTeam);
+	InjectOffs(0x004D220A+1,&teamKotrGetNextValidTeam);
+	InjectOffs(0x00419234+1,&teamCreateNewCorrectly);
 
 	InjectJumpTo(0x54D2B0,&onPlayerDieTrap);
 	InjectJumpTo(0x4E6891,&onPlayerGoObservTrap);

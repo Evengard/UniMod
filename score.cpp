@@ -597,76 +597,6 @@ l1:
 		return 1;
 	}
 
-	int teamAutoAssign(lua_State *L)
-	{
-		playersListL(L); //1 - table
-		if(lua_type(L, -1)==LUA_TTABLE)
-		{
-			std::deque<void*> players;
-			int i=1;
-			while(true)
-			{
-				lua_pushinteger(L, i);
-				lua_gettable(L, -2);
-				if(lua_type(L, -1)!=LUA_TLIGHTUSERDATA)
-					break;
-				players.push_back(lua_touserdata(L, -1));
-				i++;
-				lua_remove(L, -1);
-			}
-			lua_remove(L,-1);
-			random_shuffle(players.begin(), players.end());
-			std::deque<void*> teamsList;
-			if(noxGetTeamFirst()==NULL)
-				return 1;
-			teamsList.push_back(noxGetTeamFirst());
-			while(true)
-			{
-				if(noxGetTeamNext(teamsList.back())!=NULL)
-					teamsList.push_back(noxGetTeamNext(teamsList.back()));
-				else
-					break;
-			}
-			random_shuffle(teamsList.begin(), teamsList.end());
-			while(!players.empty())
-			{
-				std::deque<void*> teams(teamsList);
-				if(teams.empty()==true)
-					break;
-				for (pTeam *Team=(pTeam*)teams.front();Team!=NULL;Team=(pTeam*)teams.front())
-				{
-					/*lua_newtable(L);
-					lua_pushlightuserdata(L, Team);
-					lua_setfield(L, -2, "team");
-					lua_pushlightuserdata(L, players.front());
-					lua_setfield(L, -2, "player");*/
-					void **PP=(void **)(((char*)players.front())+0x2EC);
-					PP=(void**)(((char*)*PP)+0x114);
-					byte *P=(byte*)(*PP);
-					int NetCode=*((short*)(P+0x80C));
-					byte *Common=(byte *)netCommonByCode(NetCode);
-					int TeamId=*(Common+4);
-					void *TeamTest=NULL;
-					TeamTest=(byte *)noxGetTeamByN(TeamId);
-					if(TeamTest!=NULL)
-					{
-						noxTeamChange((void*) Common, (void*) Team, NetCode, 1);
-					}
-					else
-					{
-						noxCreateAtImpl(Team->teamId, (void*)Common, 1, NetCode, 1);
-					}
-					players.pop_front();
-					teams.pop_front();
-					if(players.empty())
-						break;
-					if(teams.empty())
-						break;
-				}
-			}
-		}
-		return 1;
-	}
 
 	void __cdecl onDeathmatchFrag(void *Victim,void *Attacker,void *A,void *B)
 	{
@@ -708,6 +638,78 @@ l1:
 		playerAddFragDeathmatch(Victim,Attacker,A,B);
 	}
 }
+
+int teamAutoAssign(lua_State *L)
+{
+	playersListL(L); //1 - table
+	if(lua_type(L, -1)==LUA_TTABLE)
+	{
+		std::deque<void*> players;
+		int i=1;
+		while(true)
+		{
+			lua_pushinteger(L, i);
+			lua_gettable(L, -2);
+			if(lua_type(L, -1)!=LUA_TLIGHTUSERDATA)
+				break;
+			players.push_back(lua_touserdata(L, -1));
+			i++;
+			lua_remove(L, -1);
+		}
+		lua_remove(L,-1);
+		random_shuffle(players.begin(), players.end());
+		std::deque<void*> teamsList;
+		if(noxGetTeamFirst()==NULL)
+			return 1;
+		teamsList.push_back(noxGetTeamFirst());
+		while(true)
+		{
+			if(noxGetTeamNext(teamsList.back())!=NULL)
+				teamsList.push_back(noxGetTeamNext(teamsList.back()));
+			else
+				break;
+		}
+		random_shuffle(teamsList.begin(), teamsList.end());
+		while(!players.empty())
+		{
+			std::deque<void*> teams(teamsList);
+			if(teams.empty()==true)
+				break;
+			for (pTeam *Team=(pTeam*)teams.front();Team!=NULL;Team=(pTeam*)teams.front())
+			{
+				/*lua_newtable(L);
+				lua_pushlightuserdata(L, Team);
+				lua_setfield(L, -2, "team");
+				lua_pushlightuserdata(L, players.front());
+				lua_setfield(L, -2, "player");*/
+				void **PP=(void **)(((char*)players.front())+0x2EC);
+				PP=(void**)(((char*)*PP)+0x114);
+				byte *P=(byte*)(*PP);
+				int NetCode=*((short*)(P+0x80C));
+				byte *Common=(byte *)netCommonByCode(NetCode);
+				int TeamId=*(Common+4);
+				void *TeamTest=NULL;
+				TeamTest=(byte *)noxGetTeamByN(TeamId);
+				if(TeamTest!=NULL)
+				{
+					noxTeamChange((void*) Common, (void*) Team, NetCode, 1);
+				}
+				else
+				{
+					noxCreateAtImpl(Team->teamId, (void*)Common, 1, NetCode, 1);
+				}
+				players.pop_front();
+				teams.pop_front();
+				if(players.empty())
+					break;
+				if(teams.empty())
+					break;
+			}
+		}
+	}
+	return 1;
+}
+
 extern int httpGet(lua_State *L);
 
 extern void InjectOffs(DWORD Addr,void *Fn);
