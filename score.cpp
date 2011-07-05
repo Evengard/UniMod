@@ -266,6 +266,8 @@ l1:
 		lua_setfield(L,-2,"ping");
 		lua_pushinteger(L,*((int*)(P+0x858)));
 		lua_setfield(L,-2,"score");
+		lua_pushinteger(L,(*((int*)(P+0xE60)))&0x1);
+		lua_setfield(L,-2,"isObserver");
 		char Name[0x50]={0};
 		wcstombs(Name,((wchar_t*)(P+0x1260)),0x50);
 		lua_pushstring(L,Name);
@@ -580,6 +582,11 @@ l1:
 			void **PP=(void **)(((char*)lua_touserdata(L,-1))+0x2EC);
 			PP=(void**)(((char*)*PP)+0x114);
 			byte *P=(byte*)(*PP);
+			if(((*((short*)(P+0xE60)))&0x1)==1)
+			{
+				lua_pushstring(L,"wrong args: player is observer!");
+				lua_error_(L);
+			}
 			int NetCode=*((short*)(P+0x80C));
 			byte *Common=(byte *)netCommonByCode(NetCode);
 			int TeamId=*(Common+4);
@@ -685,18 +692,21 @@ int teamAutoAssign(lua_State *L)
 				void **PP=(void **)(((char*)players.front())+0x2EC);
 				PP=(void**)(((char*)*PP)+0x114);
 				byte *P=(byte*)(*PP);
-				int NetCode=*((short*)(P+0x80C));
-				byte *Common=(byte *)netCommonByCode(NetCode);
-				int TeamId=*(Common+4);
-				void *TeamTest=NULL;
-				TeamTest=(byte *)noxGetTeamByN(TeamId);
-				if(TeamTest!=NULL)
+				if(((*((short*)(P+0xE60)))&0x1)==0) //Проверка на обсерв
 				{
-					noxTeamChange((void*) Common, (void*) Team, NetCode, 1);
-				}
-				else
-				{
-					noxCreateAtImpl(Team->teamId, (void*)Common, 1, NetCode, 1);
+					int NetCode=*((short*)(P+0x80C));
+					byte *Common=(byte *)netCommonByCode(NetCode);
+					int TeamId=*(Common+4);
+					void *TeamTest=NULL;
+					TeamTest=(byte *)noxGetTeamByN(TeamId);
+					if(TeamTest!=NULL)
+					{
+						noxTeamChange((void*) Common, (void*) Team, NetCode, 1);
+					}
+					else
+					{
+						noxCreateAtImpl(Team->teamId, (void*)Common, 1, NetCode, 1);
+					}
 				}
 				players.pop_front();
 				teams.pop_front();

@@ -33,6 +33,8 @@ extern bool serverUpdate();
 extern char authSendWelcomeMsg[0x20];
 extern void netSendChatMessage(char *sendChat, int sendTo);
 extern byte authorisedState[0x20];
+extern bool specialAuthorisation; //Отключение альтернативной авторизации
+
 
 char *copyString(const char *Str)
 {
@@ -774,30 +776,31 @@ namespace
 	}
 	void __cdecl onEachFrame()
 	{
-		for(int i=0; i<0x20; i++)
-		{
-			if(authSendWelcomeMsg[i]==1)
-				authSendWelcomeMsg[i]=-2;
-			if(authSendWelcomeMsg[i]>0)
-				authSendWelcomeMsg[i]--;
-			if(authSendWelcomeMsg[i]<0)
+		if(specialAuthorisation)
+			for(int i=0; i<0x20; i++)
 			{
-				if(authorisedState[i]==4)
-					netSendChatMessage("You have been authorised! Now you can quit the observer mode and play.", i);
-				if(authorisedState[i]==2)
-					netSendChatMessage("Now please enter your password. For best security prefix it with '//auth '.", i);
-				if(authorisedState[i]==3)
-					netSendChatMessage("Thank you, we have got your login and password. Please wait a while before we check them...", i);
-				if(authorisedState[i]==1)
-					netSendChatMessage("Something weird happened and we couldn't authorise you. Probably you have misspelled your login and password? Please try again. Enter your login. For best security prefix it with '//auth '.", i);
-				if(authorisedState[i]==0)
+				if(authSendWelcomeMsg[i]==1)
+					authSendWelcomeMsg[i]=-2;
+				if(authSendWelcomeMsg[i]>0)
+					authSendWelcomeMsg[i]--;
+				if(authSendWelcomeMsg[i]<0)
 				{
-					authorisedState[i]++;
-					netSendChatMessage("Welcome to our server! Please enter your login in a chat message to proceed. You can't play without having a registered account! For best security prefix it with '//auth '.", i);
+					if(authorisedState[i]==4)
+						netSendChatMessage("You have been authorised! Now you can quit the observer mode and play.", i);
+					if(authorisedState[i]==2)
+						netSendChatMessage("Now please enter your password. For best security prefix it with '//auth '.", i);
+					if(authorisedState[i]==3)
+						netSendChatMessage("Thank you, we have got your login and password. Please wait a while before we check them...", i);
+					if(authorisedState[i]==1)
+						netSendChatMessage("Something weird happened and we couldn't authorise you. Probably you have misspelled your login and password? Please try again. Enter your login. For best security prefix it with '//auth '.", i);
+					if(authorisedState[i]==0)
+					{
+						authorisedState[i]++;
+						netSendChatMessage("Welcome to our server! Please enter your login in a chat message to proceed. You can't play without having a registered account! For best security prefix it with '//auth '.", i);
+					}
+					authSendWelcomeMsg[i]=0;
 				}
-				authSendWelcomeMsg[i]=0;
 			}
-		}
 		serverUpdate();
 		DWORD Time=*frameCounter;
 		int Top=lua_gettop(L);
