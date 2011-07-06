@@ -31,7 +31,7 @@ void (__cdecl *noxFree)(void *Ptr);
 int (__cdecl *consolePrint)(int Color, wchar_t *Text);
 extern bool serverUpdate();
 extern char authSendWelcomeMsg[0x20];
-extern void netSendChatMessage(char *sendChat, int sendTo);
+extern void netSendChatMessage(char *sendChat, int sendTo, short sendFrom=0, bool fakeSystemMessage=false);
 extern byte authorisedState[0x20];
 extern bool specialAuthorisation; //Отключение альтернативной авторизации
 
