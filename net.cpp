@@ -40,6 +40,8 @@ extern void authCheckDelayed(byte playerIdx, char* pass);
 
 extern char authSendWelcomeMsg[0x20];
 
+extern void* getPlayerUDataFromPlayerIdx(int idx);
+
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
 	if (NetCode & 0x8000)
@@ -87,13 +89,32 @@ void conSendToServer(const char *Src)
 
 }
 
-void netSendChatMessage(char *sendChat, int sendTo)
+void netSendChatMessage(char *sendChat, int sendTo, short sendFrom=0, bool fakeSystemMessage=false)
 {
+	if(sendFrom==0 && fakeSystemMessage==false)
+	{
+		DWORD *DW=(DWORD*)getPlayerUDataFromPlayerIdx(0x1F);
+		if (0==(DW[2] & 0x4))
+		{
+			return;
+		}
+		BYTE *unit=(BYTE*)getPlayerUDataFromPlayerIdx(0x1F);
+		void **PP=(void **)(((char*)unit)+0x2EC);
+		PP=(void**)(((char*)*PP)+0x114);
+		byte *P=(byte*)(*PP);
+		sendFrom=*((short*)(P+0x80C));
+
+	}
+	short netCode=0;
+	if(fakeSystemMessage==false)
+		netCode = sendFrom;
 	byte sendChatPacketHeader[0xB] = {0xA8, 0x2, 0x0, 0x2, 0x72, 0x0B, 0x7D, 0x0B, 0x5, 0x0, 0x0};
 	byte *sendChatPacket=new byte[strlen(sendChat)+0xB+1];
 	memcpy(sendChatPacket, sendChatPacketHeader, 0xB);
 	memcpy(&sendChatPacket[0xB], sendChat, strlen(sendChat));
 	sendChatPacket[0x8]=strlen(sendChat)+1;
+	*((short*)(sendChatPacket+1)) = netCode;
+	//memcpy(&sendChatPacket[0x1], &netCode, 2);
 	sendChatPacket[0xB+strlen(sendChat)]=0x0;
 	netClientSend(sendTo,1,sendChatPacket,strlen(sendChat)+0xB+1);
 	delete [] sendChatPacket;
@@ -798,7 +819,25 @@ extern void InjectJumpTo(DWORD Addr,void *Fn);
 extern void InjectOffs(DWORD Addr,void *Fn);
 int sendChat(lua_State* L)
 {
-	netSendChatMessage("Enter your login", 0x00);
+	if(lua_isstring(L, 2) && lua_isnumber(L, 1))
+	{
+		bool fakeSys=false;
+		if(lua_isnumber(L, 4))
+		{
+			 fakeSys = (bool)lua_tonumber(L, 4);
+		}
+		short from=0;
+		if(lua_type(L, 3)==LUA_TNUMBER)
+		{
+			from=(short)lua_tonumber(L, 3);
+		}
+		netSendChatMessage((char*)lua_tostring(L, 2), (int)lua_tonumber(L, 1), from, fakeSys);
+	}
+	else
+	{
+		lua_pushstring(L,"wrong args!");
+		lua_error_(L);
+	}
 	return 0;
 }
 void netInit()

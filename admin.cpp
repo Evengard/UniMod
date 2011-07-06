@@ -80,7 +80,7 @@ vector<string> mapCycleCurrentList;
 __int16 mapCycleLastModeId;
 int mapCycleCurrentPosition;
 
-extern void* getPlayerUDataFromAddr(void *addr);
+extern void* getPlayerUDataFromPlayerInfo(void *addr);
 
 
 bool serverRequest(int f,char *path)
@@ -1074,7 +1074,7 @@ namespace
 		getServerVar("playerOnLeave");
 		if (lua_isfunction(L,-1))
 		{
-			void* Player = getPlayerUDataFromAddr(result);
+			void* Player = getPlayerUDataFromPlayerInfo(result);
 			lua_pushlightuserdata(L,Player);
 			if (0!=lua_pcall(L,1,0,0))
 				conPrintI(lua_tostring(L,-1));

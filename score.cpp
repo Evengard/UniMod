@@ -276,6 +276,9 @@ l1:
 		strncpy(WOL,((char*)(P+0x830)),0x20);
 		lua_pushstring(L,WOL);
 		lua_setfield(L,-2,"wol");
+		byte idx = *((byte*)(P+0x810));
+		lua_pushinteger(L,idx);
+		lua_setfield(L,-2,"idx");
 		int Class=*((byte*)(P+0x8CB));
 		lua_pushinteger(L,Class);
 		lua_setfield(L,-2,"class");

@@ -2,7 +2,7 @@
 #include <math.h>
 
 int playersListL(lua_State *L);
-void* getPlayerUDataFromAddr(void *addr);
+void* getPlayerUDataFromPlayerInfo(void *addr);
 
 void (__cdecl *unitSetFollow)(void* Me,void *Him);
 void (__cdecl *unitBecomePet)(void* Me,void *Him);
@@ -66,7 +66,7 @@ int playersListL(lua_State *L)
 }
 
 
-void* getPlayerUDataFromAddr(void* addr)
+void* getPlayerUDataFromPlayerInfo(void* addr)
 {
 	void *P;
 	P=playerFirstUnit();
@@ -84,6 +84,26 @@ void* getPlayerUDataFromAddr(void* addr)
 	return 0;
 }
 
+
+void* getPlayerUDataFromPlayerIdx(int idx)
+{
+	void *P;
+	P=playerFirstUnit();
+	while(P!=0)
+	{
+		BYTE *B=(BYTE *)P;
+		B+=0x2EC;//контроллер
+		B=*((BYTE**)B);
+		B+=0x114;//плэеринфо?
+		B=*((BYTE**)B);
+		B+=0x810;
+		int idxFound=*((BYTE*)B);
+		if(idx==idxFound)
+			return P;
+		P=playerNextUnit(P);
+	}
+	return 0;
+}
 
 namespace
 {
