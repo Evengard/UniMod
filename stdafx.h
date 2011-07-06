@@ -49,6 +49,7 @@ enum uniPacket_e
 	upSpellStart,/// сервер сообщает старт спелла
 	upSpellSync, /// сервер сообщаем всем свежий список спелов
 	upSendBubble,/// сервер хочет создать чат
+	upSendPrintToCli,// сервер присылает консоли строку
 };
 // приписать к буферу наш заголовок для отправки
 void netUniPacket(uniPacket_e Code,BYTE *&Data,int Size);
