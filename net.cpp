@@ -116,7 +116,14 @@ void netSendChatMessage(char *sendChat, int sendTo, short sendFrom=0, bool fakeS
 	*((short*)(sendChatPacket+1)) = netCode;
 	//memcpy(&sendChatPacket[0x1], &netCode, 2);
 	sendChatPacket[0xB+strlen(sendChat)]=0x0;
-	netClientSend(sendTo,1,sendChatPacket,strlen(sendChat)+0xB+1);
+	if(sendTo<0 || sendTo>31)
+	{
+		netSendAll(sendChatPacket,strlen(sendChat)+0xB+1);
+	}
+	else
+	{
+		netClientSend(sendTo,1,sendChatPacket,strlen(sendChat)+0xB+1);
+	}
 	delete [] sendChatPacket;
 	return;
 }
