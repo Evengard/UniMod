@@ -23,7 +23,7 @@ struct packetCast
 extern void *(__cdecl *noxCallWndProc)(void* Window,int Msg,int A,int B);
 extern int (__cdecl *noxDrawGetStringSize) (void *FontPtr, const wchar_t*String,int *Width,int *H,int);
 extern int (__cdecl *noxSetRectColorMB) (int);
-
+int (__cdecl *consoleParse)(wchar_t*Str,int Mode);
 extern bool justDoNoxCmd;
 int *dword_69FE50=(int*) 0x69FE50;
 
@@ -289,7 +289,6 @@ namespace
 			ret
 		};
 	}
-	int (__cdecl *consoleParse)(wchar_t*Str,int Mode);
 	int conExecL(lua_State *L)
 	{
 		if ((lua_type(L,1)!=LUA_TSTRING) )
