@@ -370,6 +370,62 @@ namespace {
 		if (*Code!=*((DWORD*)(Start+0x0C)) )
 			Code++;
 	}
+	int netDoPrintConsole(const char *Src,BYTE *pli,int color)
+	{
+		BYTE Buf[259],*P=Buf;
+		size_t Size;
+		Size=strlen(Src);
+		if (Size>0 && Size<255)
+		{
+			Size++;
+			netUniPacket(upSendPrintToCli,P,Size+4);
+			memcpy(P,&color,4);
+			P+=4;
+			memcpy(P,Src,Size);
+			pli+=0x810;
+			netClientSend(*pli,1,Buf,Size+P-Buf);
+		}
+		else
+		{
+			lua_pushstring(L,"wrong: string too long (max 255)!");
+			lua_error_(L);
+		}
+		return 0;
+	}
+
+	int netDoPrintConsoleL(lua_State *L)
+	{
+		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA || lua_type(L,2)!=LUA_TSTRING)
+		{
+			lua_pushstring(L,"wrong args");
+			lua_error_(L);
+		}
+		BYTE *P=(BYTE*)lua_touserdata(L,1);
+		int unitClass=*(P+8);
+		if ((unitClass & clPlayer)==0)
+		{		
+			lua_pushstring(L,"wrong args");
+			lua_error_(L);
+		}
+		P+=0x2EC;
+		P=*((BYTE**)P);
+		P+=0x114;
+		P=*((BYTE**)P);
+		int color=lua_tointeger(L,3);
+		if (color==NULL || color<0 || color>16)
+			color=2;
+		netDoPrintConsole(lua_tostring(L,2),P,color);
+		return 0;
+	}
+
+	void netPrintConsole(BYTE *P,BYTE *End)
+	{
+		int color=(int)*P;
+		P+=4;
+		char *Str=(char*)P;
+		conSetNextColor(color);
+		conPrintI(Str);
+	}
 	void netOnVersionRq(BYTE *Start,BYTE *End,bigUnitStruct* Plr)
 	{
 		if (End-Start<4)
@@ -549,6 +605,9 @@ void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
 				break;
 			case upVersionResp:
 				netOnVersionResp(P,BufStart);
+				break;
+			case upSendPrintToCli:
+				netPrintConsole(P,BufStart);
 				break;
 			default:
 				{
@@ -866,7 +925,8 @@ void netInit()
 	registerserver("netShieldFx",&netShieldFx);
 	registerserver("netReq",&netDoReq);
 
-//	registerserver("netFake",&netFake);
+	registerserver("netClientPrint",&netDoPrintConsoleL);
+	//registerserver("netFake",&netFake);
 	registerserver("sendChat",&sendChat);
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
