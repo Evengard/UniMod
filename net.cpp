@@ -28,11 +28,14 @@ extern "C" int conDoCmd(char *Cmd,bool &PrintNil);
 
 extern void netOnTileChanged(BYTE *Buf,BYTE *End);
 extern void netOnUpdateUnitDef(BYTE *Buf,BYTE *BufEnd);
+extern int (__cdecl *consoleParse)(wchar_t*Str,int Mode);
 
 int (__cdecl *netSendBySock)(int Player,void *Data,int Size, int Type);
 
 byte authorisedState[0x20];
 char *authorisedLogins[0x20];
+
+void *playerSysop;
 
 //char *temp; //Временная переменная
 
@@ -538,6 +541,14 @@ namespace {
 		lua_error(L);
 		return 1;
 	}
+	void sysopMyTrap(wchar_t*Str,int Mode)
+	{
+		BYTE *P=(BYTE*) playerSysop;
+		bool UniComplete=false;// если код выполнился то ставим true
+		//здесь код1АДЫНАДЫН 
+		if (UniComplete==false)
+			consoleParse(Str,Mode);
+	}
 }
 /* пускай будет регистрация */
 	ClientMap_s ClientRegMap;
@@ -908,6 +919,8 @@ int sendChat(lua_State* L)
 }
 void netInit()
 {
+	ASSIGN(playerSysop,0x69D720);
+
 	ASSIGN(netSpriteByCodeHi,0x0045A720);
 	ASSIGN(netSpriteByCodeLo,0x0045A6F0);
 
@@ -917,6 +930,8 @@ void netInit()
 	ASSIGN(netGetUnitCodeCli,0x00578B00);
 	ASSIGN(netSendBySock,0x00552640);
 	ASSIGN(netPriMsg,0x004DA2C0);
+	
+	InjectOffs(0x44417E+1,&sysopMyTrap);
 
 	const char Block2[]="Srv";
 	registerserver("servNetCode",&netGetCodeServL);
