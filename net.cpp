@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <string.h>
 
 int UnimodVersion=0x000402;/// 00.04.02 
 
@@ -44,6 +45,8 @@ extern void authCheckDelayed(byte playerIdx, char* pass);
 extern char authSendWelcomeMsg[0x20];
 
 extern void* getPlayerUDataFromPlayerIdx(int idx);
+
+extern void* getPlayerUDataFromPlayerInfo(void *addr);
 
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
@@ -544,10 +547,41 @@ namespace {
 	void sysopMyTrap(wchar_t*Str,int Mode)
 	{
 		BYTE *P=(BYTE*) playerSysop;
+		byte *playerInfo=*((byte**)(P));
 		bool UniComplete=false;// если код выполнился то ставим true
 		//здесь код1АДЫНАДЫН 
+		int Len = wcslen(Str);
+		char* Cmd = new char[Len+1];
+		wcstombs(Cmd,Str,Len+1);
+		std::string CmdFull="playerSysopWrapperCallback=function() ";
+		CmdFull.append(Cmd);
+		CmdFull.append(" end; return json.encode(playerSysopWrapperCallback())");
+		int success = luaL_loadstring(L, CmdFull.c_str());
+		lua_getfield(L,LUA_REGISTRYINDEX,"server");
+		lua_setfenv(L,-2);
+		if(success==0)
+			UniComplete=true;
 		if (UniComplete==false)
+		{
 			consoleParse(Str,Mode);
+			return;
+		}
+		lua_pcall(L, 0, 1, 0);
+		char* result=(char*)lua_tostring(L, -1);
+		delete[] Cmd;
+		void* unit = getPlayerUDataFromPlayerInfo(playerInfo);
+		if(unit==0)
+			return;
+		DWORD *DW=(DWORD*)unit;
+		if (0==(DW[2] & 0x4))
+		{
+			return;
+		}
+		void **PP=(void **)(((char*)unit)+0x2EC);
+		PP=(void**)(((char*)*PP)+0x114);
+		byte *P2=(byte*)(*PP);
+		byte sendTo = *((byte*)(P2+0x810));
+		netSendChatMessage((char*)result, (int)sendTo, 0, true);
 	}
 }
 /* пускай будет регистрация */
@@ -931,7 +965,7 @@ void netInit()
 	ASSIGN(netSendBySock,0x00552640);
 	ASSIGN(netPriMsg,0x004DA2C0);
 	
-	InjectOffs(0x44417E+1,&sysopMyTrap);
+	InjectOffs(0x4441AE+1,&sysopMyTrap);
 
 	const char Block2[]="Srv";
 	registerserver("servNetCode",&netGetCodeServL);
