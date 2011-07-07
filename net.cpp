@@ -580,8 +580,9 @@ namespace {
 		void **PP=(void **)(((char*)unit)+0x2EC);
 		PP=(void**)(((char*)*PP)+0x114);
 		byte *P2=(byte*)(*PP);
-		byte sendTo = *((byte*)(P2+0x810));
-		netSendChatMessage((char*)result, (int)sendTo, 0, true);
+		char BuffS[350]={0};
+		sprintf(BuffS,"sysop> %s",result);
+		netDoPrintConsole(BuffS,P2,14);
 	}
 }
 /* пускай будет регистрация */
