@@ -1118,4 +1118,10 @@ void injectCon()
 		lua_pcall(L, 0, 0, 0);
 	}
 	//MessageBox(0,"!",0,0);
+	byte OperatorJmps=0xEB;
+	byte *bt=(byte*)(0x553660);
+	DWORD OldProtect;
+	VirtualProtect(bt,1,PAGE_EXECUTE_READWRITE,&OldProtect);
+	memcpy((byte*)bt,&OperatorJmps,1);
+	VirtualProtect(bt,1,OldProtect,&OldProtect);
 };
