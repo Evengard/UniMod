@@ -1117,11 +1117,20 @@ void injectCon()
 		lua_setfenv(L,-2);
 		lua_pcall(L, 0, 0, 0);
 	}
-	//MessageBox(0,"!",0,0);
-	byte OperatorJmps=0xEB;
-	byte *bt=(byte*)(0x553660);
-	DWORD OldProtect;
-	VirtualProtect(bt,1,PAGE_EXECUTE_READWRITE,&OldProtect);
-	memcpy((byte*)bt,&OperatorJmps,1);
-	VirtualProtect(bt,1,OldProtect,&OldProtect);
+
+ byte OperatorJmps=0xEB;
+ byte OperatorMovEax1[]={0xB8,0x01,0,0,0};
+ byte *bt=(byte*)(0x00553660);
+ byte *bt2=(byte*)(0x00401E06);
+ byte *bt3=(byte*)(0x00401114);
+ DWORD OldProtect;
+ VirtualProtect(bt,1,PAGE_EXECUTE_READWRITE,&OldProtect);
+ memcpy((byte*)bt,&OperatorJmps,1); // это убираем серийник
+ VirtualProtect(bt,1,OldProtect,&OldProtect);
+ VirtualProtect(bt2,1,PAGE_EXECUTE_READWRITE,&OldProtect);
+ memcpy((byte*)bt2,&OperatorJmps,1); // это на запуск 2 -ух ноксов
+ VirtualProtect(bt2,1,OldProtect,&OldProtect);
+ VirtualProtect(bt3,5,PAGE_EXECUTE_READWRITE,&OldProtect);
+ memcpy((byte*)bt3,&OperatorMovEax1,5); // убиваем мутекс
+ VirtualProtect(bt3,5,OldProtect,&OldProtect);
 };
