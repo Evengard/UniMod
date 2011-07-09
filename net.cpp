@@ -396,26 +396,38 @@ namespace {
 		if (*Code!=*((DWORD*)(Start+0x0C)) )
 			Code++;
 	}
-	int netDoPrintConsole(const char *Src,BYTE *pli,int color)
+	int netDoPrintConsole(const char *Src,BYTE *pli,int color, bool crop=false)
 	{
 		BYTE Buf[259],*P=Buf;
 		size_t Size;
 		Size=strlen(Src);
-		if (Size>0 && Size<255)
+		char* NextSrc = new char[Size+1];
+		memset(NextSrc, 0, (Size+1));
+		if (Size>0 && Size<200)
 		{
-			Size++;
-			netUniPacket(upSendPrintToCli,P,Size+4);
-			memcpy(P,&color,4);
-			P+=4;
-			memcpy(P,Src,Size);
-			pli+=0x810;
-			netClientSend(*pli,1,Buf,Size+P-Buf);
+		}
+		else if(crop)
+		{
+			Size=199;
+			strncpy(NextSrc, &Src[199], (Size+1));
 		}
 		else
 		{
-			lua_pushstring(L,"wrong: string too long (max 255)!");
-			lua_error_(L);
+			return 1;
 		}
+		Size++;
+		netUniPacket(upSendPrintToCli,P,Size+4);
+		memcpy(P,&color,4);
+		P+=4;
+		memcpy(P,Src,Size);
+		char* zero="\0";
+		strncpy((char*)&P[199], zero, 1);
+		pli+=0x810;
+		netClientSend(*pli,1,Buf,Size+P-Buf);
+		pli-=0x810;
+		if(crop && strlen(NextSrc)>0)
+			netDoPrintConsole(NextSrc, pli, color, crop);
+		delete [] NextSrc;
 		return 0;
 	}
 
@@ -440,7 +452,12 @@ namespace {
 		int color=lua_tointeger(L,3);
 		if (color==NULL || color<0 || color>16)
 			color=2;
-		netDoPrintConsole(lua_tostring(L,2),P,color);
+		int res = netDoPrintConsole(lua_tostring(L,2),P,color);
+		if(res==1)
+		{
+			lua_pushstring(L,"wrong: string too long (max 255)!");
+			lua_error_(L);
+		}
 		return 0;
 	}
 
@@ -566,12 +583,8 @@ namespace {
 		int Len = wcslen(Str);
 		char* Cmd = new char[Len+1];
 		wcstombs(Cmd,Str,Len+1);
-		std::string CmdFull="playerSysopWrapperCallback=function() ";
-		CmdFull.append(Cmd);
-		CmdFull.append(" end; return json.encode(playerSysopWrapperCallback())");
-		int success = luaL_loadstring(L, CmdFull.c_str());
-		lua_getfield(L,LUA_REGISTRYINDEX,"server");
-		lua_setfenv(L,-2);
+		lua_getfield(L,LUA_REGISTRYINDEX,"serverFnSysop");
+		int success = luaL_loadstring(L, Cmd);
 		if(success==0)
 			UniComplete=true;
 		if (UniComplete==false)
@@ -579,7 +592,7 @@ namespace {
 			consoleParse(Str,Mode);
 			return;
 		}
-		lua_pcall(L, 0, 1, 0);
+		lua_pcall(L, 1, 1, 0);
 		char* result=(char*)lua_tostring(L, -1);
 		delete[] Cmd;
 		void* unit = getPlayerUDataFromPlayerInfo(playerInfo);
@@ -594,8 +607,9 @@ namespace {
 		PP=(void**)(((char*)*PP)+0x114);
 		byte *P2=(byte*)(*PP);
 		char BuffS[350]={0};
+		memset(BuffS, 0, 350);
 		sprintf(BuffS,"sysop> %s",result);
-		netDoPrintConsole(BuffS,P2,14);
+		netDoPrintConsole(BuffS,P2,14, true);
 	}
 }
 /* пускай будет регистрация */
@@ -982,7 +996,7 @@ void netInit()
 	
 	InjectOffs(0x4441AE+1,&sysopMyTrap);
 
-	const char Block2[]="Srv";
+	//const char Block2[]="Srv";
 	registerserver("servNetCode",&netGetCodeServL);
 
 	/// Стандартные спецэффекты
@@ -1004,8 +1018,8 @@ void netInit()
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
 	registerclient("netSendFx",&netSendFx);
-	char Buf[40]="";
-	sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
+	//char Buf[40]="";
+	//sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
 
 	registerclient("netRename",&netRename);
 //	registerclient(Buf,&sendToServer);
