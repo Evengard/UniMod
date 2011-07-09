@@ -46,7 +46,12 @@ extern char authSendWelcomeMsg[0x20];
 
 extern void* getPlayerUDataFromPlayerIdx(int idx);
 
+extern void* getPlayerUDataFromPlayerNetCode(int netCode);
+
 extern void* getPlayerUDataFromPlayerInfo(void *addr);
+
+int (__cdecl *netCreatePlayerStartPacket)(void* Dst, void* playerInfo);
+void *(__cdecl *playerCheckDuplicateNames)(void* playerInfo);
 
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
@@ -241,24 +246,32 @@ namespace {
 	}
 	int netRename(lua_State *L)
 	{
-		struct RenamePacket
+		
+		if (
+			(lua_type(L,1)!=LUA_TLIGHTUSERDATA || lua_type(L,2)!=LUA_TSTRING)
+			)
 		{
-			byte Packet;
-			short NetCode;
-			wchar_t NameMB[0x30];
-			char Dummy63[1];
-			short A,B;
-			DWORD Unk68,Unk6C;
-			DWORD OrE60; //записывается в класс
-			byte Class,Sex;
-			
-
-		} RP;
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		DWORD *DW=(DWORD*)lua_touserdata(L,1);
+		if (0==(DW[2] & 0x4))
+		{
+			lua_pushstring(L,"wrong args: unit is not a player!");
+			lua_error_(L);
+		}
+		char RP[0x81];
 		memset(&RP,0,sizeof(RP));
-		RP.Packet=45;
-		RP.NetCode=lua_tointeger(L, 1);
-		static int Cnt=1;
-		wsprintfW(RP.NameMB,L"name %d",Cnt++);
+		BYTE *unit=(BYTE*)lua_touserdata(L,1);
+		void **PP=(void **)(((char*)unit)+0x2EC);
+		PP=(void**)(((char*)*PP)+0x114);
+		byte *P=(byte*)(*PP);
+		mbstowcs((wchar_t*)(P+0x1260), lua_tostring(L, 2), 0x18);
+		mbstowcs((wchar_t*)(P+0x889), lua_tostring(L, 2), 0x18);
+		mbstowcs((wchar_t*)(P+0x8E2), "\0\0", 0x2);
+		playerCheckDuplicateNames(P);
+		netCreatePlayerStartPacket(&RP,P);
+		//memcpy(&RP.NameMB, (wchar_t*)(P+0x1260), (sizeof(wchar_t)*0x30));
 		netSendAll(&RP,sizeof(RP));
 		return 0;
 	}
@@ -965,6 +978,7 @@ void netInit()
 	ASSIGN(netGetUnitCodeCli,0x00578B00);
 	ASSIGN(netSendBySock,0x00552640);
 	ASSIGN(netPriMsg,0x004DA2C0);
+	ASSIGN(playerCheckDuplicateNames,0x004DDA00);
 	
 	InjectOffs(0x4441AE+1,&sysopMyTrap);
 
@@ -975,6 +989,8 @@ void netInit()
 	ASSIGN(netSendPointFx,0x522FF0);
 	ASSIGN(netSendRayFx,0x5232F0);
 	ASSIGN(netSendShieldFx,0x00523670);
+
+	ASSIGN(netCreatePlayerStartPacket,0x004DDA90);
 
 	registerserver("netOnResp",&netOnRespL); /// реакция сервера на ответ клиента
 	registerserver("netPointFx",&netPointFx);
