@@ -606,10 +606,11 @@ namespace {
 		void **PP=(void **)(((char*)unit)+0x2EC);
 		PP=(void**)(((char*)*PP)+0x114);
 		byte *P2=(byte*)(*PP);
-		char BuffS[350]={0};
-		memset(BuffS, 0, 350);
+		char *BuffS = new char[strlen(result)+10];
+		memset(BuffS, 0, strlen(result)+10);
 		sprintf(BuffS,"sysop> %s",result);
 		netDoPrintConsole(BuffS,P2,14, true);
+		delete[] BuffS;
 	}
 }
 /* пускай будет регистрация */
