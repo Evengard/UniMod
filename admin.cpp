@@ -1173,6 +1173,29 @@ void adminInit(lua_State *L)
 	lua_getfield(L,LUA_REGISTRYINDEX,"server");
 	lua_setfenv(L,-2);
 	lua_setfield(L,LUA_REGISTRYINDEX,"serverFn");
+	if (0!=luaL_loadstring(L,
+		"return function (s) "
+		"local r=s; "
+		"setfenv(r,getfenv(1)) "
+		"return json.encode( r() ) end; "))
+	{
+		MessageBox(0,lua_tostring(L,-1),0,0);
+		luaL_loadstring(L,"");
+	}
+	else
+	{
+		if (0==lua_pcall(L,0,1,0))
+		{
+		}
+		else
+		{
+			MessageBox(0,lua_tostring(L,-1),0,0);
+			luaL_loadstring(L,"");
+		}
+	}
+	lua_getfield(L,LUA_REGISTRYINDEX,"server");
+	lua_setfenv(L,-2);
+	lua_setfield(L,LUA_REGISTRYINDEX,"serverFnSysop");
 	registerserver("httpServer",&httpServerL);
 	registerserver("formGame",&formGame);
 	registerserver("formNextGame",&formNextGame);
