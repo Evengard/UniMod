@@ -105,6 +105,26 @@ void* getPlayerUDataFromPlayerIdx(int idx)
 	return 0;
 }
 
+void* getPlayerUDataFromPlayerNetCode(int netCode)
+{
+	void *P;
+	P=playerFirstUnit();
+	while(P!=0)
+	{
+		BYTE *B=(BYTE *)P;
+		B+=0x2EC;//контроллер
+		B=*((BYTE**)B);
+		B+=0x114;//плэеринфо?
+		B=*((BYTE**)B);
+		B+=0x80C;
+		int netCodeFound=*((short*)B);
+		if(netCode==netCodeFound)
+			return P;
+		P=playerNextUnit(P);
+	}
+	return 0;
+}
+
 namespace
 {
 
