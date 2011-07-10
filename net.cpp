@@ -36,7 +36,7 @@ int (__cdecl *netSendBySock)(int Player,void *Data,int Size, int Type);
 byte authorisedState[0x20];
 char *authorisedLogins[0x20];
 
-void *playerSysop;
+void *playerSysop=(void*)0x0069D720;
 
 //char *temp; //Временная переменная
 
@@ -982,7 +982,7 @@ int sendChat(lua_State* L)
 }
 void netInit()
 {
-	ASSIGN(playerSysop,0x69D720);
+//	ASSIGN(playerSysop,0x0069D720);
 
 	ASSIGN(netSpriteByCodeHi,0x0045A720);
 	ASSIGN(netSpriteByCodeLo,0x0045A6F0);

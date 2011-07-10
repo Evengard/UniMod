@@ -15,6 +15,8 @@ void (__cdecl *cryptClose)();
 int (__cdecl *fileReadWrite)(void *DstBuf, size_t DstSize);
 int (__cdecl *genWriteMapMB)(char *Path,int Type);
 char *(__cdecl *getGameFolder)();
+
+void **noxWallGlobalList=(void**)0x0075396C;
 /*
 Формат файла:
 DWORD Sign;//FADEFACE
@@ -151,7 +153,10 @@ namespace
 		sprintf(Buf,"%s\\Maps\\%s",getGameFolder(),lua_tostring(L,1));
 		_mkdir(Buf);
 		sprintf(Buf,"%s\\Maps\\%s\\%s.map",getGameFolder(),lua_tostring(L,1),lua_tostring(L,1));
+		wallRec *Wall=*((wallRec**)(noxWallGlobalList));
+		*noxWallGlobalList=(void*)0;
 		lua_pushboolean(L,genWriteMapMB(Buf,1));
+		*noxWallGlobalList=(wallRec*)Wall;
 		return 1;
 		
 	}
