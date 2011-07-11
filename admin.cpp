@@ -82,6 +82,9 @@ int mapCycleCurrentPosition;
 
 extern void* getPlayerUDataFromPlayerInfo(void *addr);
 
+extern void netVersionServerRq(int sendTo);
+
+extern int clientsVersions[0x20];
 
 bool serverRequest(int f,char *path)
 {
@@ -1070,6 +1073,7 @@ namespace
 		if(strcmp(authorisedLogins[Index], "")!=0)
 			delete [] authorisedLogins[Index];
 		authorisedLogins[Index]="";
+		clientsVersions[Index]=0;
 		int Top=lua_gettop(L);
 		getServerVar("playerOnLeave");
 		if (lua_isfunction(L,-1))
@@ -1085,6 +1089,7 @@ namespace
 
 	void* onPlayerJoin(int Index)
 	{
+		clientsVersions[Index]=0;
 		void* result=playerGetDataFromIndex(Index);
 		if(Index!=0x1F)
 		{
@@ -1092,6 +1097,8 @@ namespace
 			authorisedLogins[(byte)Index]="";
 			playerGoObserver(result, 1, 1);
 			authSendWelcomeMsg[Index]=30;
+
+			netVersionServerRq(Index);
 		}
 		return result;
 	}

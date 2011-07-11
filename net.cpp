@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include <string.h>
+#include <math.h>
 
-int UnimodVersion=0x000402;/// 00.04.02 
+int UnimodVersion=010601;/// 00.06.01 
 
 void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
@@ -52,6 +53,8 @@ extern void* getPlayerUDataFromPlayerInfo(void *addr);
 
 int (__cdecl *netCreatePlayerStartPacket)(void* Dst, void* playerInfo);
 void *(__cdecl *playerCheckDuplicateNames)(void* playerInfo);
+
+int clientsVersions[0x20];
 
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
@@ -478,7 +481,8 @@ namespace {
 		P2+=0x810;
 		int Top= lua_gettop(L);
 		int OtherVersion=*((int*)Start);
-		if (UnimodVersion!=OtherVersion)
+		clientsVersions[*P2]=OtherVersion;
+		if (floor((double)(UnimodVersion/100))>floor((double)(OtherVersion/100)))
 		{
 			getServerVar("serverOnClientVersionWrong");
 			if (lua_type(L,-1)==LUA_TFUNCTION)
@@ -542,6 +546,18 @@ namespace {
 		}
 		lua_settop(L,Top);
 	}
+	
+	void netOnVersionServerRq(BYTE *Start,BYTE *End)
+	{
+		BYTE Buf[255],*Pt=Buf;
+		netUniPacket(upVersionRq,Pt,4);
+		*((int*)Pt)=UnimodVersion;
+		Pt+=4;
+		netSendServ(Buf,Pt-Buf);
+	}
+
+	
+
 	int netVersionRq(lua_State*L)
 	{
 		lua_settop(L,1);
@@ -612,6 +628,13 @@ namespace {
 		netDoPrintConsole(BuffS,P2,14, true);
 		delete[] BuffS;
 	}
+}
+
+void netVersionServerRq(int sendTo)
+{
+	BYTE Buf[255],*Pt=Buf;
+	netUniPacket(upVersionServerRq,Pt,0);
+	netClientSend(sendTo,1,Buf,Pt-Buf);
 }
 /* пускай будет регистрация */
 	ClientMap_s ClientRegMap;
@@ -686,6 +709,9 @@ void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
 				break;
 			case upVersionResp:
 				netOnVersionResp(P,BufStart);
+				break;
+			case upVersionServerRq:
+				netOnVersionServerRq(P,BufStart);
 				break;
 			case upSendPrintToCli:
 				netPrintConsole(P,BufStart);
