@@ -203,6 +203,8 @@ namespace
 			while(searchMode<2)
 			{
 				getline(file, fileLine);
+				if(fileLine[fileLine.size()-1]=='\r')
+					fileLine.erase((fileLine.size()-1), 1); // Тут мы CR удаляем. Тот самый атавизм со времён печатных машинок
 				if(!file.eof())
 				{
 					transform(fileLine.begin(), fileLine.end(), fileLine.begin(), tolower);
@@ -211,8 +213,6 @@ namespace
 						fileLine = fileLine.substr(0,13); // Вместе с .map может быть только 13 символов максимум. Отрезаем всё лишнее.
 						fileLine = fileLine.substr(0, fileLine.rfind(".map")); // Отрезаем .map. Не именуйте плз карты так: my.map.m! Ну или не прописывайте их в таком виде в мапцикл, а прописывайте по старинке с расширением - my.map.m.map. А не то не загрузится.
 						fileLine = fileLine.substr(0,8); // А без .map может быть только 8 символов. Опять таки отрезаем лишнее.
-						if(fileLine[fileLine.size()-1]=='\r')
-							fileLine.erase((fileLine.size()-1), 1); // Тут мы CR удаляем. Тот самый атавизм со времён печатных машинок
 						if(mapLoadFromFile((char*)fileLine.c_str()) && mapLoadFlags(mapLoadData)&modeId) // Проверка, а валидный ли это вообще файл карты... И нужного ли режима!
 						{
 							fileLine.append(".map"); // Аппендим обратно .map. Требуется для собственно загрузчика карт мапцикла
@@ -224,7 +224,7 @@ namespace
 						searchMode++;
 						break;
 					}
-					if(searchMode==0 && fileLine.compare(mode)) // Ура, мы нашли наш режим игры! Переходим в режим скана названий мап...
+					if(searchMode==0 && fileLine.compare(mode)==0) // Ура, мы нашли наш режим игры! Переходим в режим скана названий мап...
 						searchMode++;
 				}
 				else // Файло кончилось, что получилось то и получилось
