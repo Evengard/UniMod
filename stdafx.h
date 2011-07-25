@@ -431,6 +431,37 @@ struct tileDef_s
 	char More[6];
 };
 
+struct polygonAngle_s
+{
+	int numAngle;
+	int posX;
+	int posY;
+	int isCreated;
+};
+
+
+struct polygon_s
+{
+	int filed_0;
+	char Name[76];
+	int polygonIdx;
+	int field_54;
+	int posX1;
+	int posY1;
+	int posX2;
+	int posY2;
+	int color;
+	void *strucCoordinat;
+	int scriptFunction;
+	int field_74;
+	int field_78;
+	int field_7C;
+	short kolvoUglov;
+	short minimapGroup;
+	int field_84;
+	int field_88;
+};
+
 class SendBuffer /// ѕредназначен дл€ передачи по сети больших кусков
 {
 public:
