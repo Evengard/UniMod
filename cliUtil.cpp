@@ -8,6 +8,7 @@ void (__cdecl *sub_4738E0) ();
 extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
 extern DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
+extern void (__cdecl *noxGuiDrawCursor) ();
 int (__cdecl *mathAnglTo256) (void *xycords);
 
 void *noxSpriteLast=0;
@@ -132,9 +133,9 @@ namespace
 	{
 		__asm
 		{
-			call sub_4738E0
+			call noxGuiDrawCursor
 			call cliOnEachFrame
-			push 0x43635D
+			push 0x0043E77D
 			ret
 		}
 	}
@@ -382,6 +383,6 @@ void cliUntilInit()
 	registerclient("directGet",&directL);
 	netRegClientPacket(upSendBubble,&netOnBubble);
 
-	InjectJumpTo(0x436358,&asmToCliTimer);
+	InjectJumpTo(0x0043E778,&asmToCliTimer);
 
 }
