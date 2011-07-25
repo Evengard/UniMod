@@ -434,8 +434,8 @@ struct tileDef_s
 struct polygonAngle_s
 {
 	int numAngle;
-	int posX;
-	int posY;
+	float posX;
+	float posY;
 	int isCreated;
 };
 
