@@ -58,7 +58,14 @@ namespace
 		int i=0;
 		for (;i<P->kolvoUglov;i++)
 		{
-			lua_pushinteger(L,*(A+i*4));
+			lua_newtable(L);
+			polygonAngle_s *Ang=noxPolygonAngleGetByNum(*(A+i*4));
+			lua_pushinteger(L,Ang->numAngle);
+			lua_rawseti(L,-2,1);
+			lua_pushinteger(L,Ang->posX);
+			lua_rawseti(L,-2,2);
+			lua_pushinteger(L,Ang->posY);
+			lua_rawseti(L,-2,3);
 			lua_rawseti(L,-2,(P->kolvoUglov)-i);
 		}
 		lua_setfield(L,-2,"tCord");			
@@ -73,7 +80,7 @@ namespace
 			lua_error_(L);
 		}
 		polygon_s *P=(polygon_s *) lua_touserdata(L,1);
-		lua_getfield(L,1,"name");
+		lua_getfield(L,2,"name");
 		if (lua_type(L,-1)==LUA_TSTRING)
 			conPrintI(lua_tostring(L,-1));
 		return 0;
