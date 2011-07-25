@@ -12,6 +12,10 @@ void (__cdecl *unitMove)(void *Who,noxPoint *Pt);
 void (__cdecl *unitActivate) (void *Unit);
 void (__cdecl *dropAllItems)(void*Unit);
 void (__cdecl *noxUnitHunt) (void *Unit);
+void (__cdecl *noxAgressionLevel) (void *Unit,float *level);
+void (__cdecl *noxMirrorShot) (void *Shot,void *);
+void (__cdecl *noxUnitDelete) (void *Unit);
+void (__cdecl *noxUnitSetOwner) (void *NewOwner,void *Owner);
 
 void (__cdecl *inventoryPut)(void *Who,void *What,int A);
 
@@ -365,6 +369,23 @@ namespace
 		return 1;
 	}
 
+	int unitAgressionLevel(lua_State*L)
+	{
+		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA || lua_type(L,2)!=LUA_TNUMBER)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		float lev=lua_tonumber(L,2);
+		if (lev<0 || lev>1)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		noxAgressionLevel(lua_touserdata(L,1),&lev);
+		return 0;
+	}
+
 	int unitUnFreezL(lua_State*L)
 	{
 		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
@@ -457,6 +478,10 @@ void unitInit()
 	ASSIGN(inventoryPut,0x004F3070);
 	ASSIGN(dropAllItems,0x004EDA40);
 	ASSIGN(noxUnitHunt,0x5449D0); 
+	ASSIGN(noxAgressionLevel,0x00515980);
+	ASSIGN(noxMirrorShot,0x004E0A70);
+	ASSIGN(noxUnitDelete,0x004E5E80);
+	ASSIGN(noxUnitSetOwner,0x004EC290);
 
 	registerserver("unitSetFollow",&unitSetFollowL);
 	registerserver("unitBecomePet",&unitBecomePetL);
@@ -469,6 +494,7 @@ void unitInit()
 	registerserver("unitUnFreeze",&unitUnFreezL);
 	registerserver("unitPick",&unitPickL);
 	registerserver("unitHunt",&unitHuntL);
+	registerserver("unitSetAgression",&unitAgressionLevel);
 
 	registerserver("playerList",&playersListL);
 	registerserver("playerMouse",&playerMouseL);
