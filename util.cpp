@@ -35,6 +35,8 @@ extern void netSendChatMessage(char *sendChat, int sendTo, short sendFrom=0, boo
 extern byte authorisedState[0x20];
 extern bool specialAuthorisation; //Отключение альтернативной авторизации
 
+int (__cdecl *initWindowedModeNox)(int param1, int param2, int param3);
+
 
 char *copyString(const char *Str)
 {
@@ -950,8 +952,21 @@ extern "C" void loadJson(lua_State *L);
 extern "C" void mapUtilInit(lua_State*L);
 extern bool serverUpdate();
 
+int initWindowedMode(int param1, int param2, int param3)
+{
+	DEVMODE devMode;
+	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
+	if(devMode.dmBitsPerPel>16)
+	{
+		devMode.dmBitsPerPel=16;
+		ChangeDisplaySettings(&devMode, CDS_FULLSCREEN);
+	}
+	return initWindowedModeNox(param1, param2, param3);
+}
+
 void injectCon()
 {
+	//MessageBox(0,"!",0,0);
 	exInit();
 	initModLib2();
 	luaopen_lpeg (L);
@@ -1091,11 +1106,12 @@ void injectCon()
 	cliUntilInit();
 	polygonInit();
 	bugsInit();
-	//MessageBox(0,"!",0,0);
-	
 
 	InjectJumpTo(0x00443C80,&onConCmd);// Функция реакции на консольную команду
 	InjectOffs(0x4D2AB5,&onEachFrame);
+
+	ASSIGN(initWindowedModeNox,0x0048AED0);
+	InjectOffs(0x48A0C2+1,&initWindowedMode);
 
 #include "lua/binClient/clientOnJoin.lua.inc"
 

@@ -195,6 +195,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\bugsAndChips.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\imageUtil.cpp"
 					>
 				</File>
@@ -244,6 +248,10 @@
 				</File>
 				<File
 					RelativePath=".\mapUtil.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\polygon.cpp"
 					>
 				</File>
 				<File
