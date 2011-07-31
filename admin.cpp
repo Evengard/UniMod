@@ -203,10 +203,10 @@ namespace
 			while(searchMode<2)
 			{
 				getline(file, fileLine);
-				if(fileLine[fileLine.size()-1]=='\r')
-					fileLine.erase((fileLine.size()-1), 1); // Тут мы CR удаляем. Тот самый атавизм со времён печатных машинок
 				if(!file.eof())
 				{
+					if(fileLine[fileLine.size()-1]=='\r')
+						fileLine.erase((fileLine.size()-1), 1); // Тут мы CR удаляем. Тот самый атавизм со времён печатных машинок
 					transform(fileLine.begin(), fileLine.end(), fileLine.begin(), tolower);
 					if(searchMode==1 && fileLine[0]!='[')
 					{
