@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <deque>
 #include <algorithm>
+#include "winsock2.h"
 /*
 Здесь начисление/получение фрагов и т.п.
 */
@@ -32,6 +33,8 @@ void (__cdecl *serverFlagsClear)(DWORD V);
 wchar_t *(__cdecl *noxTeamDefaultName)(int color);
 extern byte authorisedState[0x20];
 extern char* authorisedLogins[0x20];
+
+void* noxNetStructList;
 
 namespace
 {
@@ -279,6 +282,16 @@ l1:
 		byte idx = *((byte*)(P+0x810));
 		lua_pushinteger(L,idx);
 		lua_setfield(L,-2,"idx");
+		void* netStructListPlayer;
+		if(idx<0x1F)
+		{
+			netStructListPlayer=(byte*)noxNetStructList+(1+idx)*4;
+			BYTE* addrStruct = *((BYTE**)netStructListPlayer);
+			in_addr* address=(in_addr*)(addrStruct+8);
+		}
+		else
+			lua_pushstring(L,"127.0.0.1");
+		lua_setfield(L,-2,"ip");
 		int Class=*((byte*)(P+0x8CB));
 		lua_pushinteger(L,Class);
 		lua_setfield(L,-2,"class");
@@ -751,6 +764,7 @@ void scoreInit(lua_State *L)
 	ASSIGN(netCommonByCode,0x00418C80);
 
 	ASSIGN(noxTeamDefaultName,0x00418C20);
+	ASSIGN(noxNetStructList, 0x0097EC60);
 
 	InjectJumpTo(0x0040A8A0,teamCanPlayGame);
 	InjectOffs(0x0054D588+1,onDeathmatchFrag);

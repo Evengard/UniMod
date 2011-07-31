@@ -960,8 +960,8 @@ int initWindowedMode(int param1, int param2, int param3)
 	if(devMode.dmBitsPerPel>16)
 	{
 		devMode.dmBitsPerPel=16;
-		ChangeDisplaySettings(&devMode, CDS_FULLSCREEN);
 	}
+	ChangeDisplaySettings(&devMode, CDS_FULLSCREEN);
 	return initWindowedModeNox(param1, param2, param3);
 }
 
