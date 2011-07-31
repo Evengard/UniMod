@@ -933,6 +933,7 @@ extern void cliUntilInit();
 extern bool initAuthData();
 extern void polygonInit();
 extern void bugsInit();
+extern void autoServer();
 extern "C" void scoreInit(lua_State *L);
 
 extern "C" void initAudServer(lua_State *L);
@@ -1106,6 +1107,7 @@ void injectCon()
 	cliUntilInit();
 	polygonInit();
 	bugsInit();
+	autoServer();
 
 	InjectJumpTo(0x00443C80,&onConCmd);// Функция реакции на консольную команду
 	InjectOffs(0x4D2AB5,&onEachFrame);
