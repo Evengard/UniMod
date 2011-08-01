@@ -288,6 +288,7 @@ l1:
 			netStructListPlayer=(byte*)noxNetStructList+(1+idx)*4;
 			BYTE* addrStruct = *((BYTE**)netStructListPlayer);
 			in_addr* address=(in_addr*)(addrStruct+8);
+			lua_pushstring(L,inet_ntoa(*address));
 		}
 		else
 			lua_pushstring(L,"127.0.0.1");
