@@ -143,6 +143,9 @@ namespace
 			lua_settop(L,Top);
 			return;
 		}
+		int ForHunt=0;
+		if (lua_tointeger(L,-1)==1)
+			ForHunt=1;
 		creatureCommand P;
 		P.msg=0x78;
 		P.netCodeMob=(short)*((BYTE**)M);
@@ -158,7 +161,7 @@ namespace
 					command=myCreatureList.command[i];
 					if (command<3)
 						P.whatDo=4;
-					else if(command>=5)
+					else if(command>=4+ForHunt)
 						P.whatDo=3;
 					else
 						P.whatDo=myCreatureList.command[i]+1;
