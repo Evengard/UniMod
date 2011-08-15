@@ -935,6 +935,7 @@ extern void polygonInit();
 extern void bugsInit();
 extern void autoServer();
 extern "C" void scoreInit(lua_State *L);
+extern "C" void replayInit(lua_State *L);
 
 extern "C" void initAudServer(lua_State *L);
 
@@ -1103,6 +1104,7 @@ void injectCon()
 	spellListInit();
 	guiInit();
 	scoreInit(L);
+	replayInit(L);
 	waypointsInit();
 	cliUntilInit();
 	polygonInit();
