@@ -58,6 +58,7 @@ namespace
 	  int field_4C;
 	};
 
+
 	int teamCanPlayGameImpl() // чтобы можно было 
 	{
 		int Top=lua_gettop(L);
@@ -87,6 +88,7 @@ l1:
 			ret
 		};
 	}
+
 	int noxTeamNumber()
 	{
 		int i=0;
@@ -767,6 +769,8 @@ void scoreInit(lua_State *L)
 	ASSIGN(noxTeamDefaultName,0x00418C20);
 	ASSIGN(noxNetStructList, 0x0097EC60);
 
+	
+
 	InjectJumpTo(0x0040A8A0,teamCanPlayGame);
 	InjectOffs(0x0054D588+1,onDeathmatchFrag);
 	registerserver("playerScore",&playerScore);
@@ -781,6 +785,8 @@ void scoreInit(lua_State *L)
 	registerclient("playerGetByName",&playerGetByName);
 	registerclient("playerGetByWOL",&playerGetByWOL);
 	registerclient("httpGet",&httpGet);
+
+	
 	
 }
 void teamCreateDefault(int minTeamsParam=0, bool doNotSetRestriction=false)

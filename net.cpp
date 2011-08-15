@@ -56,6 +56,8 @@ void *(__cdecl *playerCheckDuplicateNames)(void* playerInfo);
 
 int clientsVersions[0x20];
 
+extern bool replaySavePackets(BYTE *BufStart, BYTE *E);
+
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
 	if (NetCode & 0x8000)
@@ -667,6 +669,7 @@ void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
 	// ВНИМАНИЕ! Для всех ВЫФИЛЬТРОВЫВАЕМЫХ пакетов - обязательно ставьте found=true! Иначе не будет производиться обработка других пакетов в ЭТОМ же фрейме!
 	while(found)
 	{
+		replaySavePackets(BufStart, E);
 		found=false;
 		BYTE *P=BufStart;
 		if (*P==186)

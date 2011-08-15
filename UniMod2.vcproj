@@ -499,6 +499,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\replays.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\spellGet.cpp"
 					>
 				</File>

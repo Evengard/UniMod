@@ -23,9 +23,10 @@ int *noxGameFlags;
 extern void InjectOffs(DWORD Addr,void *Fn);
 extern void InjectJumpTo(DWORD Addr,void *Fn);
 
+extern void replayCommandLineSave();
+
 namespace
 {
-
 	void __declspec(naked) asmHostWhenStart() // хостим сервер когда стартует игра
 	{
 		__asm
@@ -81,6 +82,10 @@ namespace
 			VirtualProtect(bt,1,PAGE_EXECUTE_READWRITE,&OldProtect);
 			memcpy((byte*)bt,&OperatorJmps,1); // убираем заставочки
 			VirtualProtect(bt,1,OldProtect,&OldProtect);
+		}
+		if(strcmp(str, "-savereplay")==0)
+		{
+			replayCommandLineSave();
 		}
 	}
 
