@@ -21,6 +21,8 @@ void (__cdecl *netPriMsg)(void *PlayerUnit,char *String,int Flag);
 DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
 DWORD (__cdecl *netGetUnitCodeCli)(void *Sprite);
 
+void (__cdecl *netReportCharges) (int playerIdx, void *weapon, int a,int b);
+
 void *(__cdecl *netGetUnitByExtent)(DWORD NetCode);/// только для динамических (на сервере)playerGoObserver
 
 void (__cdecl *netSendShieldFx)(void *Unit,noxPoint* From);
@@ -165,13 +167,13 @@ namespace {
 		}
 	}
 
-	/*int sendToServer(lua_State *L)
+	int sendToServer(lua_State *L)
 	{
 		const char *S=lua_tostring(L,1);
 		if (S)
 			conSendToServer(S);
 		return 0;
-	}*/
+	}
 	int netGetCodeServL(lua_State *L)
 	{
 		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
@@ -187,6 +189,26 @@ namespace {
 		lua_pushinteger(L,netGetUnitCodeServ(P));
 		return 1;
 	}
+	int netReportChargesL(lua_State *L)
+	{
+		if (
+			(lua_type(L,1)!=LUA_TLIGHTUSERDATA) ||
+			(lua_type(L,2)!=LUA_TLIGHTUSERDATA)||
+			(lua_type(L,3)!=LUA_TNUMBER)||
+			(lua_type(L,4)!=LUA_TNUMBER))
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		bigUnitStruct *Plr=(bigUnitStruct *)lua_touserdata(L,1);
+		BYTE *P2=(BYTE*)Plr->unitController;
+		P2+=0x114;P2=*((BYTE **)P2);
+		P2+=0x810;
+		netReportCharges(*P2,lua_touserdata(L,2),lua_tointeger(L,3),lua_tointeger(L,4));
+		return 0;
+	}
+		
+	
 	int netPointFx(lua_State *L)
 	{
 		lua_settop(L,3);
@@ -280,7 +302,7 @@ namespace {
 		netSendAll(&RP,sizeof(RP));
 		return 0;
 	}
-	/*int netFake(lua_State *L) 
+	int netFake(lua_State *L) 
 			/// высылает сообщение о смерти, но от этого помирает нокс 
 	{
 		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
@@ -297,7 +319,7 @@ namespace {
 		netSendAll(&B,sizeof(B));
 
 		return 0;
-	}*/
+	}
 	int netOnRespL(lua_State *L)
 	{
 		bigUnitStruct *Plr=(bigUnitStruct *)lua_touserdata(L,1);
@@ -341,7 +363,7 @@ namespace {
 		return 0;
 	}
 
-	/*void netLuaRq(BYTE *P,BYTE *End)
+	void netLuaRq(BYTE *P,BYTE *End)
 	{
 		BYTE Buf[255],*Pt=Buf;
 		size_t Size;
@@ -373,7 +395,7 @@ namespace {
 		}
 		lua_settop(L,From);
 
-	}*/
+	}
 	void netDelStatic(BYTE *Start,BYTE *End)
 	{
 		int Code=*((int*)(Start+0));
@@ -680,18 +702,18 @@ void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
 			BufStart+=2+*(P++);// выфильтровываем его нафиг
 			found=true;
 			
-	/*		char Buf[60];
+			char Buf[60];
 			sprintf(Buf,"Unipacket cli %x",*P);
-			conPrintI(Buf);*/
+			conPrintI(Buf);
 
 			switch (*(P++))
 			{
 			case upWallChanged:
 				netOnWallChanged((wallRec*)P);
 				break;
-			/*case upLuaRq:
+			case upLuaRq:
 				netLuaRq(P,BufStart);
-				break;*/
+				break;
 			case upNewStatic:
 				netNewStatic(P,BufStart);
 				break;
@@ -928,9 +950,9 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 			found=true;
 			BufSize--;// пускай диспетчерский байт не в счет
 
-	/*		char Buf[60];
+			char Buf[60];
 			sprintf(Buf,"Unipacket serv %x",*P);
-			conPrintI(Buf);*/
+			conPrintI(Buf);
 
 			switch (*(P++))
 			{
@@ -944,15 +966,16 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 					lua_pcall(L,3,0,0);
 				}
 				break;
-			/*case upLuaRq:
+			case upLuaRq:
 				char Buf[200];bool Unused;
 				strncpy(Buf,(char *)P,199);Buf[199]=0;
 				conDoCmd(Buf,Unused);
 				sprintf(Buf,"cmd %s",P);
 				conPrintI(Buf);
-				break;*/
+				break;
 			case upTryUnitUse:
 				netOnClientTryUse(P,BufStart,MyUc,MyPlayer);
+				break;
 			case upVersionRq:
 				netOnVersionRq(P,BufStart,(bigUnitStruct*)MyPlayer);
 				break;
@@ -973,7 +996,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 				BufStart+=0x16;
 			}
 		}
-	/*	else if (*P==0x72) // попытка выкинуть предмет
+		else if (*P==0x72) // попытка выкинуть предмет
 		{ // 7 байт {BYTE pkt, USHORT Obj,X,Y;}
 			char Buf[80];
 			USHORT V=toShort(P+1);
@@ -981,7 +1004,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 			sprintf(Buf,"72 %x (%d,%d)",V,toShort(P+3),toShort(P+5) );
 			conPrintI(Buf);	
 
-		}*/
+		}
 	}
 }
 extern void InjectJumpTo(DWORD Addr,void *Fn);
@@ -1011,7 +1034,7 @@ int sendChat(lua_State* L)
 }
 void netInit()
 {
-//	ASSIGN(playerSysop,0x0069D720);
+	ASSIGN(playerSysop,0x0069D720);
 
 	ASSIGN(netSpriteByCodeHi,0x0045A720);
 	ASSIGN(netSpriteByCodeLo,0x0045A6F0);
@@ -1023,10 +1046,11 @@ void netInit()
 	ASSIGN(netSendBySock,0x00552640);
 	ASSIGN(netPriMsg,0x004DA2C0);
 	ASSIGN(playerCheckDuplicateNames,0x004DDA00);
+	ASSIGN(netReportCharges,0x004D82B0);
 	
 	InjectOffs(0x4441AE+1,&sysopMyTrap);
 
-	//const char Block2[]="Srv";
+	const char Block2[]="Srv";
 	registerserver("servNetCode",&netGetCodeServL);
 
 	/// Стандартные спецэффекты
@@ -1042,16 +1066,17 @@ void netInit()
 	registerserver("netShieldFx",&netShieldFx);
 	registerserver("netReq",&netDoReq);
 
+	registerserver("netReportCharges",&netReportChargesL);
 	registerserver("netClientPrint",&netDoPrintConsoleL);
-	//registerserver("netFake",&netFake);
+	registerserver("netFake",&netFake);
 	registerserver("sendChat",&sendChat);
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
 	registerclient("netSendFx",&netSendFx);
-	//char Buf[40]="";
-	//sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
+	char Buf[40]="";
+	sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
 
 	registerclient("netRename",&netRename);
-//	registerclient(Buf,&sendToServer);
+	registerclient(Buf,&sendToServer);
 }
 

@@ -29,6 +29,8 @@ void *(__cdecl *wndGetCaptureMain)();
 int (__cdecl *wndSetCaptureMain)(void *Wnd);
 void (__cdecl *wndClearCaptureMain)(void *Wnd);
 
+int (__cdecl *noxWindowDestroy)(void *Window);
+
 //ASSIGN(,0x);
 
 extern int (__cdecl *noxSetRectColorMB) (int);
@@ -355,7 +357,6 @@ B - ChildId
 		parseAttr(L,2,3,H,attrOffsets);
 		return 1;
 	}
-	int (__cdecl *noxWindowDestroy)(void *Window);
 	int wndDestroyL(lua_State *L)
 	{
 		void *H;
@@ -940,7 +941,7 @@ public:
 			lua_settop(L,1);
 			return 1;
 		}
-		Wdd.controlType|=0x200;// кастомный контрол
+		Wdd.controlType|=0x2000;// кастомный контрол
 
 
 		lua_pushlightuserdata(L,&noxWndLoad);
@@ -951,7 +952,7 @@ public:
 		
 		/// c флагами еще разобратся надо
 		BYTE *Wnd;
-		Wnd=wndCreate2(Parent,Flags,x,y,w,h,&newWindowProc);
+		Wnd=wndCreate2(Parent,Wdd.status,x,y,w,h,&newWindowProc);
 			lua_pushinteger(L,nowCreating--); /// удаляем номерную таблицу
 			lua_pushnil(L);
 		lua_settable(L,-3);
