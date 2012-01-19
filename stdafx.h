@@ -145,6 +145,21 @@ struct creatureAction
   int field_14;
 };
 
+struct ServerData
+{
+	char mapName[8];
+	char gap[1];
+	char gameName[10];
+	char gap_13[5];
+	int field_18[5];
+	DWORD weaponRestrictions;
+	DWORD armorRestrictions;
+	__int16 gameFlags;
+	__int16 fragLimit;
+	char timeLimitMB;
+	char isNew;
+};
+
 struct bigUnitStruct
 {
   int ScriptNameMB;

@@ -58,7 +58,7 @@ void *(__cdecl *playerCheckDuplicateNames)(void* playerInfo);
 
 int clientsVersions[0x20];
 
-extern bool replaySavePackets(BYTE *BufStart, BYTE *E);
+extern bool replayPacketHandler(BYTE *&BufStart, BYTE *&E, bool &found);
 
 bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 {
@@ -691,11 +691,37 @@ void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
 	// ВНИМАНИЕ! Для всех ВЫФИЛЬТРОВЫВАЕМЫХ пакетов - обязательно ставьте found=true! Иначе не будет производиться обработка других пакетов в ЭТОМ же фрейме!
 	while(found)
 	{
-		replaySavePackets(BufStart, E);
 		found=false;
+		replayPacketHandler(BufStart, E, found); //По умолчанию false
 		BYTE *P=BufStart;
 		if (*P==186)
 			netOnAbortDownload();
+/*		if(*P==0x2B) // Обработчик смены мапы. Пишем предыдущую мапу, потом текущую, потом снова список всех.
+			{
+				struct ServerData
+{
+	char mapName[8];
+	char gap[1];
+	char gameName[10];
+	char gap_13[5];
+	int field_18[5];
+	DWORD weaponRestrictions;
+	DWORD armorRestrictions;
+	__int16 gameFlags;
+	__int16 fragLimit;
+	char timeLimitMB;
+	char isNew;
+};
+				extern int *mapFrameTime_6F9838;
+extern void *(__cdecl *serverGetGameDataBySel)();
+extern char *(__cdecl *mapGetName)();
+				P=P+0x25;
+				ServerData *Data=(ServerData*)serverGetGameDataBySel();
+					char* mapName2 = mapGetName();
+					char* mapName = Data->mapName;
+					mapName2 = mapGetName();
+
+			}*/ // For testing purposes only
 		else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
 		{
 			P++;

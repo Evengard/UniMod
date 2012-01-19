@@ -6,6 +6,7 @@
 #include <algorithm>
 //:004317B0 configLoad(const char*)
 //00433290 configSave
+extern void replayGuiUpdate();
 extern bool serverStart(int port);
 extern void serverClose();
 extern char *(__cdecl *mapGetName)();
@@ -86,8 +87,7 @@ extern void netVersionServerRq(int sendTo);
 
 extern int clientsVersions[0x20];
 
-extern bool replayFormGameRequest;
-extern void replayFormGame();
+
 
 bool serverRequest(int f,char *path)
 {
@@ -150,21 +150,6 @@ bool serverRequest(int f,char *path)
 	return true;
 }
 bool needToFormGame=false;
-
-struct ServerData
-{
-	char mapName[8];
-	char gap[1];
-	char gameName[10];
-	char gap_13[5];
-	int field_18[5];
-	DWORD weaponRestrictions;
-	DWORD armorRestrictions;
-	__int16 gameFlags;
-	__int16 fragLimit;
-	char timeLimitMB;
-	char isNew;
-};
 
 void doFormGame()
 {
@@ -372,7 +357,12 @@ void doFormGame()
 				
 				Data->gameFlags=Data->gameFlags&0xE00F;
 				Data->gameFlags=Data->gameFlags|0x80;
-				Data->isNew=1;
+				if(*GameFlags&0x80)
+				{
+					Data->isNew=0;
+				}
+				else
+					Data->isNew=1;
 				dontUseGUIFunc=false;
 				if(strcmp(Data->mapName,mapGetName())==0 && availableMode&0x80)
 					sameMap=true;
@@ -847,7 +837,12 @@ namespace
 					
 					Data->gameFlags=Data->gameFlags&0xE00F;
 					Data->gameFlags=Data->gameFlags|0x80;
-					Data->isNew=1;
+					if(*GameFlags&0x80)
+					{
+						Data->isNew=0;
+					}
+					else
+						Data->isNew=1;
 					//sameMap=false;
 					isNewGame=true;
 					if(strcmp(Data->mapName,mapGetName())==0 && availableMode&0x80)
@@ -1071,11 +1066,12 @@ namespace
 			needToFormGame=false;
 			doFormGame();
 		}
-		if(replayFormGameRequest)
+		replayGuiUpdate();
+		/*if(replayViewFormGameRequest)
 		{
-			replayFormGameRequest=false;
-			replayFormGame();
-		}
+			replayViewFormGameRequest=false;
+			replayViewFormGame();
+		}*/
 	}
 
 	void* onPlayerLeave(byte Index)
