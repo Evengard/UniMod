@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include <time.h>
+#include <string>
+#include <map>
+#include <iostream>
 /*
 Исследовать:
 +) Появление обелисков
@@ -23,7 +26,7 @@ Eще поправки
 
 #define AddCodeLine(a,b) conPrintI(a)
 
-
+typedef unsigned int u_int;
 void *(__cdecl *noxCAlloc)(int NumElements,int Size);
 void *(__cdecl *noxAlloc)(int Size);
 void (__cdecl *noxFree)(void *Ptr);
@@ -35,7 +38,137 @@ extern void netSendChatMessage(char *sendChat, int sendTo, short sendFrom=0, boo
 extern byte authorisedState[0x20];
 extern bool specialAuthorisation; //Отключение альтернативной авторизации
 
+extern void replayEachFrame();
+
+char* gameDirectory;
+
 int (__cdecl *initWindowedModeNox)(int param1, int param2, int param3);
+
+using namespace std;
+string getGameDirectory()
+{
+	u_int size = GetFullPathName(gameDirectory, 0, NULL, NULL);
+	char* buf = new char[size];
+	GetFullPathName(gameDirectory, size, buf, NULL);
+	string result = buf;
+	return result;
+}
+
+int getGameDirectoryL(lua_State *L)
+{
+	lua_pushstring(L, getGameDirectory().c_str());
+	return 1;
+}
+
+string getNormalizedPath(const char* path)
+{
+	u_int size = GetFullPathName(path, 0, NULL, NULL);
+	char* buf = new char[size];
+	SetCurrentDirectory(getGameDirectory().c_str());
+	GetFullPathName(path, size, buf, NULL);
+	string result = buf;
+	delete [] buf;
+	return result;
+}
+
+int getNormalizedPathL(lua_State *L)
+{
+	if (lua_type(L,1)==LUA_TSTRING)
+	{
+		lua_pushstring(L, getNormalizedPath(lua_tostring(L, 1)).c_str());
+		return 1;
+	}
+	else
+	{
+		lua_pushstring(L,"wrong args!");
+		lua_error_(L);
+	}
+}
+
+bool isDirectory(string dirName)
+{
+	DWORD attribs = GetFileAttributes(dirName.c_str());
+	if (attribs == INVALID_FILE_ATTRIBUTES)
+	{
+		return false;
+	}
+	return (attribs & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+map<int,WIN32_FIND_DATA> getDirectoryListing(const char* path)
+{
+	//string directoryPath = getNormalizedPath(path);
+	string directoryPath = path;
+	map<int,WIN32_FIND_DATA> results;
+	if(isDirectory(directoryPath))
+	{
+		string directoryPathSearch = directoryPath;
+		WIN32_FIND_DATA ffd;
+		HANDLE hFind = INVALID_HANDLE_VALUE;
+		directoryPathSearch.append("\\*");
+		directoryPathSearch=getNormalizedPath(directoryPathSearch.c_str());
+		hFind = FindFirstFile(directoryPathSearch.c_str(), &ffd);
+		do
+		{
+			/*string filePath = directoryPath;
+			filePath.append("\\");
+			filePath.append(ffd.cFileName);
+			bool directory = isDirectory(getNormalizedPath(filePath.c_str()));*/
+			results.insert(pair<int,WIN32_FIND_DATA>(results.size()+1, ffd));
+		}
+		while(FindNextFile(hFind, &ffd) != 0);
+	}
+	return results;
+}
+
+int getDirectoryListingL(lua_State *L)
+{
+	if (lua_type(L,1)==LUA_TSTRING)
+	{
+		string directoryPath = getNormalizedPath(lua_tostring(L, 1));
+		map<int,WIN32_FIND_DATA> listing = getDirectoryListing(directoryPath.c_str());
+		if(listing.size()>0)
+		{
+			lua_settop(L,2);
+			lua_newtable(L);
+			for (map<int,WIN32_FIND_DATA>::const_iterator iter = listing.begin(); iter != listing.end(); ++iter)
+			{
+				string filePath = directoryPath;
+				filePath.append("\\");
+				filePath.append(iter->second.cFileName);
+				bool directory = isDirectory(getNormalizedPath(filePath.c_str()));
+				LARGE_INTEGER filesize;
+				filesize.HighPart=iter->second.nFileSizeHigh;
+				filesize.LowPart=iter->second.nFileSizeLow;
+				lua_newtable(L);
+
+				lua_pushstring(L,iter->second.cFileName);
+				lua_setfield(L,-2,"name");
+				lua_pushboolean(L,directory);
+				lua_setfield(L,-2,"directory");
+				lua_pushinteger(L,filesize.QuadPart);
+				lua_setfield(L,-2,"size");
+				
+				lua_pushinteger(L,iter->first);
+				lua_pushvalue(L,-2);
+				lua_settable(L,3);
+				lua_settop(L,3);
+			}
+			return 1;
+		}
+		else
+		{
+			lua_pushstring(L,"not a directory!");
+			lua_error_(L);
+		}
+		
+	}
+	else
+	{
+		lua_pushstring(L,"wrong args!");
+		lua_error_(L);
+	}
+}
 
 
 char *copyString(const char *Str)
@@ -778,6 +911,7 @@ namespace
 	}
 	void __cdecl onEachFrame()
 	{
+		replayEachFrame();
 		if(specialAuthorisation)
 			for(int i=0; i<0x20; i++)
 			{
@@ -982,6 +1116,8 @@ void injectCon()
 	ASSIGN(noxCAlloc,0x004041D0);
 	ASSIGN(noxFree,0x0040425D);
 
+	gameDirectory=(char*)0x005D4B08;
+
 	InjectJumpTo(0x004DAA50,&noxMyCreateAt);
 
 //	InjectJumpTo(0x00507250,&newScriptPopValue);
@@ -1158,4 +1294,8 @@ void injectCon()
 	VirtualProtect(bt3,5,PAGE_EXECUTE_READWRITE,&OldProtect);
 	memcpy((byte*)bt3,&OperatorMovEax1,5); // убиваем мутекс
 	VirtualProtect(bt3,5,OldProtect,&OldProtect);
+
+	registerclient("getGameDirectory", &getGameDirectoryL);
+	registerclient("getNormalizedPath", &getNormalizedPathL);
+	registerclient("getDirectoryListing", &getDirectoryListingL);
 };

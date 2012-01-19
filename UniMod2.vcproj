@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\lua\src;E:\Lua\5.1\include;&quot;F:\lua-5.1.4\src&quot;;Libs\lpng151;Libs\zlib"
+				AdditionalIncludeDirectories="..\..\lua\src;E:\Lua\5.1\include;&quot;F:\lua-5.1.4\src&quot;;Libs\lpng151;Libs\zlib;&quot;C:\Users\Evengard\dev\lua-5.1.4\src&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UNIMOD_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -197,6 +197,22 @@
 				<File
 					RelativePath=".\bugsAndChips.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="2"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="2"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\imageUtil.cpp"
@@ -501,6 +517,22 @@
 				<File
 					RelativePath=".\replays.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="2"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="2"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\spellGet.cpp"
