@@ -125,6 +125,7 @@ namespace
 		lua_settable(L,-4);// сразу удалим, чтобы не получить рекурсию
 		if(lua_type(L,-1)!=LUA_TFUNCTION)
 		{
+			noxReportComplete(Unit);
 			lua_pop(L,2);
 			return;
 		}
@@ -134,8 +135,6 @@ namespace
 			lua_pop(L,2);
 			return;
 		}
-		if (lua_type(L,-1)==LUA_TNIL)
-			noxReportComplete(Unit);
 		lua_pop(L,2);
 		return;
 	}
