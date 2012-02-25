@@ -94,6 +94,20 @@ struct wddControl
 		case 0x11: /// mouse Enter
 		case 0x12: /// mouse Leave  A-coords,
 			return 1;
+		case 5: // тут ловим клик (левый) что бы он дальше не ушел
+			lua_getfield(L,-1,"onLMDown");
+			if (!lua_isfunction(L,-1))
+				break;
+			lua_pushvalue(L,-2); /// таблица окна
+			lua_pushvalue(L,-5);  /// таблица - родитель 
+			if (0!=lua_pcall(L,2,1,0))
+			{
+				const char *S=lua_tostring(L,-2);
+				break;
+			}
+			if (lua_tonumber(L,-1)==1)
+				return 1;
+			return 0;
 		case 6: //LMB up
 		case 7:
 			if (wndGetCaptureMain()==Window)
@@ -121,6 +135,34 @@ struct wddControl
 				return 0;
 			}
 			break;
+		case 9: // Ловим правый клик (тут он долгий)
+			lua_getfield(L,-1,"onRMDown");
+			if (!lua_isfunction(L,-1))
+				break;
+			lua_pushvalue(L,-2); /// таблица окна
+			lua_pushvalue(L,-5);  /// таблица - родитель 
+			if (0!=lua_pcall(L,2,1,0))
+			{
+				const char *S=lua_tostring(L,-2);
+				break;
+			}
+			if (lua_tonumber(L,-1)==1)
+				return 1;
+			return 0;
+		case 12: // Ловим правый клик (тут долгий)
+			lua_getfield(L,-1,"onRMDown");
+			if (!lua_isfunction(L,-1))
+				break;
+			lua_pushvalue(L,-2); /// таблица окна
+			lua_pushvalue(L,-5);  /// таблица - родитель 
+			if (0!=lua_pcall(L,2,1,0))
+			{
+				const char *S=lua_tostring(L,-2);
+				break;
+			}
+			if (lua_tonumber(L,-1)==1)
+				return 1;
+			return 0;
 /*
 сообщение о изменении фокуса 
 A=0 фокус получен
@@ -165,7 +207,7 @@ B - ChildId
 				const char *S=lua_tostring(L,-1);
 				break;
 			}
-			break;
+			return 0;
 		case 0x4010: /// листбокс, смена элемента
 			lua_getfield(L,-1,"onSelChange");
 			if (!lua_isfunction(L,-1))
