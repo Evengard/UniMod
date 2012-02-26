@@ -1077,21 +1077,26 @@ namespace
 	void* onPlayerLeave(byte Index)
 	{
 		void* result = playerGetDataFromIndex(Index);
-		authorisedState[Index]=0;
-		if(strcmp(authorisedLogins[Index], "")!=0)
-			delete [] authorisedLogins[Index];
-		authorisedLogins[Index]="";
-		clientsVersions[Index]=0;
-		int Top=lua_gettop(L);
-		getServerVar("playerOnLeave");
-		if (lua_isfunction(L,-1))
+		if(*GameFlags&0x800)
+		{}
+		else
 		{
-			void* Player = getPlayerUDataFromPlayerInfo(result);
-			lua_pushlightuserdata(L,Player);
-			if (0!=lua_pcall(L,1,0,0))
-				conPrintI(lua_tostring(L,-1));
+			authorisedState[Index]=0;
+			if(strcmp(authorisedLogins[Index], "")!=0)
+				delete [] authorisedLogins[Index];
+			authorisedLogins[Index]="";
+			clientsVersions[Index]=0;
+			int Top=lua_gettop(L);
+			getServerVar("playerOnLeave");
+			if (lua_isfunction(L,-1))
+			{
+				void* Player = getPlayerUDataFromPlayerInfo(result);
+				lua_pushlightuserdata(L,Player);
+				if (0!=lua_pcall(L,1,0,0))
+					conPrintI(lua_tostring(L,-1));
+			}
+			lua_settop(L,Top);
 		}
-		lua_settop(L,Top);
 		return result;
 	}
 
