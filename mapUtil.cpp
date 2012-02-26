@@ -175,5 +175,5 @@ void mapUtilInit(lua_State*L)
 	lua_pushcfunction(L,&mapEncode);
 	lua_setglobal(L,"mapEncode");
 */	
-	registerclient("mapSave",&mapSave);
+	registerserver("mapSave",&mapSave);
 }
