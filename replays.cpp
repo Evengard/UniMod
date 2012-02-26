@@ -442,7 +442,7 @@ namespace
 			int newNetCode=oldNetCode;
 			if(replayViewFakeNetCodes.count(oldNetCode)!=0)
 				newNetCode = replayViewFakeNetCodes[oldNetCode];
-			else
+			else if(thingType!=0)
 			{
 				u_int currentPosition=replayView.tellg();
 				bigUnitStruct* unit = unitCreateByThingType(thingType);
@@ -992,12 +992,14 @@ void replayEachFrame()
 
 int __cdecl replayOnSpriteRequest(int oldNetCode)
 {
-	return replayViewFakeNetcode(oldNetCode);
+	//return replayViewFakeNetcode(oldNetCode);
+	return oldNetCode;
 }
 
 int __cdecl replayOnSpriteCreate(int thingType, int oldNetCode)
 {
-	return replayViewFakeNetcodeCreate(thingType, oldNetCode);
+	//return replayViewFakeNetcodeCreate(thingType, oldNetCode);
+	return oldNetCode;
 }
 
 void __declspec(naked) replayOnSpriteRequestTrap()
@@ -1037,6 +1039,11 @@ void __declspec(naked) replayOnSpriteCreateTrap()
 	}
 }
 
+void replayNullSub()
+{
+	return;
+}
+
 extern "C" void replayInit(lua_State *L);
 
 
@@ -1045,6 +1052,8 @@ extern void InjectJumpTo(DWORD Addr,void *Fn);
 
 void replayInit(lua_State *L)
 {
+	/*
+	//Blocked for now
 	ASSIGN(noxReplayStartSave, 0x004D3370);
 	ASSIGN(noxReplayStopSave, 0x004D33B0);
 	ASSIGN(noxReplayStartView, 0x004D34C0);
@@ -1092,7 +1101,8 @@ void replayInit(lua_State *L)
 	//InjectOffs(0x00493B3A+1, replayViewSimulateClient);
 	InjectOffs(0x00493BB5+1, replayViewSimulateClient);
 	
-/*	
+	InjectOffs(0x0048E9F9+1, replayNullSub);*/
+/*	//Blocked permanently
 	InjectOffs(0x00491D63+1, replayViewSimulateClient);
 
 	InjectOffs(0x00409DE6+1, replaySaveNewMapLoading);
@@ -1104,7 +1114,7 @@ void replayInit(lua_State *L)
 	//registerserver("replayStopSave",&replayStopSaveL);
 	
 	
-
+/* //Blocked for now
 	registerserver("replayViewStart",&replayViewStartL);
 	registerserver("replayViewStop",&replayViewStopL);
 	registerserver("replayViewSpeed",&replayViewSpeedL);
@@ -1117,5 +1127,5 @@ void replayInit(lua_State *L)
 
 
 	InjectJumpTo(0x0045A6F0, &replayOnSpriteRequestTrap);
-	InjectJumpTo(0x0048E971, &replayOnSpriteCreateTrap);
+	InjectJumpTo(0x0048E971, &replayOnSpriteCreateTrap);*/
 }

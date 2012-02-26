@@ -121,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\lua\src;E:\Lua\5.1\include;&quot;F:\lua-5.1.4\src&quot;;Libs\lpng151;Libs\zlib"
+				AdditionalIncludeDirectories="..\..\lua\src;E:\Lua\5.1\include;&quot;F:\lua-5.1.4\src&quot;;Libs\lpng151;Libs\zlib;&quot;C:\Users\Evengard\dev\lua-5.1.4\src&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UNIMOD_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -140,6 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="User32.lib"
 				OutputFile="..\$(ProjectName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
