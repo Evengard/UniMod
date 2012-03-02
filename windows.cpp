@@ -39,6 +39,9 @@ extern void *(__cdecl *guiFontPtrByName)(const char *FontName);
 extern DWORD parseColor(const char *Color);
 extern void wstringFromLua(lua_State *L,wchar_t *Dst,int MaxLen);
 extern void *imageFromLua(lua_State *L);
+extern	void (__cdecl *drawImage)(void *ImgH,int X,int Y);
+extern int (__cdecl *noxDrawRect) (int xLeft,int yTop,int width,int height);
+extern int (__cdecl *noxDrawRectAlpha) (int xLeft,int yTop,int width,int height);
 
 namespace 
 {
@@ -238,6 +241,43 @@ B - ChildId
 		}
 		
 		return 0;
+	}
+	int __cdecl uniWindowDrawFn(void *Window,void *WindowDD) // Специальная фн рисования, что бы была и прозрачность
+	{
+		BYTE *Wnd=(BYTE*) Window;
+		wddControl *Wdd=(wddControl*) WindowDD;
+		int x; int y;
+		int *px=&x; int *py=&y;
+		noxWndGetPostion(Window,px,py);
+		if ((*(int*)(Wnd+4)) & 0x80) // если есть этот флаг => рисуем картинку
+		{
+			x+=Wdd->offsetX; y+=Wdd->offsetY;
+			if (Wdd->flags0 & 2)
+				drawImage(Wdd->imageHiliteH,x,y);
+			else
+				drawImage(Wdd->imageH,x,y);
+			return 1;
+		}
+		if (Wdd->BgColor==0x80000000)
+			return 1; //
+		noxSetRectColorMB(Wdd->BgColor);
+		int Top=lua_gettop(L);
+		lua_pushlightuserdata(L,&noxWndLoad);
+		lua_gettable(L,LUA_REGISTRYINDEX);
+		lua_pushlightuserdata(L,Window);
+		lua_gettable(L,-2);
+		if (lua_type(L,-1)!=LUA_TTABLE)
+		{
+			noxDrawRect(x,y,*((int*)(Wnd+8)),*((int*)(Wnd+0xC)));
+			return 1;
+		}
+		lua_getfield(L,-1,"alpha");
+		if (lua_toboolean(L,-1))
+			noxDrawRectAlpha(x,y,*((int*)(Wnd+8)),*((int*)(Wnd+0xC)));
+		else
+			noxDrawRect(x,y,*((int*)(Wnd+8)),*((int*)(Wnd+0xC)));
+		lua_settop(L,Top);
+		return 1;
 	}
 	int __cdecl newWindowProc(void* Window,int Msg,int A,int B)
 	{
@@ -840,6 +880,7 @@ public:
 			font="large";
 			bgcolor='#332211';
 			color='#112233';
+			alpha=false;
 			hiliteColor='#123233';
 			disabledColor='#112233';
 			selectedColor='#112233';
@@ -998,6 +1039,7 @@ public:
 			lua_pushinteger(L,nowCreating--); /// удаляем номерную таблицу
 			lua_pushnil(L);
 		lua_settable(L,-3);
+		*((void**)(Wnd+0x17C))=&uniWindowDrawFn;
 		if (Wnd==0)
 		{
 			lua_pushstring(L,"wndCreate2 Fail!");
