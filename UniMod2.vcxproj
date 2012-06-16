@@ -108,42 +108,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Libs\lua\src\lapi.c" />
-    <ClCompile Include="Libs\lua\src\lauxlib.c" />
-    <ClCompile Include="Libs\lua\src\lbaselib.c" />
-    <ClCompile Include="Libs\lua\src\lcoco.c" />
-    <ClCompile Include="Libs\lua\src\lcode.c" />
-    <ClCompile Include="Libs\lua\src\ldblib.c" />
-    <ClCompile Include="Libs\lua\src\ldebug.c" />
-    <ClCompile Include="Libs\lua\src\ldo.c" />
-    <ClCompile Include="Libs\lua\src\ldump.c" />
-    <ClCompile Include="Libs\lua\src\lfunc.c" />
-    <ClCompile Include="Libs\lua\src\lgc.c" />
-    <ClCompile Include="Libs\lua\src\linit.c" />
-    <ClCompile Include="Libs\lua\src\liolib.c" />
-    <ClCompile Include="Libs\lua\src\ljitlib.c" />
-    <ClCompile Include="Libs\lua\src\ljit_backend.c" />
-    <ClCompile Include="Libs\lua\src\ljit_core.c" />
-    <ClCompile Include="Libs\lua\src\ljit_dasm.c" />
-    <ClCompile Include="Libs\lua\src\ljit_mem.c" />
-    <ClCompile Include="Libs\lua\src\llex.c" />
-    <ClCompile Include="Libs\lua\src\lmathlib.c" />
-    <ClCompile Include="Libs\lua\src\lmem.c" />
-    <ClCompile Include="Libs\lua\src\loadlib.c" />
-    <ClCompile Include="Libs\lua\src\lobject.c" />
-    <ClCompile Include="Libs\lua\src\lopcodes.c" />
-    <ClCompile Include="Libs\lua\src\loslib.c" />
-    <ClCompile Include="Libs\lua\src\lparser.c" />
-    <ClCompile Include="Libs\lua\src\lstate.c" />
-    <ClCompile Include="Libs\lua\src\lstring.c" />
-    <ClCompile Include="Libs\lua\src\lstrlib.c" />
-    <ClCompile Include="Libs\lua\src\ltable.c" />
-    <ClCompile Include="Libs\lua\src\ltablib.c" />
-    <ClCompile Include="Libs\lua\src\ltm.c" />
-    <ClCompile Include="Libs\lua\src\lundump.c" />
-    <ClCompile Include="Libs\lua\src\lvm.c" />
-    <ClCompile Include="Libs\lua\src\lzio.c" />
-    <ClCompile Include="Libs\lua\src\print.c" />
     <ClCompile Include="mapUtil.cpp" />
     <ClCompile Include="polygon.cpp" />
     <ClCompile Include="SendBuffer.cpp" />
@@ -225,45 +189,15 @@
   <ItemGroup>
     <ClInclude Include="Libs\lpeg.h" />
     <ClInclude Include="Libs\csha1\SHA1.h" />
-    <ClInclude Include="Libs\lua\dynasm\dasm_proto.h" />
-    <ClInclude Include="Libs\lua\dynasm\dasm_x86.h" />
-    <ClInclude Include="Libs\lua\src\lapi.h" />
-    <ClInclude Include="Libs\lua\src\lauxlib.h" />
-    <ClInclude Include="Libs\lua\src\lcoco.h" />
-    <ClInclude Include="Libs\lua\src\lcode.h" />
-    <ClInclude Include="Libs\lua\src\ldebug.h" />
-    <ClInclude Include="Libs\lua\src\ldo.h" />
-    <ClInclude Include="Libs\lua\src\lfunc.h" />
-    <ClInclude Include="Libs\lua\src\lgc.h" />
-    <ClInclude Include="Libs\lua\src\ljit.h" />
-    <ClInclude Include="Libs\lua\src\ljit_dasm.h" />
-    <ClInclude Include="Libs\lua\src\ljit_hints.h" />
-    <ClInclude Include="Libs\lua\src\ljit_x86.h" />
-    <ClInclude Include="Libs\lua\src\llex.h" />
-    <ClInclude Include="Libs\lua\src\llimits.h" />
-    <ClInclude Include="Libs\lua\src\lmem.h" />
-    <ClInclude Include="Libs\lua\src\lobject.h" />
-    <ClInclude Include="Libs\lua\src\lopcodes.h" />
-    <ClInclude Include="Libs\lua\src\lparser.h" />
-    <ClInclude Include="Libs\lua\src\lstate.h" />
-    <ClInclude Include="Libs\lua\src\lstring.h" />
-    <ClInclude Include="Libs\lua\src\ltable.h" />
-    <ClInclude Include="Libs\lua\src\ltm.h" />
-    <ClInclude Include="Libs\lua\src\lua.h" />
-    <ClInclude Include="Libs\lua\src\luaconf.h" />
-    <ClInclude Include="Libs\lua\src\luajit.h" />
-    <ClInclude Include="Libs\lua\src\lualib.h" />
-    <ClInclude Include="Libs\lua\src\lundump.h" />
-    <ClInclude Include="Libs\lua\src\lvm.h" />
-    <ClInclude Include="Libs\lua\src\lzio.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="bzip2\bzlib.h" />
     <ClInclude Include="bzip2\bzlib_private.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\libpng.lib" />
+    <Library Include="Libs\libpng.lib" />
+    <Library Include="Libs\lua.lib" />
+    <Library Include="Libs\zlib.lib" />
     <Library Include="LibVer.lib" />
-    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\ZLib\zlib.lib" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Libs\lpng151\projects\visualc71\libpng.vcxproj">
@@ -274,11 +208,6 @@
       <Project>{2d4f8105-7d21-454c-9932-b47cab71a5c0}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Libs\lua\src\ljit_x86.dasc" />
-    <None Include="Libs\lua\src\ljit_x86.dash" />
-    <None Include="Libs\lua\src\ljit_x86_inline.dash" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

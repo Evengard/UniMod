@@ -2,10 +2,15 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniMod", "UniMod2.vcxproj", "{524F9888-4C22-461A-81F5-F46DDAAAE4FA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3F788C6-ED70-4735-AD55-39BB9786156D} = {E3F788C6-ED70-4735-AD55-39BB9786156D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "Libs\lpng151\projects\visualc71\libpng.vcxproj", "{0008960E-E0DD-41A6-8265-00B31DDB4C21}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "Libs\lpng151\projects\visualc71\zlib.vcxproj", "{2D4F8105-7D21-454C-9932-B47CAB71A5C0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "Libs\lua\lua.vcxproj", "{E3F788C6-ED70-4735-AD55-39BB9786156D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,6 +93,28 @@ Global
 		{2D4F8105-7D21-454C-9932-B47CAB71A5C0}.LIB Release|Win32.Build.0 = LIB Release|Win32
 		{2D4F8105-7D21-454C-9932-B47CAB71A5C0}.Release|Win32.ActiveCfg = LIB Release|Win32
 		{2D4F8105-7D21-454C-9932-B47CAB71A5C0}.Release|Win32.Build.0 = LIB Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.Debug|Win32.Build.0 = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL ASM Debug|Win32.ActiveCfg = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL ASM Debug|Win32.Build.0 = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL ASM Release|Win32.ActiveCfg = Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL ASM Release|Win32.Build.0 = Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL Debug|Win32.ActiveCfg = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL Debug|Win32.Build.0 = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL Release|Win32.ActiveCfg = Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL Release|Win32.Build.0 = Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL VB|Win32.ActiveCfg = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.DLL VB|Win32.Build.0 = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.LIB ASM Debug|Win32.ActiveCfg = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.LIB ASM Debug|Win32.Build.0 = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.LIB ASM Release|Win32.ActiveCfg = Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.LIB ASM Release|Win32.Build.0 = Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.LIB Debug|Win32.ActiveCfg = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.LIB Debug|Win32.Build.0 = Debug|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.LIB Release|Win32.ActiveCfg = Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.LIB Release|Win32.Build.0 = Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.Release|Win32.ActiveCfg = Release|Win32
+		{E3F788C6-ED70-4735-AD55-39BB9786156D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
