@@ -1,0 +1,419 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0ad00954-233f-442c-b903-d7f3f10003e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Util">
+      <UniqueIdentifier>{f6e9be7f-d558-498a-be19-0d31d9823ab3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Util\bzip2">
+      <UniqueIdentifier>{920e855f-c770-4546-a7a6-70705968bab3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\server">
+      <UniqueIdentifier>{67c0ca54-1a2f-4147-b1ae-6fcda6038e92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\client">
+      <UniqueIdentifier>{d4975033-5e69-4a2c-bb78-2eb7c45f6ea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\map">
+      <UniqueIdentifier>{dd3af796-6454-4d39-8ea6-781dffe992b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{57887fbd-1b8e-4827-89d8-422d1a39efda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Util\lua">
+      <UniqueIdentifier>{75b417cf-ff4d-4a55-89d8-7e40976ad240}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Util\lua\dynasm">
+      <UniqueIdentifier>{ee0f83c1-f4db-428e-aea9-5f0f6c583998}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="admin.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="bugsAndChips.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="imageUtil.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\json.c">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lpeg.c">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="mapUtil.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="polygon.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="SendBuffer.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\csha1\SHA1.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="UniMod.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="util.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\webserver.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="bzip2\blocksort.c">
+      <Filter>Source Files\Util\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="bzip2\bzlib.c">
+      <Filter>Source Files\Util\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="bzip2\compress.c">
+      <Filter>Source Files\Util\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="bzip2\crctable.c">
+      <Filter>Source Files\Util\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="bzip2\decompress.c">
+      <Filter>Source Files\Util\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="bzip2\huffman.c">
+      <Filter>Source Files\Util\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="bzip2\randtable.c">
+      <Filter>Source Files\Util\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="audServer.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="authManager.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="autoServer.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="defs.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="net.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="react.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="score.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="spells.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="unit.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="unit2.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="clientView.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="cliUtil.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="console.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="fxBuff.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="gui.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="keys.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="replays.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="spellGet.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="spelList.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="windowMsg.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="windows.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem.cpp">
+      <Filter>Source Files\map</Filter>
+    </ClCompile>
+    <ClCompile Include="map.cpp">
+      <Filter>Source Files\map</Filter>
+    </ClCompile>
+    <ClCompile Include="tiles.cpp">
+      <Filter>Source Files\map</Filter>
+    </ClCompile>
+    <ClCompile Include="Waypoints.cpp">
+      <Filter>Source Files\map</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lapi.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lauxlib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lbaselib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lcoco.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lcode.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ldblib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ldebug.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ldo.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ldump.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lfunc.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lgc.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\linit.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\liolib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ljit_backend.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ljit_core.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ljit_dasm.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ljit_mem.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ljitlib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\llex.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lmathlib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lmem.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\loadlib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lobject.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lopcodes.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\loslib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lparser.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lstate.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lstring.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lstrlib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ltable.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ltablib.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\ltm.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lundump.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lvm.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lzio.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\print.c">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Libs\lpeg.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\csha1\SHA1.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="bzip2\bzlib.h">
+      <Filter>Source Files\Util\bzip2</Filter>
+    </ClInclude>
+    <ClInclude Include="bzip2\bzlib_private.h">
+      <Filter>Source Files\Util\bzip2</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lapi.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lauxlib.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lcoco.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lcode.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\ldebug.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\ldo.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lfunc.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lgc.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\ljit.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\ljit_dasm.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\ljit_hints.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\ljit_x86.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\llex.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\llimits.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lmem.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lobject.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lopcodes.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lparser.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lstate.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lstring.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\ltable.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\ltm.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lua.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\luaconf.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\luajit.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lualib.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lundump.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lvm.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\src\lzio.h">
+      <Filter>Source Files\Util\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\dynasm\dasm_proto.h">
+      <Filter>Source Files\Util\lua\dynasm</Filter>
+    </ClInclude>
+    <ClInclude Include="Libs\lua\dynasm\dasm_x86.h">
+      <Filter>Source Files\Util\lua\dynasm</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\libpng.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="LibVer.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\ZLib\zlib.lib">
+      <Filter>lib</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Libs\lua\src\ljit_x86.dasc">
+      <Filter>Source Files\Util\lua</Filter>
+    </None>
+    <None Include="Libs\lua\src\ljit_x86.dash">
+      <Filter>Source Files\Util\lua</Filter>
+    </None>
+    <None Include="Libs\lua\src\ljit_x86_inline.dash">
+      <Filter>Source Files\Util\lua</Filter>
+    </None>
+  </ItemGroup>
+</Project>
