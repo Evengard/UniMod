@@ -1,0 +1,286 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>UniMod</ProjectName>
+    <ProjectGuid>{524F9888-4C22-461A-81F5-F46DDAAAE4FA}</ProjectGuid>
+    <RootNamespace>UniMod</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UNIMOD_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>Libs\zlib;Libs\lpng151;Libs\lua\src;Libs\lua\dynasm</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>Libs\lua\src;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AddModuleNamesToAssembly>%(AddModuleNamesToAssembly)</AddModuleNamesToAssembly>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <BaseAddress>0x36900000</BaseAddress>
+      <TargetMachine>MachineX86</TargetMachine>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;UNIMOD_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>Libs\zlib;Libs\lpng151;Libs\lua\src;Libs\lua\dynasm</AdditionalIncludeDirectories>
+      <OmitDefaultLibName>true</OmitDefaultLibName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <BaseAddress>0x36900000</BaseAddress>
+      <TargetMachine>MachineX86</TargetMachine>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="admin.cpp" />
+    <ClCompile Include="bugsAndChips.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="imageUtil.cpp" />
+    <ClCompile Include="Libs\json.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Libs\lpeg.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Libs\lua\src\lapi.c" />
+    <ClCompile Include="Libs\lua\src\lauxlib.c" />
+    <ClCompile Include="Libs\lua\src\lbaselib.c" />
+    <ClCompile Include="Libs\lua\src\lcoco.c" />
+    <ClCompile Include="Libs\lua\src\lcode.c" />
+    <ClCompile Include="Libs\lua\src\ldblib.c" />
+    <ClCompile Include="Libs\lua\src\ldebug.c" />
+    <ClCompile Include="Libs\lua\src\ldo.c" />
+    <ClCompile Include="Libs\lua\src\ldump.c" />
+    <ClCompile Include="Libs\lua\src\lfunc.c" />
+    <ClCompile Include="Libs\lua\src\lgc.c" />
+    <ClCompile Include="Libs\lua\src\linit.c" />
+    <ClCompile Include="Libs\lua\src\liolib.c" />
+    <ClCompile Include="Libs\lua\src\ljitlib.c" />
+    <ClCompile Include="Libs\lua\src\ljit_backend.c" />
+    <ClCompile Include="Libs\lua\src\ljit_core.c" />
+    <ClCompile Include="Libs\lua\src\ljit_dasm.c" />
+    <ClCompile Include="Libs\lua\src\ljit_mem.c" />
+    <ClCompile Include="Libs\lua\src\llex.c" />
+    <ClCompile Include="Libs\lua\src\lmathlib.c" />
+    <ClCompile Include="Libs\lua\src\lmem.c" />
+    <ClCompile Include="Libs\lua\src\loadlib.c" />
+    <ClCompile Include="Libs\lua\src\lobject.c" />
+    <ClCompile Include="Libs\lua\src\lopcodes.c" />
+    <ClCompile Include="Libs\lua\src\loslib.c" />
+    <ClCompile Include="Libs\lua\src\lparser.c" />
+    <ClCompile Include="Libs\lua\src\lstate.c" />
+    <ClCompile Include="Libs\lua\src\lstring.c" />
+    <ClCompile Include="Libs\lua\src\lstrlib.c" />
+    <ClCompile Include="Libs\lua\src\ltable.c" />
+    <ClCompile Include="Libs\lua\src\ltablib.c" />
+    <ClCompile Include="Libs\lua\src\ltm.c" />
+    <ClCompile Include="Libs\lua\src\lundump.c" />
+    <ClCompile Include="Libs\lua\src\lvm.c" />
+    <ClCompile Include="Libs\lua\src\lzio.c" />
+    <ClCompile Include="Libs\lua\src\print.c" />
+    <ClCompile Include="mapUtil.cpp" />
+    <ClCompile Include="polygon.cpp" />
+    <ClCompile Include="SendBuffer.cpp" />
+    <ClCompile Include="Libs\csha1\SHA1.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="UniMod.cpp" />
+    <ClCompile Include="util.cpp" />
+    <ClCompile Include="Libs\webserver.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="bzip2\blocksort.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="bzip2\bzlib.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="bzip2\compress.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="bzip2\crctable.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="bzip2\decompress.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="bzip2\huffman.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="bzip2\randtable.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="audServer.cpp" />
+    <ClCompile Include="authManager.cpp" />
+    <ClCompile Include="autoServer.cpp" />
+    <ClCompile Include="defs.cpp" />
+    <ClCompile Include="net.cpp" />
+    <ClCompile Include="player.cpp" />
+    <ClCompile Include="react.cpp" />
+    <ClCompile Include="score.cpp" />
+    <ClCompile Include="spells.cpp" />
+    <ClCompile Include="unit.cpp" />
+    <ClCompile Include="unit2.cpp" />
+    <ClCompile Include="clientView.cpp" />
+    <ClCompile Include="cliUtil.cpp" />
+    <ClCompile Include="console.cpp" />
+    <ClCompile Include="fxBuff.cpp" />
+    <ClCompile Include="gui.cpp" />
+    <ClCompile Include="keys.cpp" />
+    <ClCompile Include="replays.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="spellGet.cpp" />
+    <ClCompile Include="spelList.cpp" />
+    <ClCompile Include="sprite.cpp" />
+    <ClCompile Include="windowMsg.cpp" />
+    <ClCompile Include="windows.cpp" />
+    <ClCompile Include="filesystem.cpp" />
+    <ClCompile Include="map.cpp" />
+    <ClCompile Include="tiles.cpp" />
+    <ClCompile Include="Waypoints.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Libs\lpeg.h" />
+    <ClInclude Include="Libs\csha1\SHA1.h" />
+    <ClInclude Include="Libs\lua\dynasm\dasm_proto.h" />
+    <ClInclude Include="Libs\lua\dynasm\dasm_x86.h" />
+    <ClInclude Include="Libs\lua\src\lapi.h" />
+    <ClInclude Include="Libs\lua\src\lauxlib.h" />
+    <ClInclude Include="Libs\lua\src\lcoco.h" />
+    <ClInclude Include="Libs\lua\src\lcode.h" />
+    <ClInclude Include="Libs\lua\src\ldebug.h" />
+    <ClInclude Include="Libs\lua\src\ldo.h" />
+    <ClInclude Include="Libs\lua\src\lfunc.h" />
+    <ClInclude Include="Libs\lua\src\lgc.h" />
+    <ClInclude Include="Libs\lua\src\ljit.h" />
+    <ClInclude Include="Libs\lua\src\ljit_dasm.h" />
+    <ClInclude Include="Libs\lua\src\ljit_hints.h" />
+    <ClInclude Include="Libs\lua\src\ljit_x86.h" />
+    <ClInclude Include="Libs\lua\src\llex.h" />
+    <ClInclude Include="Libs\lua\src\llimits.h" />
+    <ClInclude Include="Libs\lua\src\lmem.h" />
+    <ClInclude Include="Libs\lua\src\lobject.h" />
+    <ClInclude Include="Libs\lua\src\lopcodes.h" />
+    <ClInclude Include="Libs\lua\src\lparser.h" />
+    <ClInclude Include="Libs\lua\src\lstate.h" />
+    <ClInclude Include="Libs\lua\src\lstring.h" />
+    <ClInclude Include="Libs\lua\src\ltable.h" />
+    <ClInclude Include="Libs\lua\src\ltm.h" />
+    <ClInclude Include="Libs\lua\src\lua.h" />
+    <ClInclude Include="Libs\lua\src\luaconf.h" />
+    <ClInclude Include="Libs\lua\src\luajit.h" />
+    <ClInclude Include="Libs\lua\src\lualib.h" />
+    <ClInclude Include="Libs\lua\src\lundump.h" />
+    <ClInclude Include="Libs\lua\src\lvm.h" />
+    <ClInclude Include="Libs\lua\src\lzio.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="bzip2\bzlib.h" />
+    <ClInclude Include="bzip2\bzlib_private.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\libpng.lib" />
+    <Library Include="LibVer.lib" />
+    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\ZLib\zlib.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Libs\lpng151\projects\visualc71\libpng.vcxproj">
+      <Project>{0008960e-e0dd-41a6-8265-00b31ddb4c21}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="Libs\lpng151\projects\visualc71\zlib.vcxproj">
+      <Project>{2d4f8105-7d21-454c-9932-b47cab71a5c0}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Libs\lua\src\ljit_x86.dasc" />
+    <None Include="Libs\lua\src\ljit_x86.dash" />
+    <None Include="Libs\lua\src\ljit_x86_inline.dash" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
