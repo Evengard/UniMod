@@ -169,6 +169,9 @@
     <ClCompile Include="Waypoints.cpp">
       <Filter>Source Files\map</Filter>
     </ClCompile>
+    <ClCompile Include="libVer.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libs\lpeg.h">
@@ -188,9 +191,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="LibVer.lib">
-      <Filter>lib</Filter>
-    </Library>
     <Library Include="Libs\zlib.lib">
       <Filter>lib</Filter>
     </Library>

@@ -110,6 +110,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="libVer.cpp" />
     <ClCompile Include="mapUtil.cpp" />
     <ClCompile Include="polygon.cpp" />
     <ClCompile Include="SendBuffer.cpp" />
@@ -199,7 +200,6 @@
     <Library Include="Libs\libpng.lib" />
     <Library Include="Libs\lua.lib" />
     <Library Include="Libs\zlib.lib" />
-    <Library Include="LibVer.lib" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Libs\lpng151\projects\visualc71\libpng.vcxproj">
