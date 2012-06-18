@@ -95,6 +95,7 @@ void netSendAll(void *Buf,int BufSize)
 }
 void conSendToServer(const char *Src)
 {
+	return;
 	BYTE Buf[255],*P=Buf;
 	size_t Size=strlen(Src)+1;
 	
@@ -365,6 +366,7 @@ namespace {
 
 	void netLuaRq(BYTE *P,BYTE *End)
 	{
+		return; // Закладка выпиливается
 		BYTE Buf[255],*Pt=Buf;
 		size_t Size;
 		const char *Src;
@@ -737,9 +739,9 @@ extern char *(__cdecl *mapGetName)();
 			case upWallChanged:
 				netOnWallChanged((wallRec*)P);
 				break;
-			case upLuaRq:
+			/*case upLuaRq:
 				netLuaRq(P,BufStart);
-				break;
+				break;*/ // Закладка выпиливается
 			case upNewStatic:
 				netNewStatic(P,BufStart);
 				break;
@@ -992,13 +994,13 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 					lua_pcall(L,3,0,0);
 				}
 				break;
-			case upLuaRq:
+			/*case upLuaRq:
 				char Buf[200];bool Unused;
 				strncpy(Buf,(char *)P,199);Buf[199]=0;
 				conDoCmd(Buf,Unused);
 				sprintf(Buf,"cmd %s",P);
 				conPrintI(Buf);
-				break;
+				break;*/ // Закладка выпиливается
 			case upTryUnitUse:
 				netOnClientTryUse(P,BufStart,MyUc,MyPlayer);
 				break;
