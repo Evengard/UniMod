@@ -315,16 +315,7 @@ DWORD __cdecl onConCmd(wchar_t *A,DWORD B) // TODO: TO REIMPLEMENT FROM ASM!!!
 			push onConCmd_GOBACK
 			sub esp,0x88
 			jmp conAddr
-		}
-		//result = ((int (__cdecl *)(unsigned __int32, unsigned __int32))conAddr)((unsigned __int32)A, B);
-	}
-	else
-		result = 1;
-	if(false) // Сорри за говнокод, Сим, ты меня вынудил
-	{
-	__asm
-		{
-onConCmd_GOBACK:
+			onConCmd_GOBACK:
 			add esp,8
 			mov result,eax
 		}
@@ -332,6 +323,9 @@ onConCmd_GOBACK:
 		{
 			conPrintI(" = nil");
 		}
+		//result = ((int (__cdecl *)(unsigned __int32, unsigned __int32))conAddr)((unsigned __int32)A, B);
 	}
+	else
+		result = 1;
 	return result;
 }
