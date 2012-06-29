@@ -44,7 +44,39 @@ char* gameDirectory;
 
 int (__cdecl *initWindowedModeNox)(int param1, int param2, int param3);
 
+float* frameLimiterSetting;
+
+int (__cdecl *j_time)();
+
 using namespace std;
+
+int frameLimiter(lua_State* L)
+{
+	byte* bt = (byte*)(0x0043E2F3+1);
+	if(lua_type(L,1)==LUA_TNUMBER)
+	{
+		float limiterFPS = (float)lua_tonumber(L,1);
+		*frameLimiterSetting = 1000 / limiterFPS;
+		float* frameLimiterSetting2 = (float*)0x00594498;
+		*frameLimiterSetting2 = *frameLimiterSetting/1000;
+		// Begin of Black Shaman
+		int *frameCounterTest=(int*)0x0062F1D0;
+		int *frameCounterTest2=(int*)0x0084EA04;
+		int *frameCounterTest3=(int*)0x0062F1C8;
+		*frameCounterTest = *frameCounterTest2;
+		*frameCounterTest3 = j_time();
+
+		DWORD OldProtect;
+		VirtualProtect(bt,1,PAGE_EXECUTE_READWRITE,&OldProtect);
+		*bt=(byte)limiterFPS;
+		VirtualProtect(bt,1,OldProtect,&OldProtect);
+		
+		// End of Black Shaman
+	}
+	lua_pushnumber(L, *bt);
+	return 1;
+}
+
 string getGameDirectory()
 {
 	u_int size = GetFullPathName(gameDirectory, 0, NULL, NULL);
@@ -1127,6 +1159,8 @@ void injectCon()
 	ASSIGN(noxThingNameByType,0x4E3A80);
 
 	int Top=lua_gettop(L);
+	lua_pushcfunction(L,&frameLimiter);
+	lua_setglobal(L,"frameLimiter");
 	lua_pushcfunction(L,&bitOrL);
 	lua_setglobal(L,"bitOr");
 	lua_pushcfunction(L,&bitAndL);
@@ -1251,7 +1285,12 @@ void injectCon()
 	InjectOffs(0x4D2AB5,&onEachFrame);
 
 	ASSIGN(initWindowedModeNox,0x0048AED0);
+
+	
 	InjectOffs(0x48A0C2+1,&initWindowedMode);
+
+	ASSIGN(frameLimiterSetting,0x0059449C);
+	ASSIGN(j_time,0x00416BF0);
 
 #include "lua/binClient/clientOnJoin.lua.inc"
 
@@ -1281,9 +1320,11 @@ void injectCon()
 
 	byte OperatorJmps=0xEB;
 	byte OperatorMovEax1[]={0xB8,0x01,0,0,0};
+	byte OperatorNop[]={0x90,0x90};
 	byte *bt=(byte*)(0x00553660);
 	byte *bt2=(byte*)(0x00401E06);
 	byte *bt3=(byte*)(0x00401114);
+	byte *bt4=(byte*)(0x0043E82B);
 	DWORD OldProtect;
 	VirtualProtect(bt,1,PAGE_EXECUTE_READWRITE,&OldProtect);
 	memcpy((byte*)bt,&OperatorJmps,1); // это убираем серийник
@@ -1294,6 +1335,9 @@ void injectCon()
 	VirtualProtect(bt3,5,PAGE_EXECUTE_READWRITE,&OldProtect);
 	memcpy((byte*)bt3,&OperatorMovEax1,5); // убиваем мутекс
 	VirtualProtect(bt3,5,OldProtect,&OldProtect);
+	VirtualProtect(bt4,2,PAGE_EXECUTE_READWRITE,&OldProtect);
+	memcpy((byte*)bt4,&OperatorNop,2); // чиним прожорливость Нокса и архитектурный изъян.
+	VirtualProtect(bt4,2,OldProtect,&OldProtect);
 
 	registerclient("getGameDirectory", &getGameDirectoryL);
 	registerclient("getNormalizedPath", &getNormalizedPathL);
