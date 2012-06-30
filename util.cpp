@@ -53,13 +53,14 @@ using namespace std;
 int frameLimiter(lua_State* L)
 {
 	byte* bt = (byte*)(0x0043E2F3+1);
+	byte* bt2 = (byte*)(0x004AB609+1);
 	if(lua_type(L,1)==LUA_TNUMBER)
 	{
 		float limiterFPS = (float)lua_tonumber(L,1);
 		*frameLimiterSetting = 1000 / limiterFPS;
+		// Begin of Black Shaman
 		float* frameLimiterSetting2 = (float*)0x00594498;
 		*frameLimiterSetting2 = *frameLimiterSetting/1000;
-		// Begin of Black Shaman
 		int *frameCounterTest=(int*)0x0062F1D0;
 		int *frameCounterTest2=(int*)0x0084EA04;
 		int *frameCounterTest3=(int*)0x0062F1C8;
@@ -70,6 +71,10 @@ int frameLimiter(lua_State* L)
 		VirtualProtect(bt,1,PAGE_EXECUTE_READWRITE,&OldProtect);
 		*bt=(byte)limiterFPS;
 		VirtualProtect(bt,1,OldProtect,&OldProtect);
+
+		VirtualProtect(bt2,1,PAGE_EXECUTE_READWRITE,&OldProtect);
+		*bt2=(byte)limiterFPS;
+		VirtualProtect(bt2,1,OldProtect,&OldProtect);
 		
 		// End of Black Shaman
 	}
