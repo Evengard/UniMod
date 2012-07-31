@@ -765,14 +765,14 @@ public:
 	short LineHeight; //высота одной строчки
 	int Param_3;
 	int Bool_4;/// если не 0 - то похоже может увеличиватся в размерах вызывая 0x401B родителя (или себя)
-	int Param_5;// bool
+	int Param_5;// bool - есть скроллбар
 	int Param_6;//0x10
 	int Param_7;
 	/// это уже после создания ( в структуре не нужно, для справки)
 	void *SomeDataPtr; // +18 - указатель на буфер с данными
-	int unk1С;
-	int unk20;
-	int unk24; // Задается сообщением 0x401A
+	int unk1С; // если есть скроллбар то кнопка вверх
+	int unk20; // если есть скроллбар то кнопка вниз
+	int unk24; // указатель на сам скроллбар
 	int unk28;
 	short freeLinesCount2C; //+2C
 	short var2E;// может первый/последний свободный в списке
@@ -795,6 +795,26 @@ public:
 		return this;
 	}
 };
+class VertSliderData
+{
+public:
+	typedef VertSliderData My_t;
+
+	int Param_1;
+	int Param_2;
+	int Param_3;
+	int Param_4;
+
+	void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна
+	{
+		int Top=lua_gettop(L);
+		VertSliderData *Me=this;
+		memset(this,0,sizeof(My_t));
+		return Me;
+	}
+};
+
+
 	int wndLoad(lua_State *L)
 	{
 		void * Window;
@@ -843,6 +863,7 @@ public:
 	}
 	ListboxData LD;
 	EditboxData ED;
+	VertSliderData VS;
 
 	int wndCreate(lua_State *L)
 	{
@@ -1003,6 +1024,10 @@ public:
 				
 				LD.Create(L,1);
 				DataPtr=&LD;
+			}else if (0==strcmpi(ControlType,"VERTSLIDER"))
+			{
+				VS.Create(L,1);
+				DataPtr=&VS;
 			}
 			void *Wnd=wndLoadControl(ControlType,Parent, Wdd.status,x,y,w,h, &Wdd,DataPtr);
 			if (Wnd==NULL)
