@@ -1,4 +1,5 @@
-
+dofile'guiEdit.lua'
+snapToGrid()
 local mapNearFlag={0,0, --для определния направления
 			4,0,
 			16,0,
@@ -55,10 +56,10 @@ imgLoad('UniEditWall10Dis.png','UniEditWall10Dis')
 
 
 function setWall()
-	local x,y=cliPlayerMouse()
+	local x,y=xGrid,yGrid
 	x=x-x%23
 	y=y-y%23
-	if (x%2==1 and y%2==1) or (x%2==0 and y%2==0) then
+	if (x%2==0 and y%2==0) or (x%2==1 and y%2==1) then
 		local dir,flag,var,t,mod1
 		mod1=wallP.mod1
 		if wallP.mod1~=2 then
@@ -126,14 +127,14 @@ function mapPos(a)
 end
 
 function wallDel()
-	local x,y=cliPlayerMouse()
+	local x,y=xGrid,yGrid
 	x=x-x%23
 	y=y-y%23
 	mapDel(x,y)
 end
 
 function wallInform()
-	local x,y=cliPlayerMouse()
+	local x,y=xGrid,yGrid
 	x=x-x%23
 	y=y-y%23
 	local a=mapGet(x,y)
@@ -149,7 +150,7 @@ function wallDlg()
 	local ti=table.insert
 	local width=410
 	local height=310
-	dlg={x=0,y=0,w=width,h=height,bgcolor='#0'}
+	dlg={x=0,y=0,w=width,h=height,status="ENABLED",alpha=true}
 	t={ --Закрываем окно
 		type="PUSHBUTTON",
 		status="ENABLED+IMAGE",
@@ -176,11 +177,12 @@ function wallDlg()
 	listWall={ -- лист бокс
 		type="SCROLLLISTBOX",
 		status="ENABLED",
-		style="MOUSETRACK+BORDER",
+		style="MOUSETRACK",
 		x=10,y=10,w=160,h=280,
-		hiliteColor="#0",
-		disabledColor="#0",
-		enabledColor="#0",
+		bgcolor='TRANSPARENT',
+		hiliteColor="#E6A541",
+		disabledColor="#E6A541",
+		enabledColor="#E6A541",
 		textColor="#007F7F",
 		selectedColor="#000096",
 		maxLines=74,
@@ -195,6 +197,7 @@ function wallDlg()
 		status="ENABLED+ONE_LINE",
 		style="MOUSETRACK",
 		x=175,y=10,w=155,h=15,
+		bgcolor='TRANSPARENT',
 		textColor='#E6A541';
 		textColor='#E6A541';
 		selectedColor="#3F007F";
@@ -697,6 +700,10 @@ function wallDlg()
 			end
 		end
 		wndGrabMouse(a)
+	end
+
+	dlg.onLMDown=function()
+		return 1;  -- Это надо что бы клик не шел а следственно и удар.
 	end
 
 	wndCreate(dlg)
