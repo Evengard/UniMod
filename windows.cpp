@@ -43,6 +43,7 @@ extern	void (__cdecl *drawImage)(void *ImgH,int X,int Y);
 extern int (__cdecl *noxDrawRect) (int xLeft,int yTop,int width,int height);
 extern int (__cdecl *noxDrawRectAlpha) (int xLeft,int yTop,int width,int height);
 
+
 namespace 
 {
 	int nowCreating=0;
@@ -770,9 +771,9 @@ public:
 	int Param_7;
 	/// это уже после создания ( в структуре не нужно, для справки)
 	void *SomeDataPtr; // +18 - указатель на буфер с данными
-	int unk1С; // если есть скроллбар то кнопка вверх
-	int unk20; // если есть скроллбар то кнопка вниз
-	int unk24; // указатель на сам скроллбар
+	void *slider; // если есть скроллбар то кнопка вверх
+	void *buttonUp; // если есть скроллбар то кнопка вниз
+	void *buttonDown; // указатель на сам скроллбар
 	int unk28;
 	short freeLinesCount2C; //+2C
 	short var2E;// может первый/последний свободный в списке
@@ -813,7 +814,6 @@ public:
 		return Me;
 	}
 };
-
 
 	int wndLoad(lua_State *L)
 	{
@@ -1021,7 +1021,6 @@ public:
 				DataPtr=&ED;
 			}else if (0==strcmpi(ControlType,"SCROLLLISTBOX"))
 			{
-				
 				LD.Create(L,1);
 				DataPtr=&LD;
 			}else if (0==strcmpi(ControlType,"VERTSLIDER"))
@@ -1035,6 +1034,17 @@ public:
 				lua_pushstring(L,"wrong args - unable to create control");
 				lua_error(L);
 			}
+
+			if ((Wdd.controlType & 0x20)!=0)
+			{
+				lua_getfield(L,1,"slider"); // специальная фишка, для слайдера.
+				if (lua_type(L,-1)==LUA_TTABLE)
+				{
+					lua_getfield(L,-1,"text");
+					conPrintI(lua_tostring(L,-1));
+				} 
+			}
+
 			*((int*)Wnd)=nextChildId;
 			lua_pushstring(L,"childId");
 			lua_pushinteger(L,nextChildId++);
@@ -1064,12 +1074,12 @@ public:
 			lua_pushinteger(L,nowCreating--); /// удаляем номерную таблицу
 			lua_pushnil(L);
 		lua_settable(L,-3);
-		*((void**)(Wnd+0x17C))=&uniWindowDrawFn;
 		if (Wnd==0)
 		{
 			lua_pushstring(L,"wndCreate2 Fail!");
 			lua_error(L);
 		}
+		*((void**)(Wnd+0x17C))=&uniWindowDrawFn; // наа рисовалка
 		*((void**)(Wnd+0x174))=&newWindowProc;
 
 		*((int*)Wnd)=nextChildId;
@@ -1131,6 +1141,7 @@ public:
 		lua_settop(L,1);
 		return 1;
 	}
+
 };
 extern void windowMsgInit(lua_State*L);
 extern void InjectAddr(DWORD Addr,void *Fn);
@@ -1156,6 +1167,7 @@ void windowsInit()
 	ASSIGN(wndSetCaptureMain,0x0046ADC0);
 	ASSIGN(wndClearCaptureMain,0x0046ADE0);
 
+
 	lua_pushlightuserdata(L,&noxWndLoad);
 	lua_newtable(L);
 	lua_settable(L,LUA_REGISTRYINDEX);
@@ -1174,6 +1186,7 @@ void windowsInit()
 	registerclient("wndGetId",&wndGetIdL);
 	registerclient("wndChildById",&getChildByIdL);
 	registerclient("wndSetAttr",&wndSetAttr); // для задания разных параметров
+
 
 	windowMsgInit(L);
 }
