@@ -463,6 +463,11 @@ namespace
 				getline(file, fileLine);
 				if(!file.eof())
 				{
+					if(fileLine.size()<6) // меньше 6 симболов, быт ьне может ибо a.map и еше CR
+					{
+							searchMode=1;
+							continue;
+					}
 					if(fileLine[fileLine.size()-1]=='\r')
 						fileLine.erase((fileLine.size()-1), 1); // Тут мы CR удаляем. Тот самый атавизм со времён печатных машинок
 					transform(fileLine.begin(), fileLine.end(), fileLine.begin(), tolower);
