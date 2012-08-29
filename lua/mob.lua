@@ -17,7 +17,7 @@ local mobTable=
         },
         {
                 'Bear',
-                'EmberDemon ',
+                'EmberDemon',
                 'OgreBrute',
                 'OgreWarlord',
                 'Shade',
@@ -55,20 +55,24 @@ local mobTable=
         }
 }
 
+local fragsTable={3,2,1,1,0}
+
 local mobPlayerStartT={}
 local mobGenMob={}
-local mobGenOn=1
+local mobGenOn=0
 local mobGenMaxMob=30
 local mobGenFirst=0
+local teamPlayers=0
+local teamMonsters=0
 
 function playerOnDieMobs(a,b)
         if mobGenOn~=1 then return end
         if b~=nil then
                 if bitAnd(unitClass(b),2)==2 then
-                        playerScore(a,playerScore(a)-10)
+                       teamScore(teamMonsters,teamGet(teamMonsters).score+2)
                 end
         end
-        if a==b then playerScore(a,playerScore(a)-10) end
+        if a==b then playerScore(a,playerScore(a)-1) end
 end
 
 --[[
@@ -105,11 +109,14 @@ function mobGenDie(a,b)
         local level
         for i,q in pairs(mobGenMob) do
                 if a==q then
-                        table.remove(mobGenMob,i)
-                        level=mobGenGetLevel(a)
-                        setTimeout(function() mobGenMobCr(level) end,mobTable[level].timeR*30)
-                        unitDecay(a,40)
-                        if bitAnd(unitClass(b),4)==4 then playerScore(b,playerScore(b)+1) end
+					table.remove(mobGenMob,i)
+					level=mobGenGetLevel(a)
+					setTimeout(function() mobGenMobCr(level) end,mobTable[level].timeR*30)
+					unitDecay(a,40)
+					if bitAnd(unitClass(b),4)==4 then
+						playerScore(b,playerScore(b)+fragsTable[level])
+						teamScore(teamPlayers,teamGet(teamPlayers).score+fragsTable[level])
+					end
                 end
         end
 end
@@ -129,15 +136,25 @@ function mobGenStop()
 end
 
 function mobGenStart()
-        mobGenOn=1
-        mobGen()
+		mobGenOn=1
+		teamPlayers=teamCreate({color=1,name="People"})
+		teamMonsters=teamCreate({color=2,name="Monsters"})
+		local players=playerList()
+		for i=1,#players do
+			teamAssign({team=teamPlayers,player=players[i]})
+		end
+		mobGen()
 end
 
 function mobGenReset()
-        mobPlayerStartT={}
-        mobGenMob={}
-        mobGenOn=0
-        mobGenFirst=0
+		mobPlayerStartT={}
+		mobGenMob={}
+		mobGenOn=0
+		mobGenFirst=0
+		teamDelete(teamPlayers)
+		teamDelete(teamMonsters)
+		teamPlayers=0
+		teamMonsters=0
 end
 
 function mobGenMobCr(Group)
