@@ -101,9 +101,13 @@ l1:
 	int teamGet(lua_State *L)
 	{
 		lua_settop(L,2);
-		if ((lua_type(L,1)==LUA_TNUMBER))
+		if ((lua_type(L,1)==LUA_TNUMBER) || (lua_type(L,1)==LUA_TLIGHTUSERDATA))
 		{
-			pTeam *Team=(pTeam *)noxGetTeamByN(lua_tointeger(L,1));
+			pTeam *Team=0;
+			if ((lua_type(L,1)==LUA_TNUMBER))
+				Team=(pTeam *)noxGetTeamByN(lua_tointeger(L,1));
+			 else
+				Team=(pTeam *)lua_touserdata(L,1);
 			if (!Team)
 			{
 				lua_pushnil(L);
@@ -459,8 +463,6 @@ l1:
 			return 1;
 		}
 		serverFlagsSet(4);/// включаем тимы
-
-		lua_pushlightuserdata(L,R);
 		wchar_t* RR=NULL;
 		bool RRR=false;//Флаг посылать ли на КЛИЕНТ имя тимы
 		if (lua_type(L,1)==LUA_TTABLE)
@@ -495,6 +497,7 @@ l1:
 		teamSendTeam(R); //Тут записывается информация о наличии тимы вообще - однако НАЗВАНИЕ тимы не посылается на клиент - клиент юзает СВОЁ ДЕФОЛТНОЕ название (!)
 		if(RRR==true)
 			noxTeamUpdate(RR, R); //Обновление ИМЕНИ тимы на клиентах - после чего имя тимы у клиентов уже не дефолтное, а именно то, что пришло с сервера
+		lua_pushlightuserdata(L,R);
 		return 1;
 	}
 	
