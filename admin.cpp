@@ -463,18 +463,19 @@ namespace
 				getline(file, fileLine);
 				if(!file.eof())
 				{
-					if(fileLine.size()<6) // меньше 6 симболов, быт ьне может ибо a.map и еше CR
+					if(fileLine.size()>0 && fileLine[fileLine.size()-1]=='\r')
+						fileLine.erase((fileLine.size()-1), 1); // Тут мы CR удаляем. Тот самый атавизм со времён печатных машинок
+					if(fileLine.size()<=0) //Пустая строчка нам не нужна.
 					{
-							searchMode=1;
 							continue;
 					}
-					if(fileLine[fileLine.size()-1]=='\r')
-						fileLine.erase((fileLine.size()-1), 1); // Тут мы CR удаляем. Тот самый атавизм со времён печатных машинок
 					transform(fileLine.begin(), fileLine.end(), fileLine.begin(), tolower);
 					if(searchMode==1 && fileLine[0]!='[')
 					{
 						fileLine = fileLine.substr(0,13); // Вместе с .map может быть только 13 символов максимум. Отрезаем всё лишнее.
-						fileLine = fileLine.substr(0, fileLine.rfind(".map")); // Отрезаем .map. Не именуйте плз карты так: my.map.m! Ну или не прописывайте их в таком виде в мапцикл, а прописывайте по старинке с расширением - my.map.m.map. А не то не загрузится.
+						size_t mapLoc = fileLine.rfind(".map");
+						if(mapLoc!=std::string::npos)
+							fileLine = fileLine.substr(0, mapLoc); // Отрезаем .map. Не именуйте плз карты так: my.map.m! Ну или не прописывайте их в таком виде в мапцикл, а прописывайте по старинке с расширением - my.map.m.map. А не то не загрузится.
 						fileLine = fileLine.substr(0,8); // А без .map может быть только 8 символов. Опять таки отрезаем лишнее.
 						if(mapLoadFromFile((char*)fileLine.c_str()) && mapLoadFlags(mapLoadData)&modeId) // Проверка, а валидный ли это вообще файл карты... И нужного ли режима!
 						{
