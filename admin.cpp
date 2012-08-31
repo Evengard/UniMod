@@ -542,6 +542,16 @@ namespace
 				lua_setfield(L,-2,"reload");
 				lua_remove(L,1);
 		}
+		if(lua_type(L,1)==LUA_TTABLE)
+		{
+			lua_getfield(L,1,"mapcycle");
+			if(lua_type(L, -1)!=LUA_TNIL && lua_toboolean(L,-1)!=0)
+			{
+				lua_pushstring(L, (char*)mapCycleNext());
+				lua_setfield(L, 1, "map");
+			}
+			lua_pop(L,1);
+		}
 		lua_setfield(L,LUA_REGISTRYINDEX,"formGameTable");
 		needToFormGame=true;
 		return 0;
