@@ -771,9 +771,9 @@ public:
 	int Param_7;
 	/// это уже после создания ( в структуре не нужно, для справки)
 	void *SomeDataPtr; // +18 - указатель на буфер с данными
-	void *slider; // если есть скроллбар то кнопка вверх
-	void *buttonUp; // если есть скроллбар то кнопка вниз
-	void *buttonDown; // указатель на сам скроллбар
+	void *buttonUp; // если есть скроллбар то кнопка вверх
+	void *buttonDown; // если есть скроллбар то кнопка вниз
+	void *slider; // указатель на сам скроллбар
 	int unk28;
 	short freeLinesCount2C; //+2C
 	short var2E;// может первый/последний свободный в списке
@@ -1037,11 +1037,17 @@ public:
 
 			if ((Wdd.controlType & 0x20)!=0)
 			{
+				lua_settop(L,1);
+				getClientVar("wndCreate");
 				lua_getfield(L,1,"slider"); // специальная фишка, для слайдера.
 				if (lua_type(L,-1)==LUA_TTABLE)
 				{
-					lua_getfield(L,-1,"text");
-					conPrintI(lua_tostring(L,-1));
+					lua_pushlightuserdata(L,Wnd);
+					if (0!=lua_pcall(L,2,1,0))
+						const char *S=lua_tostring(L,-1);
+					LD.slider=lua_touserdata(L,-1);
+					lua_settop(L,1);			
+					
 				} 
 			}
 
