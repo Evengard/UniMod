@@ -75,16 +75,6 @@ function playerOnDieMobs(a,b)
         if a==b then playerScore(a,playerScore(a)-1) end
 end
 
---[[
-function playerOnDieMobs(a,b)
-        if b~=nil then
-                if bitAnd(unitClass(b),2)==2 then
-                        playerScore(a,playerScore(a)-10)
-                end
-        end
-end
---]]
-
 function mobGenGetLevel(a)
         local mob=getThingName(getThingType(a))
         local t
@@ -151,8 +141,10 @@ function mobGenReset()
 		mobGenMob={}
 		mobGenOn=0
 		mobGenFirst=0
-		teamDelete(teamPlayers)
-		teamDelete(teamMonsters)
+		if type(teamGet(teamPlayers))=='table' then
+			teamDelete(teamPlayers)
+			teamDelete(teamMonsters)
+		end
 		teamPlayers=0
 		teamMonsters=0
 end
@@ -207,15 +199,11 @@ function mobGenLoader(mode)
                         end
                 end
         local d=1+mode
+		if ingame==0 then mobGenStop()  end
         if ingame<d then mobGenStart() else mobGenStop() end
         print("ingame: "..ingame)
         print("mode: "..mode)
         print("limit (d): "..d)
         print("mobGenOn: "..mobGenOn)
         -- conExec("say "..ingame)
-end
-
-function mobGenRestart()
-        mobGenReset()
-        mobGenLoader(1)
 end
