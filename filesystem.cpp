@@ -119,7 +119,6 @@ namespace
 		~BZFile(){fclose();}
 		void fclose()
 		{
-			int Error=0;
 			if (Data) {BZ2_bzclose(Data); Data=0;} 
 		}
 		DWORD getCrc(){ return 0; }
