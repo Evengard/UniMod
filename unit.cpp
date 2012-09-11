@@ -16,6 +16,7 @@ void (__cdecl *noxAgressionLevel) (void *Unit,float *level);
 void (__cdecl *noxMirrorShot) (void *Shot,void *);
 void (__cdecl *noxUnitDelete) (void *Unit);
 void (__cdecl *noxUnitSetOwner) (void *NewOwner,void *Owner);
+int (__cdecl *noxUnitTestBuff) (void *Unit,int buffN);
 
 void (__cdecl *inventoryPut)(void *Who,void *What,int A);
 
@@ -453,6 +454,21 @@ namespace
 		unitActivate(P);
 		return 2;
 	}
+
+	int unitTestBuff(lua_State*L)
+	{
+		if ((lua_type(L,1)!=LUA_TLIGHTUSERDATA)||
+			(lua_type(L,2)!=LUA_TNUMBER))
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		if (noxUnitTestBuff(lua_touserdata(L,1),lua_tonumber(L,2))==1)
+			lua_pushboolean(L,true);
+		else
+			lua_pushboolean(L,false);
+		return 1;
+	}
 }
 float (__cdecl *getFloatByName)(const char *Name);
 extern void unit2Init();
@@ -482,6 +498,7 @@ void unitInit()
 	ASSIGN(noxMirrorShot,0x004E0A70);
 	ASSIGN(noxUnitDelete,0x004E5E80);
 	ASSIGN(noxUnitSetOwner,0x004EC290);
+	ASSIGN(noxUnitTestBuff,0x004FF350);
 
 	registerserver("unitSetFollow",&unitSetFollowL);
 	registerserver("unitBecomePet",&unitBecomePetL);
@@ -495,6 +512,7 @@ void unitInit()
 	registerserver("unitPick",&unitPickL);
 	registerserver("unitHunt",&unitHuntL);
 	registerserver("unitSetAgression",&unitAgressionLevel);
+	registerserver("unitTestBuff",&unitTestBuff);
 
 	registerserver("playerList",&playersListL);
 	registerserver("playerMouse",&playerMouseL);
