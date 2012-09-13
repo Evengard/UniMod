@@ -1063,50 +1063,52 @@ public:
 			lua_pushvalue(L,1);
 			lua_settable(L,-3);*/
 			lua_settop(L,1);
-			return 1;
 		}
-		Wdd.controlType|=0x2000;// кастомный контрол
+		else
+		{
+			Wdd.controlType|=0x2000;// кастомный контрол
 
 
-		lua_pushlightuserdata(L,&noxWndLoad);
-		lua_gettable(L,LUA_REGISTRYINDEX);
-			lua_pushinteger(L,++nowCreating);
-			lua_pushvalue(L,1);
-		lua_settable(L,-3);/// кладем таблицу для события
+			lua_pushlightuserdata(L,&noxWndLoad);
+			lua_gettable(L,LUA_REGISTRYINDEX);
+				lua_pushinteger(L,++nowCreating);
+				lua_pushvalue(L,1);
+			lua_settable(L,-3);/// кладем таблицу для события
 		
-		/// c флагами еще разобратся надо
-		BYTE *Wnd;
-		Wnd=wndCreate2(Parent,Wdd.status,x,y,w,h,&newWindowProc);
-			lua_pushinteger(L,nowCreating--); /// удаляем номерную таблицу
-			lua_pushnil(L);
-		lua_settable(L,-3);
-		if (Wnd==0)
-		{
-			lua_pushstring(L,"wndCreate2 Fail!");
-			lua_error(L);
+			/// c флагами еще разобратся надо
+			BYTE *Wnd;
+			Wnd=wndCreate2(Parent,Wdd.status,x,y,w,h,&newWindowProc);
+				lua_pushinteger(L,nowCreating--); /// удаляем номерную таблицу
+				lua_pushnil(L);
+			lua_settable(L,-3);
+			if (Wnd==0)
+			{
+				lua_pushstring(L,"wndCreate2 Fail!");
+				lua_error(L);
+			}
+			*((void**)(Wnd+0x17C))=&uniWindowDrawFn; // наа рисовалка
+			*((void**)(Wnd+0x174))=&newWindowProc;
+
+			*((int*)Wnd)=nextChildId;
+			lua_pushstring(L,"childId");
+			lua_pushinteger(L,nextChildId++);
+			lua_settable(L,1);
+
+			lua_getfield(L,1,"drawFn");
+			if (lua_type(L,-1)==LUA_TFUNCTION)
+			{
+				*((void**)(Wnd+0x17C))=&newDrawProc;
+			}
+			lua_settop(L,1);
+
+			lua_pushlightuserdata(L,Wnd);
+			lua_pushvalue(L,1);
+					lua_pushstring(L,"handle");
+					lua_pushlightuserdata(L,Wnd);
+				lua_settable(L,-3);// Записываем в таблицу хэндл
+			lua_settable(L,-3);
+			memcpy(Wnd+0x24,&Wdd,sizeof(Wdd));
 		}
-		*((void**)(Wnd+0x17C))=&uniWindowDrawFn; // наа рисовалка
-		*((void**)(Wnd+0x174))=&newWindowProc;
-
-		*((int*)Wnd)=nextChildId;
-		lua_pushstring(L,"childId");
-		lua_pushinteger(L,nextChildId++);
-		lua_settable(L,1);
-
-		lua_getfield(L,1,"drawFn");
-		if (lua_type(L,-1)==LUA_TFUNCTION)
-		{
-			*((void**)(Wnd+0x17C))=&newDrawProc;
-		}
-		lua_settop(L,1);
-
-		lua_pushlightuserdata(L,Wnd);
-		lua_pushvalue(L,1);
-				lua_pushstring(L,"handle");
-				lua_pushlightuserdata(L,Wnd);
-			lua_settable(L,-3);// Записываем в таблицу хэндл
-		lua_settable(L,-3);
-		memcpy(Wnd+0x24,&Wdd,sizeof(Wdd));
 
 		lua_settop(L,1);
 		lua_getfield(L,1,"children");
