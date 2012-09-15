@@ -777,6 +777,9 @@ public:
 	int unk28;
 	short freeLinesCount2C; //+2C
 	short var2E;// может первый/последний свободный в списке
+	int unk_30;
+	short unk_34;
+	short unk_36;
 
 	void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна
 	{
@@ -1197,6 +1200,7 @@ void windowsInit()
 
 
 	windowMsgInit(L);
+
 }
 
 
