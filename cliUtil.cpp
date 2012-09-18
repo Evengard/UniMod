@@ -14,9 +14,30 @@ int (__cdecl *mathAnglTo256) (void *xycords);
 void *noxSpriteLast=0;
 DWORD *gameFPS=(DWORD*)0x0085B3FC;
 
+int (__cdecl *netSendClientReady)();
+
+extern int (__cdecl *noxCheckGameFlags) (int);
 
 namespace
 {
+	bool cliAutoexecExecuted = false;
+	bool newMapCli = false;
+	bool onClientQuitServer(int gf)
+	{
+		bool result = noxCheckGameFlags(gf);
+		getClientVar("onCliGameQuit");
+		if (lua_isfunction(L,-1))
+			lua_pcall(L,0,0,0);
+		cliAutoexecExecuted = false;
+		return result;
+	}
+
+	int onMapLoadCli()
+	{
+		newMapCli = true;
+		return netSendClientReady();
+	}
+
 	DWORD *frameCounter=(DWORD*)0x0084EA04;
 
 	int cliTimeoutNextId=1;
@@ -352,14 +373,17 @@ namespace
 
 extern void InjectOffs(DWORD Addr,void *Fn);
 extern void InjectJumpTo(DWORD Addr,void *Fn);
+extern void InjectAddr(DWORD Addr,void *Fn);
 void cliUntilInit()
 {
 	ASSIGN(getTTByNameSpriteMB,0x044CFC0);
 	ASSIGN(createTextBubble,0x0048D880);
-	ASSIGN(sub_4738E0,0x4738E0);
-	ASSIGN(noxSpriteLast,0x6D3DC0);
-	ASSIGN(mathAnglTo256,0x509ED0); // arrrr
+	ASSIGN(sub_4738E0,0x004738E0);
+	ASSIGN(noxSpriteLast,0x006D3DC0);
+	ASSIGN(mathAnglTo256,0x00509ED0); // arrrr
+	ASSIGN(netSendClientReady,0x0043C9F0); 
 
+	
 
 	lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
 	lua_newtable(L);
@@ -384,5 +408,23 @@ void cliUntilInit()
 	netRegClientPacket(upSendBubble,&netOnBubble);
 
 	InjectJumpTo(0x0043E778,&asmToCliTimer);
+	InjectOffs(0x004460C5+1,&onClientQuitServer);
+	InjectOffs(0x0043E163+1,&onMapLoadCli);
+	InjectOffs(0x0043DF66+1,&onMapLoadCli);
 
+}
+
+void autoexecCli()
+{
+	if(newMapCli)
+	{
+		newMapCli = false;
+		if(!cliAutoexecExecuted)
+			if(luaL_loadfile(L, "autoexec_cli.lua")==0)
+				lua_pcall(L, 0, 0, 0);
+		cliAutoexecExecuted = true;
+		getClientVar("onCliMapLoad");
+		if (lua_isfunction(L,-1))
+			lua_pcall(L,0,0,0);
+	}
 }
