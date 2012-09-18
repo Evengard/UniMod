@@ -87,7 +87,7 @@ extern void netVersionServerRq(int sendTo);
 
 extern int clientsVersions[0x20];
 
-
+extern void autoexecCli();
 
 bool serverRequest(int f,char *path)
 {
@@ -1074,6 +1074,7 @@ namespace
 	
 	void __cdecl OnGuiUpdate()
 	{
+		autoexecCli();
 		guiUpdate();
 		httpGetCallback(L);
 		updateAuthDBProcess();
