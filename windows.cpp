@@ -798,6 +798,43 @@ public:
 		return Me;*/
 		return this;
 	}
+
+	void CreateSlider(lua_State *L,void *Wnd, void *Parent)
+	{
+		lua_getfield(L,1,"slider"); // что бы это таблица лежала под индексом 2
+		getClientVar("wndCreate");
+		if (lua_type(L,2)==LUA_TTABLE)
+		{
+			lua_pushvalue(L,2); // такое положение необходимо, что бы передать параметры
+			lua_pushlightuserdata(L,Wnd);
+			if (0!=lua_pcall(L,2,1,0))
+			{
+				const char *S=lua_tostring(L,-1);
+				lua_settop(L,1);	
+				return;
+			}
+			lua_settop(L,2); // что бы было все кашерно и не вскипела голова
+
+			lua_pushlightuserdata(L,&noxWndLoad);
+			lua_gettable(L,LUA_REGISTRYINDEX);
+			lua_pushlightuserdata(L,Parent);
+			lua_gettable(L,-2); // достаем о великую таблицу основного окна
+			lua_getfield(L,2,"handle");
+				BYTE *P=(BYTE*) Wnd;
+				P=*((BYTE**)(P+0x20));
+				My_t *ListBoxData=(My_t*)P;
+				ListBoxData->Param_3=1;
+				ListBoxData->Bool_4=1;
+				ListBoxData->Param_5=1;
+				ListBoxData->slider=lua_touserdata(L,-1);
+			lua_pushvalue(L,2);
+			lua_settable(L,2);		
+		}
+		lua_settop(L,1);
+		return;
+	}
+
+
 };
 class VertSliderData
 {
@@ -1038,21 +1075,11 @@ public:
 				lua_error(L);
 			}
 
-			if ((Wdd.controlType & 0x20)!=0)
+		if ((Wdd.controlType & 0x20)!=0)
 			{
 				lua_settop(L,1);
-				getClientVar("wndCreate");
-				lua_getfield(L,1,"slider"); // специальна€ фишка, дл€ слайдера.
-				if (lua_type(L,-1)==LUA_TTABLE)
-				{
-					lua_pushlightuserdata(L,Wnd);
-					if (0!=lua_pcall(L,2,1,0))
-						const char *S=lua_tostring(L,-1);
-					LD.slider=lua_touserdata(L,-1);
-					lua_settop(L,1);			
-					
-				} 
-			}
+				LD.CreateSlider(L,Wnd,Parent);	
+			} 
 
 			*((int*)Wnd)=nextChildId;
 			lua_pushstring(L,"childId");
@@ -1066,52 +1093,52 @@ public:
 			lua_pushvalue(L,1);
 			lua_settable(L,-3);*/
 			lua_settop(L,1);
+			return 1;
 		}
-		else
-		{
-			Wdd.controlType|=0x2000;// кастомный контрол
+
+		Wdd.controlType|=0x2000;// кастомный контрол
 
 
-			lua_pushlightuserdata(L,&noxWndLoad);
-			lua_gettable(L,LUA_REGISTRYINDEX);
-				lua_pushinteger(L,++nowCreating);
-				lua_pushvalue(L,1);
-			lua_settable(L,-3);/// кладем таблицу дл€ событи€
-		
-			/// c флагами еще разобратс€ надо
-			BYTE *Wnd;
-			Wnd=wndCreate2(Parent,Wdd.status,x,y,w,h,&newWindowProc);
-				lua_pushinteger(L,nowCreating--); /// удал€ем номерную таблицу
-				lua_pushnil(L);
-			lua_settable(L,-3);
-			if (Wnd==0)
-			{
-				lua_pushstring(L,"wndCreate2 Fail!");
-				lua_error(L);
-			}
-			*((void**)(Wnd+0x17C))=&uniWindowDrawFn; // наа рисовалка
-			*((void**)(Wnd+0x174))=&newWindowProc;
-
-			*((int*)Wnd)=nextChildId;
-			lua_pushstring(L,"childId");
-			lua_pushinteger(L,nextChildId++);
-			lua_settable(L,1);
-
-			lua_getfield(L,1,"drawFn");
-			if (lua_type(L,-1)==LUA_TFUNCTION)
-			{
-				*((void**)(Wnd+0x17C))=&newDrawProc;
-			}
-			lua_settop(L,1);
-
-			lua_pushlightuserdata(L,Wnd);
+		lua_pushlightuserdata(L,&noxWndLoad);
+		lua_gettable(L,LUA_REGISTRYINDEX);
+			lua_pushinteger(L,++nowCreating);
 			lua_pushvalue(L,1);
-					lua_pushstring(L,"handle");
-					lua_pushlightuserdata(L,Wnd);
-				lua_settable(L,-3);// «аписываем в таблицу хэндл
-			lua_settable(L,-3);
-			memcpy(Wnd+0x24,&Wdd,sizeof(Wdd));
+		lua_settable(L,-3);/// кладем таблицу дл€ событи€
+	
+		/// c флагами еще разобратс€ надо
+		BYTE *Wnd;
+		Wnd=wndCreate2(Parent,Wdd.status,x,y,w,h,&newWindowProc);
+			lua_pushinteger(L,nowCreating--); /// удал€ем номерную таблицу
+			lua_pushnil(L);
+		lua_settable(L,-3);
+		if (Wnd==0)
+		{
+			lua_pushstring(L,"wndCreate2 Fail!");
+			lua_error(L);
 		}
+		*((void**)(Wnd+0x17C))=&uniWindowDrawFn; // наа рисовалка
+		*((void**)(Wnd+0x174))=&newWindowProc;
+
+		*((int*)Wnd)=nextChildId;
+		lua_pushstring(L,"childId");
+		lua_pushinteger(L,nextChildId++);
+		lua_settable(L,1);
+
+		lua_getfield(L,1,"drawFn");
+		if (lua_type(L,-1)==LUA_TFUNCTION)
+		{
+			*((void**)(Wnd+0x17C))=&newDrawProc;
+		}
+		lua_settop(L,1);
+
+		lua_pushlightuserdata(L,Wnd);
+		lua_pushvalue(L,1);
+				lua_pushstring(L,"handle");
+				lua_pushlightuserdata(L,Wnd);
+			lua_settable(L,-3);// «аписываем в таблицу хэндл
+		lua_settable(L,-3);
+		memcpy(Wnd+0x24,&Wdd,sizeof(Wdd));
+	
 
 		lua_settop(L,1);
 		lua_getfield(L,1,"children");
