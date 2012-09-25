@@ -39,41 +39,15 @@ extern void *(__cdecl *guiFontPtrByName)(const char *FontName);
 extern DWORD parseColor(const char *Color);
 extern void wstringFromLua(lua_State *L,wchar_t *Dst,int MaxLen);
 extern void *imageFromLua(lua_State *L);
-extern	void (__cdecl *drawImage)(void *ImgH,int X,int Y);
-extern int (__cdecl *noxDrawRect) (int xLeft,int yTop,int width,int height);
-extern int (__cdecl *noxDrawRectAlpha) (int xLeft,int yTop,int width,int height);
+
+extern int (__cdecl uniWindowDrawFn) (void *Window,void *WindowDD);
+extern int (__cdecl uniListBoxDrawFn) (void *Window,void *WindowDD);
 
 
 namespace 
 {
 	int nowCreating=0;
-struct wddControl
-{
-  int flags0;
-  int group;
-  int controlType;
-  int status;
-  int wndPtr;
-  int BgColor;
-  void* imageH;
-  int EnabledRectColor;
-  void*  imageEnabledH;
-  int HiliteColor;
-  void*  imageHiliteH;
-  int DisabledRectColor;
-  void*  imageDisabledH;
-  int SelectedColor;
-  void*  imageSelectedH;
-  int offsetX;
-  int offsetY;
-  int TextColor;
-  wchar_t String[60];
-  int field_C0;
-  int field_C4;
-  void *FontPtr;
-  wchar_t tooltipStr[62];
-  int field_148;
-};
+
 	bool getChildLuaByPtr(void *Ptr)
 	{
 		lua_getfield(L,-1,"children");
@@ -243,43 +217,7 @@ B - ChildId
 		
 		return 0;
 	}
-	int __cdecl uniWindowDrawFn(void *Window,void *WindowDD) // Специальная фн рисования, что бы была и прозрачность
-	{
-		BYTE *Wnd=(BYTE*) Window;
-		wddControl *Wdd=(wddControl*) WindowDD;
-		int x; int y;
-		int *px=&x; int *py=&y;
-		noxWndGetPostion(Window,px,py);
-		if ((*(int*)(Wnd+4)) & 0x80) // если есть этот флаг => рисуем картинку
-		{
-			x+=Wdd->offsetX; y+=Wdd->offsetY;
-			if (Wdd->flags0 & 2)
-				drawImage(Wdd->imageHiliteH,x,y);
-			else
-				drawImage(Wdd->imageH,x,y);
-			return 1;
-		}
-		if (Wdd->BgColor==0x80000000)
-			return 1; //
-		noxSetRectColorMB(Wdd->BgColor);
-		int Top=lua_gettop(L);
-		lua_pushlightuserdata(L,&noxWndLoad);
-		lua_gettable(L,LUA_REGISTRYINDEX);
-		lua_pushlightuserdata(L,Window);
-		lua_gettable(L,-2);
-		if (lua_type(L,-1)!=LUA_TTABLE)
-		{
-			noxDrawRect(x,y,*((int*)(Wnd+8)),*((int*)(Wnd+0xC)));
-			return 1;
-		}
-		lua_getfield(L,-1,"alpha");
-		if (lua_toboolean(L,-1))
-			noxDrawRectAlpha(x,y,*((int*)(Wnd+8)),*((int*)(Wnd+0xC)));
-		else
-			noxDrawRect(x,y,*((int*)(Wnd+8)),*((int*)(Wnd+0xC)));
-		lua_settop(L,Top);
-		return 1;
-	}
+
 	int __cdecl newWindowProc(void* Window,int Msg,int A,int B)
 	{
 		int Top=lua_gettop(L);
@@ -801,34 +739,63 @@ public:
 
 	void CreateSlider(lua_State *L,void *Wnd, void *Parent)
 	{
+		int isSlider=false;
+		wndStruct *wParent=(wndStruct*) Parent;
+		while(true)
+		{
+			wndStruct *wParent=(wndStruct*) Parent;
+			if (wParent->parentWindow==0)
+				break;
+			Parent=wParent->parentWindow;
+		}
 		lua_getfield(L,1,"slider"); // что бы это таблица лежала под индексом 2
 		getClientVar("wndCreate");
 		if (lua_type(L,2)==LUA_TTABLE)
 		{
-			lua_pushvalue(L,2); // такое положение необходимо, что бы передать параметры
-			lua_pushlightuserdata(L,Wnd);
-			if (0!=lua_pcall(L,2,1,0))
+			for (int i=1;i<=3;i++)
 			{
-				const char *S=lua_tostring(L,-1);
-				lua_settop(L,1);	
-				return;
-			}
-			lua_settop(L,2); // что бы было все кашерно и не вскипела голова
-
-			lua_pushlightuserdata(L,&noxWndLoad);
-			lua_gettable(L,LUA_REGISTRYINDEX);
-			lua_pushlightuserdata(L,Parent);
-			lua_gettable(L,-2); // достаем о великую таблицу основного окна
-			lua_getfield(L,2,"handle");
-				BYTE *P=(BYTE*) Wnd;
+				lua_pushnumber(L,i);
+				lua_gettable(L,2);
+				if (lua_type(L,-1)!=LUA_TTABLE)
+					break;
+				lua_getfield(L,-1,"type");
+				if (lua_type(L,-1)==LUA_TSTRING)
+				{
+					const char *ControlType=lua_tostring(L,-1);
+					if (0==strcmpi(ControlType,"PUSHBUTTON"))
+					{
+						isSlider=false;
+					}else if (0==strcmpi(ControlType,"VERTSLIDER"))
+					{
+						isSlider=true;
+					}
+					else
+						break; // если ни то и ни другео то нафига мы тут вообще
+				}
+				lua_pop(L,1);
+				lua_pushvalue(L,3);
+				lua_pushvalue(L,-2);
+				lua_pushlightuserdata(L,Wnd);
+				if (0!=lua_pcall(L,2,1,0))
+				{
+					const char *S=lua_tostring(L,-1);
+					lua_settop(L,1);	
+					return;
+				}
+				lua_getfield(L,4,"handle");
+				BYTE *P=(BYTE*) Wnd; // ставим слайдер или не слайдер
 				P=*((BYTE**)(P+0x20));
 				My_t *ListBoxData=(My_t*)P;
-				ListBoxData->Param_3=1;
-				ListBoxData->Bool_4=1;
-				ListBoxData->Param_5=1;
-				ListBoxData->slider=lua_touserdata(L,-1);
-			lua_pushvalue(L,2);
-			lua_settable(L,2);		
+				if (isSlider)
+					ListBoxData->slider=lua_touserdata(L,-1);
+				else if (ListBoxData->buttonUp==0)
+					ListBoxData->buttonUp=lua_touserdata(L,-1);
+				else 
+					ListBoxData->buttonDown=lua_touserdata(L,-1);		
+				lua_settop(L,3);
+				BYTE *Wndb=(BYTE*)Wnd;
+				*((void**)(Wndb+0x17C))=&uniListBoxDrawFn;
+			}
 		}
 		lua_settop(L,1);
 		return;
@@ -1075,7 +1042,7 @@ public:
 				lua_error(L);
 			}
 
-		if ((Wdd.controlType & 0x20)!=0)
+			if ((Wdd.controlType & 0x20)!=0) // если листбокс, то проверяем на слайдер
 			{
 				lua_settop(L,1);
 				LD.CreateSlider(L,Wnd,Parent);	

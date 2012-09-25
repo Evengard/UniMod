@@ -292,6 +292,55 @@ struct bigUnitStruct
 //  scriptEvent_s field_2FC;
 };
 
+struct wddControl
+{
+  int flags0;
+  int group;
+  int controlType;
+  int status;
+  int wndPtr;
+  int BgColor;
+  void* imageH;
+  int EnabledRectColor;
+  void*  imageEnabledH;
+  int HiliteColor;
+  void*  imageHiliteH;
+  int DisabledRectColor;
+  void*  imageDisabledH;
+  int SelectedColor;
+  void*  imageSelectedH;
+  int offsetX;
+  int offsetY;
+  int TextColor;
+  wchar_t String[60];
+  int field_C0;
+  int field_C4;
+  void *FontPtr;
+  wchar_t tooltipStr[62];
+  int field_148;
+};
+struct wndStruct
+{
+	int wndId;         
+	int flags;         
+	int width;         
+	int height;        
+	int screenLeft;    
+	int screenTop;     
+	int screenRight;     
+	int screenBottom;    
+	void *someData;                    
+	wddControl drawData;  
+	int wndIdMB;         
+	void *wndProc;       
+	void *wndProcPre;      
+	void *drawFn;          
+	void *onHoverFnMB;
+	void *nextWnd;         
+	void *nextSibilingMB;  
+	void *parentWindow;    
+	void *firstChildMB;
+};
 
 #define ASSIGN(X,Y) *((DWORD*)&(X))=((DWORD)(Y));
 DWORD uniCalcJump(DWORD From,void *To);
