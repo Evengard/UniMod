@@ -706,7 +706,7 @@ public:
 	int Bool_4;/// если не 0 - то похоже может увеличиватся в размерах вызывая 0x401B родителя (или себя)
 	int Param_5;// bool - есть скроллбар
 	int Param_6;//0x10
-	int Param_7;
+	int LineCanUnSelected;
 	/// это уже после создания ( в структуре не нужно, для справки)
 	void *SomeDataPtr; // +18 - указатель на буфер с данными
 	void *buttonUp; // если есть скроллбар то кнопка вверх
@@ -729,6 +729,11 @@ public:
 		if (Me->maxLines<1)
 			Me->maxLines=100;/// не стоит их много делать, память кушает
 		Me->LineHeight=18;
+		lua_getfield(L,Idx,"lineUnSelected");
+		if (lua_isboolean(L,-1) || lua_toboolean(L,-1))	
+			Me->LineCanUnSelected=1;
+		else
+			Me->LineCanUnSelected=0;
 /*		Me->Password=lua_toboolean(L,-1);
 		lua_getfield(L,Idx,"maxLen");
 
@@ -737,17 +742,9 @@ public:
 		return this;
 	}
 
-	void CreateSlider(lua_State *L,void *Wnd, void *Parent)
+	void CreateSlider(lua_State *L,void *Wnd)
 	{
 		int isSlider=false;
-		wndStruct *wParent=(wndStruct*) Parent;
-		while(true)
-		{
-			wndStruct *wParent=(wndStruct*) Parent;
-			if (wParent->parentWindow==0)
-				break;
-			Parent=wParent->parentWindow;
-		}
 		lua_getfield(L,1,"slider"); // что бы это таблица лежала под индексом 2
 		getClientVar("wndCreate");
 		if (lua_type(L,2)==LUA_TTABLE)
@@ -1045,7 +1042,7 @@ public:
 			if ((Wdd.controlType & 0x20)!=0) // если листбокс, то проверяем на слайдер
 			{
 				lua_settop(L,1);
-				LD.CreateSlider(L,Wnd,Parent);	
+				LD.CreateSlider(L,Wnd);	
 			} 
 
 			*((int*)Wnd)=nextChildId;
@@ -1162,7 +1159,7 @@ void windowsInit()
 	ASSIGN(parseWindowStatus,0x004A0A00);
 
 	ASSIGN(wndShowHide,0x0046AC00);
-	ASSIGN(wndShowModalMB,0x0046A8C0 );
+	ASSIGN(wndShowModalMB,0x0046A8C0);
 	ASSIGN(wndSetFocusMainMB,0x0046ADC0);
 	
 	ASSIGN(wndLoadControl,0x004A1510);
