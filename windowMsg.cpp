@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "windowUniMod.h"
 
 /*
 ====для листа команды
@@ -15,10 +16,10 @@
 0x401F - при Enter
 */
 
-extern void *(__cdecl *noxCallWndProc)(void* Window,int Msg,int A,int B);
+
 namespace
 {
-	int getTextL(lua_State *L)
+	int editBoxGetText(lua_State *L)
 	{
 		void *H=0;
 		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
@@ -57,7 +58,7 @@ namespace
 		delete Buf;
 		return 1;
 	}
-	int setTextL(lua_State *L)
+	int editBoxSetText(lua_State *L)
 	{
 		void *H=0;
 		if(lua_type(L,2)==LUA_TNIL)
@@ -104,7 +105,7 @@ namespace
 		lua_pushvalue(L,1);
 		return 1;
 	}
-	int setTextBut(lua_State *L)
+	int buttonSetText(lua_State *L)
 	{
 		void *H=0;
 		if(lua_type(L,2)==LUA_TNIL)
@@ -151,7 +152,7 @@ namespace
 		return 1;
 	}
 
-	int LBAddTextL(lua_State *L)
+	int ListBoxAddText(lua_State *L)
 	{
 		void *H=0;
 		lua_settop(L,2);
@@ -193,7 +194,7 @@ namespace
 		lua_pushvalue(L,1);
 		return 1;
 	}
-	int wndLbClear(lua_State *L)
+	int ListBoxClear(lua_State *L)
 	{
 		void *H=0;
 		lua_settop(L,1);
@@ -218,8 +219,22 @@ namespace
 			noxCallWndProc(H,0x400F,0,0);///Очистить список
 		return 0;
 	}
+	int ListBoxSetItem(lua_State *L)
+	{
+		wndStruct *H=wndGetHandleByLua(1);
+		if (H==0 && lua_type(L,2)!=LUA_TNUMBER)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error(L);
+		}
+		listBoxDataStruct *listBoxData=(listBoxDataStruct*) H->someData;
+		int idx=lua_tointeger(L,2);
+		if (idx>=-1 && idx<=listBoxData->maxLines)
+			listBoxData->lineSelectIdx=lua_tointeger(L,2);
+		return 0;
+	}
 
-	int switchButOff(lua_State *L)
+	int buttonSwitchOff(lua_State *L)
 	{
 		void *H=0;
 		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
@@ -251,7 +266,7 @@ namespace
 		return 0;
 	}
 
-	int switchButOn(lua_State *L)
+	int buttonSwitchOn(lua_State *L)
 	{
 		void *H=0;
 		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
@@ -285,12 +300,13 @@ namespace
 }
 void windowMsgInit(lua_State*L)
 {
-	registerclient("wndGetText",&getTextL);
-	registerclient("wndSetText",&setTextL);/// для эдитов
-	registerclient("wndLbAddText",&LBAddTextL);/// добавляет строчку в листбокс
-	registerclient("wndLbClear",&wndLbClear);
-	registerclient("wndButtonSetText",&setTextBut);
-	registerclient("wndButtonSwitchOn",&switchButOn);
-	registerclient("wndButtonSwitchOff",&switchButOff);
+	registerclient("wndGetText",&editBoxGetText);
+	registerclient("wndSetText",&editBoxSetText);/// для эдитов
+	registerclient("wndLbAddText",&ListBoxAddText);/// добавляет строчку в листбокс
+	registerclient("wndLbClear",&ListBoxClear);
+	registerclient("wndLbSelectItem",&ListBoxSetItem);
+	registerclient("wndButtonSetText",&buttonSetText);
+	registerclient("wndButtonSwitchOn",&buttonSwitchOn);
+	registerclient("wndButtonSwitchOff",&buttonSwitchOff);
 	
 }

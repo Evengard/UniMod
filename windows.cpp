@@ -1,13 +1,10 @@
 #include "stdafx.h"
+#include "windowUniMod.h"
 /*
 sub_450B70 - стереть все из консоли?
 */
 
-
-int (__cdecl *noxWndGetPostion) (void* Window,int *xLeft,int *yTop);
-void *(__cdecl *noxWndLoad)(char const *WndName,void *WndProc);
 int (__cdecl *noxWndGetID)(void *Window);
-void *(__cdecl *noxCallWndProc)(void* Window,int Msg,int A,int B);
 void *(__cdecl *noxWndGetChildByID)(void *Window,int Id);
 void (__cdecl *parseWindowStatus)(void *WddPtr,const char *Str);
 
@@ -627,56 +624,35 @@ B - ChildId
 
 		return 1;
 	}
-class StaticTextData /// данные для статикстекста
+class staticTextDataClass /// данные для статикстекста
 {
 public:
-	typedef StaticTextData My_t;
-
-	//сами данные - должны быть первыми и в верном порядке
-	wchar_t*DataPtr;
-	int BoolA;
-	int BoolB;
-	
-	size_t Size;
-	wchar_t Buf[]; // чисто студийное жульничество - говорим что здесь  будет строка, но не говорим размер
+	staticTextDataStruct staticTextData;
 
 	static void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна, и кладет в нее себя
 	{
 		lua_getfield(L,Idx,"text");
 		int NeedSize=lua_objlen(L,-1)*2; // какой длинны строку нам прислали
-		NeedSize=(sizeof(My_t)+NeedSize+0x3F)&(~0x3F);//вычисляем сколько нам надо памяти (с шагом в 64байта)
+		NeedSize=(sizeof(staticTextDataStruct)+NeedSize+0x3F)&(~0x3F);//вычисляем сколько нам надо памяти (с шагом в 64байта)
 		
-		My_t *Me=(My_t *)lua_newuserdata(L,NeedSize); // пускай луа выделит нам память - она же и будет за ней следить
+		staticTextDataStruct *Me=(staticTextDataStruct *)lua_newuserdata(L,NeedSize); // пускай луа выделит нам память - она же и будет за ней следить
 		Me->BoolA=0;Me->BoolB=0;
-		Me->Size=NeedSize-sizeof(My_t);
+		Me->Size=NeedSize-sizeof(staticTextDataStruct);
 		Me->DataPtr=Me->Buf;
 		mbstowcs(Me->Buf,lua_tostring(L,-2),Me->Size>>1);
 		lua_remove(L,-2);
 		return Me;
 	}
 };
-class EditboxData
+class editboxDataClass
 {
 public:
-	typedef EditboxData My_t;
-
-	//сами данные - должны быть первыми и в верном порядке
-	wchar_t Buf[0x100];
-	wchar_t Buf2[0x100];
-	int Password; // показывать *****
-	int onlyNumbers; // проверять что числа
-	int onlyAlphaNum;  // проверять что буквы
-	int Param_6;
-	short maxLen;//0x410 - MaxLenMB
-	short entryWidth; // ширина бокса для ввода (общая ширина - с подписью)
-	int Param_x414;
-	int Param_x418;
-	int Param_x41C;//Len - задается автоматически
+	editBoxDataStruct editboxData;
 
 	void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна
 	{
 		int Top=lua_gettop(L);
-		My_t *Me=this;
+		editBoxDataStruct *Me=&this->editboxData;
 		lua_getfield(L,Idx,"password");
 		Me->Password=lua_toboolean(L,-1);
 		lua_getfield(L,Idx,"onlyNumbers");
@@ -694,35 +670,15 @@ public:
 		return Me;
 	}
 };
-class ListboxData
+class ListboxDataClass
 {
 public:
-	typedef ListboxData My_t;
-
-	//сами данные - должны быть первыми и в верном порядке
-	short maxLines; /// похоже количество строчек хотя хз
-	short LineHeight; //высота одной строчки
-	int Param_3;
-	int Bool_4;/// если не 0 - то похоже может увеличиватся в размерах вызывая 0x401B родителя (или себя)
-	int Param_5;// bool - есть скроллбар
-	int Param_6;//0x10
-	int LineCanUnSelected;
-	/// это уже после создания ( в структуре не нужно, для справки)
-	void *SomeDataPtr; // +18 - указатель на буфер с данными
-	void *buttonUp; // если есть скроллбар то кнопка вверх
-	void *buttonDown; // если есть скроллбар то кнопка вниз
-	void *slider; // указатель на сам скроллбар
-	int unk28;
-	short freeLinesCount2C; //+2C
-	short var2E;// может первый/последний свободный в списке
-	int unk_30;
-	short unk_34;
-	short unk_36;
+	listBoxDataStruct listboxData;
 
 	void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна
 	{
-		My_t *Me=this;
-		memset(this,0,sizeof(My_t));
+		listBoxDataStruct *Me=&this->listboxData;
+		memset(this,0,sizeof(listBoxDataStruct));
 		int Top=lua_gettop(L);
 		lua_getfield(L,Idx,"maxLines");
 		Me->maxLines=lua_tointeger(L,-1); // возможно MaxLen
@@ -782,13 +738,13 @@ public:
 				lua_getfield(L,4,"handle");
 				BYTE *P=(BYTE*) Wnd; // ставим слайдер или не слайдер
 				P=*((BYTE**)(P+0x20));
-				My_t *ListBoxData=(My_t*)P;
+				listBoxDataStruct *listboxData=(listBoxDataStruct*)P;
 				if (isSlider)
-					ListBoxData->slider=lua_touserdata(L,-1);
-				else if (ListBoxData->buttonUp==0)
-					ListBoxData->buttonUp=lua_touserdata(L,-1);
+					listboxData->slider=lua_touserdata(L,-1);
+				else if (listboxData->buttonUp==0)
+					listboxData->buttonUp=lua_touserdata(L,-1);
 				else 
-					ListBoxData->buttonDown=lua_touserdata(L,-1);		
+					listboxData->buttonDown=lua_touserdata(L,-1);		
 				lua_settop(L,3);
 				BYTE *Wndb=(BYTE*)Wnd;
 				*((void**)(Wndb+0x17C))=&uniListBoxDrawFn;
@@ -800,21 +756,16 @@ public:
 
 
 };
-class VertSliderData
+class scrollboxDataClass
 {
 public:
-	typedef VertSliderData My_t;
-
-	int Param_1;
-	int Param_2;
-	int Param_3;
-	int Param_4;
+	scrollBoxDataStruct scrollboxData;
 
 	void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна
 	{
 		int Top=lua_gettop(L);
-		VertSliderData *Me=this;
-		memset(this,0,sizeof(My_t));
+		scrollBoxDataStruct *Me=&this->scrollboxData;
+		memset(this,0,sizeof(scrollBoxDataStruct));
 		return Me;
 	}
 };
@@ -865,9 +816,9 @@ public:
 		lua_getfield(L,1,Name);
 		return lua_tointeger(L,-1);
 	}
-	ListboxData LD;
-	EditboxData ED;
-	VertSliderData VS;
+	ListboxDataClass LD;
+	editboxDataClass ED;
+	scrollboxDataClass VS;
 
 	int wndCreate(lua_State *L)
 	{
@@ -1017,7 +968,7 @@ public:
 			if (0==strcmpi(ControlType,"STATICTEXT"))
 			{
 				lua_pushstring(L,"__bindata");
-				DataPtr=StaticTextData::Create(L,1);
+				DataPtr=staticTextDataClass::Create(L,1);
 				lua_settable(L,1); // положим данные в таблицу окна
 			}else if (0==strcmpi(ControlType,"ENTRYFIELD"))
 			{
@@ -1145,17 +1096,14 @@ public:
 	}
 
 };
-extern void windowMsgInit(lua_State*L);
 extern void InjectAddr(DWORD Addr,void *Fn);
 extern void InjectJumpTo(DWORD Addr,void *Fn);
+
 void windowsInit()
 {
 	ASSIGN(noxWndGetID,0x46B0A0);
 	ASSIGN(noxWndGetChildByID,0x46B0C0);
-	ASSIGN(noxWndLoad,0x4A0AD0);
-	ASSIGN(noxCallWndProc,0x46B490);
 	ASSIGN(noxWindowDestroy,0x46C4E0);
-	ASSIGN(noxWndGetPostion,0x46AA60);
 	ASSIGN(parseWindowStatus,0x004A0A00);
 
 	ASSIGN(wndShowHide,0x0046AC00);
@@ -1188,9 +1136,6 @@ void windowsInit()
 	registerclient("wndGetId",&wndGetIdL);
 	registerclient("wndChildById",&getChildByIdL);
 	registerclient("wndSetAttr",&wndSetAttr); // для задания разных параметров
-
-
-	windowMsgInit(L);
 
 }
 
