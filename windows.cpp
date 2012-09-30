@@ -894,7 +894,7 @@ public:
 				lua_pushlightuserdata(L,Wnd);
 			lua_settable(L,-3);// Записываем в таблицу хэндл
 		lua_settable(L,-3);
-		memcpy(Wnd+0x24,&Wdd,sizeof(Wdd));
+		Wnd->drawData=Wdd;
 	
 
 		lua_settop(L,1);
