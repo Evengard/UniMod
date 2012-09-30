@@ -6,7 +6,7 @@ struct wddControl
   int group;
   int controlType;
   int status;
-  int wndPtr;
+  struct wndStruct* wndPtr;
   int BgColor;
   void* imageH;
   int EnabledRectColor;
@@ -44,10 +44,10 @@ struct wndStruct
 	void *wndProcPre;      
 	void *drawFn;          
 	void *onHoverFnMB;
-	void *nextWnd;         
-	void *nextSibilingMB;  
-	void *parentWindow;    
-	void *firstChildMB;
+	struct wndStruct *nextWnd;         
+	struct wndStruct *nextSibilingMB;  
+	struct wndStruct *parentWindow;    
+	struct wndStruct *firstChild;
 };
 
 
@@ -62,9 +62,9 @@ struct listBoxDataStruct
 	int LineCanUnSelected;
 	/// это уже после создания ( в структуре не нужно, для справки)
 	void *SomeDataPtr; // +18 - указатель на буфер с данными
-	void *buttonUp; // если есть скроллбар то кнопка вверх
-	void *buttonDown; // если есть скроллбар то кнопка вниз
-	void *slider; // указатель на сам скроллбар
+	wndStruct *buttonUp; // если есть скроллбар то кнопка вверх
+	wndStruct *buttonDown; // если есть скроллбар то кнопка вниз
+	wndStruct *slider; // указатель на сам скроллбар
 	int unk28;
 	short freeLinesCount2C; //+2C
 	short var2E;// может первый/последний свободный в списке

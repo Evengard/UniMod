@@ -9,11 +9,11 @@ void *(__cdecl *noxWndGetChildByID)(void *Window,int Id);
 void (__cdecl *parseWindowStatus)(void *WddPtr,const char *Str);
 
 
-void *(__cdecl *wndLoadControl)
+wndStruct* (__cdecl *wndLoadControl)
 	(const char *ControlName, void *ParentWnd, int wndFlags, 
 		int Left, int Top, int Width, int Height, void *Wdd, void *DataPtr);
 
-BYTE* (__cdecl *wndCreate2)(void *parentWnd, int wndFlags, 
+wndStruct* (__cdecl *wndCreate2)(void *parentWnd, int wndFlags, 
 							int screenLeft, int screenTop, int screenWidth, int screenHeight, 
 							void *wndProc);
 void (__cdecl *wndShowHide)(void *Wnd,int Hide);
@@ -38,7 +38,7 @@ extern void wstringFromLua(lua_State *L,wchar_t *Dst,int MaxLen);
 extern void *imageFromLua(lua_State *L);
 
 extern int (__cdecl uniWindowDrawFn) (void *Window,void *WindowDD);
-extern int (__cdecl uniListBoxDrawFn) (void *Window,void *WindowDD);
+extern int (__cdecl uniListBoxDrawFn) (wndStruct *Window,void *WindowDD);
 
 
 namespace 
@@ -348,81 +348,31 @@ B - ChildId
 
 	int wndSetAttr(lua_State *L)
 	{
-		byte *H;
 		lua_settop(L,3);
 		if (lua_type(L,2)!=LUA_TSTRING)
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
 		}
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=(byte*)lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=(byte*)lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}
+		wndStruct *H=wndGetHandleByLua(1);
 		parseAttr(L,2,3,H,attrOffsets);
 		return 1;
 	}
 	int wndDestroyL(lua_State *L)
 	{
-		void *H;
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}
+		wndStruct *H=wndGetHandleByLua(1);
 		lua_pushinteger(L,noxWindowDestroy(H));
 		return 1;
 	}
 	int getChildByIdL(lua_State *L)
 	{
-		void *R,*H=0;
+		void *R;
 		if(lua_type(L,2)!=LUA_TNUMBER)
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
 		}
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}
+		wndStruct *H=wndGetHandleByLua(1);
 		if(H==0)
 		{
 			lua_pushnil(L);
@@ -437,73 +387,22 @@ B - ChildId
 	}
 	int wndShow(lua_State *L)
 	{
-		void *H=0;
 		lua_settop(L,2);
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error_(L);
-		}
+		wndStruct *H=wndGetHandleByLua(1);
 		wndShowHide(H,lua_toboolean(L,2)?0:1);
 		return 0;
 	}	
 	int wndUnGrabMouse(lua_State *L)
 	{
-		void *H=0;
 		lua_settop(L,1);
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}
+		wndStruct *H=wndGetHandleByLua(1);
 		wndClearCaptureMain(H);
 		return 0;
 	}
 	int wndGrabMouse(lua_State *L)
 	{
-		void *H=0;
 		lua_settop(L,2);
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}
+		wndStruct *H=wndGetHandleByLua(1);
 		if (0==lua_toboolean(L,2) && ( 0!=wndGetCaptureMain() ))// если второй параметр true - схарчим в любом случае
 			return 0;
 		wndSetCaptureMain(H);
@@ -511,28 +410,10 @@ B - ChildId
 	}
 	int wndGetIdL(lua_State *L)
 	{
-		void *H=0;
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}
-
+		wndStruct *H=wndGetHandleByLua(1);
 		if(H==0)
 		{
-			lua_pushinteger(L,0);
+			lua_pushnil(L);
 			return 1;
 		}
 		lua_pushinteger(L,noxWndGetID(H));
@@ -541,24 +422,7 @@ B - ChildId
 	int callWndProcL(lua_State *L)
 	{
 		void *R;
-		void *H=0;
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}
+		wndStruct *H=wndGetHandleByLua(1);
 		lua_settop(L,4);
 		R=noxCallWndProc(H,lua_tointeger(L,2),
 			(lua_type(L,3)==LUA_TLIGHTUSERDATA)?(int)lua_touserdata(L,3):lua_tointeger(L,3),
@@ -575,26 +439,10 @@ B - ChildId
 	}
 	int wndSetProcL(lua_State *L) // wnd+0x178 - прок окна
 	{
-		BYTE * Window=0;
+		wndStruct *Window=wndGetHandleByLua(1);
 		bool haveTable=false;
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			Window=(BYTE *)(lua_touserdata(L,1));
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			haveTable=true;
-			Window=(BYTE *)(lua_touserdata(L,-1));
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}			
+		 if(lua_type(L,1)==LUA_TTABLE)
+			haveTable=true;		
 		if(lua_type(L,2)!=LUA_TFUNCTION)
 		{
 			lua_pushstring(L,"wrong args!");
@@ -602,7 +450,6 @@ B - ChildId
 		}
 		lua_pushlightuserdata(L,&noxWndLoad);
 		lua_gettable(L,LUA_REGISTRYINDEX);
-
 		if (haveTable)
 			lua_pushvalue(L,1);
 		{
@@ -612,7 +459,7 @@ B - ChildId
 			lua_pushvalue(L,2);
 			lua_setfield(L,-2,"wndProc");
 		}
-		lua_pushlightuserdata(L,*((void**)(Window+0x178)));
+		lua_pushlightuserdata(L,Window->wndProcPre);
 		lua_setfield(L,-2,"oldFn");/// сохраним старую функцию
 		lua_pushlightuserdata(L,Window);
 		lua_pushvalue(L,-2);
@@ -620,7 +467,7 @@ B - ChildId
 		// табл из реестра, [юзердата из первого], функция,  второй аргумент
 		lua_settable(L,-4);
 		/// 174 - 178 - какой из проков?
-		*((void**)(Window+0x178))=&newWindowProc;
+		Window->wndProcPre=&newWindowProc;
 
 		return 1;
 	}
@@ -698,7 +545,7 @@ public:
 		return this;
 	}
 
-	void CreateSlider(lua_State *L,void *Wnd)
+	void CreateSlider(lua_State *L,wndStruct *Wnd)
 	{
 		int isSlider=false;
 		lua_getfield(L,1,"slider"); // что бы это таблица лежала под индексом 2
@@ -735,19 +582,16 @@ public:
 					lua_settop(L,1);	
 					return;
 				}
-				lua_getfield(L,4,"handle");
-				BYTE *P=(BYTE*) Wnd; // ставим слайдер или не слайдер
-				P=*((BYTE**)(P+0x20));
-				listBoxDataStruct *listboxData=(listBoxDataStruct*)P;
+				lua_getfield(L,-1,"handle");
+				listBoxDataStruct *listboxData=(listBoxDataStruct*)Wnd->someData;
 				if (isSlider)
-					listboxData->slider=lua_touserdata(L,-1);
+					listboxData->slider=(wndStruct*) lua_touserdata(L,-1);
 				else if (listboxData->buttonUp==0)
-					listboxData->buttonUp=lua_touserdata(L,-1);
+					listboxData->buttonUp=(wndStruct*) lua_touserdata(L,-1);
 				else 
-					listboxData->buttonDown=lua_touserdata(L,-1);		
+					listboxData->buttonDown=(wndStruct*) lua_touserdata(L,-1);		
+				Wnd->drawFn=&uniListBoxDrawFn;
 				lua_settop(L,3);
-				BYTE *Wndb=(BYTE*)Wnd;
-				*((void**)(Wndb+0x17C))=&uniListBoxDrawFn;
 			}
 		}
 		lua_settop(L,1);
@@ -889,7 +733,7 @@ public:
 
 */
 		int x,y,w,h;
-		DWORD Flags=0x408;
+		DWORD Flags=wfNoFocus+wfEnabled;
 
 		x=lua_getint(L,"x");
 		y=lua_getint(L,"y");
@@ -983,20 +827,20 @@ public:
 				VS.Create(L,1);
 				DataPtr=&VS;
 			}
-			void *Wnd=wndLoadControl(ControlType,Parent, Wdd.status,x,y,w,h, &Wdd,DataPtr);
+			wndStruct *Wnd=wndLoadControl(ControlType,Parent, Wdd.status,x,y,w,h, &Wdd,DataPtr);
 			if (Wnd==NULL)
 			{
 				lua_pushstring(L,"wrong args - unable to create control");
 				lua_error(L);
 			}
 
-			if ((Wdd.controlType & 0x20)!=0) // если листбокс, то проверяем на слайдер
+			if ((Wnd->drawData.controlType & ctListBox)!=0) // если листбокс, то проверяем на слайдер
 			{
 				lua_settop(L,1);
 				LD.CreateSlider(L,Wnd);	
 			} 
 
-			*((int*)Wnd)=nextChildId;
+			Wnd->wndId=nextChildId;
 			lua_pushstring(L,"childId");
 			lua_pushinteger(L,nextChildId++);
 			lua_settable(L,1);
@@ -1011,7 +855,7 @@ public:
 			return 1;
 		}
 
-		Wdd.controlType|=0x2000;// кастомный контрол
+		Wdd.controlType|=ctUser;// кастомный контрол
 
 
 		lua_pushlightuserdata(L,&noxWndLoad);
@@ -1020,9 +864,7 @@ public:
 			lua_pushvalue(L,1);
 		lua_settable(L,-3);/// кладем таблицу для события
 	
-		/// c флагами еще разобратся надо
-		BYTE *Wnd;
-		Wnd=wndCreate2(Parent,Wdd.status,x,y,w,h,&newWindowProc);
+		wndStruct *Wnd=wndCreate2(Parent,Wdd.status,x,y,w,h,&newWindowProc);
 			lua_pushinteger(L,nowCreating--); /// удаляем номерную таблицу
 			lua_pushnil(L);
 		lua_settable(L,-3);
@@ -1031,10 +873,10 @@ public:
 			lua_pushstring(L,"wndCreate2 Fail!");
 			lua_error(L);
 		}
-		*((void**)(Wnd+0x17C))=&uniWindowDrawFn; // наа рисовалка
-		*((void**)(Wnd+0x174))=&newWindowProc;
+		Wnd->drawFn=&uniWindowDrawFn; // наа рисовалка
+		Wnd->wndProc=&newWindowProc;
 
-		*((int*)Wnd)=nextChildId;
+		Wnd->wndId=nextChildId;
 		lua_pushstring(L,"childId");
 		lua_pushinteger(L,nextChildId++);
 		lua_settable(L,1);
@@ -1042,7 +884,7 @@ public:
 		lua_getfield(L,1,"drawFn");
 		if (lua_type(L,-1)==LUA_TFUNCTION)
 		{
-			*((void**)(Wnd+0x17C))=&newDrawProc;
+			Wnd->drawFn=&newDrawProc;
 		}
 		lua_settop(L,1);
 
