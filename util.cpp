@@ -1086,7 +1086,7 @@ void lua_error_(lua_State*L)
 	lua_error(L);
 }
 
-extern void windowsInit();
+extern void windowsAllInit();
 extern void unitInit();
 extern void mapInit();
 extern void reactInit();
@@ -1265,7 +1265,7 @@ void injectCon()
 	initAudServer(L);
 	reactInit();
 
-	windowsInit();
+	windowsAllInit();
 	clientViewInit();
 	unitInit();
 	mapInit();
