@@ -149,8 +149,8 @@ namespace
 			lua_error(L);
 		}	
 
-		if ((H->flags & wfEnable)!=0) 
-			H->flags-=wfEnable;
+		if ((H->flags & wfEnabled)!=0) 
+			H->flags-=wfEnabled;
 		return 0;
 	}
 
@@ -163,8 +163,8 @@ namespace
 			lua_error(L);
 		}	
 
-		if ((H->flags & wfEnable)!=0) 
-			H->flags+=wfEnable;
+		if ((H->flags & wfEnabled)!=0) 
+			H->flags+=wfEnabled;
 		return 0;
 	}
 }
