@@ -21,29 +21,12 @@ namespace
 {
 	int editBoxGetText(lua_State *L)
 	{
-		void *H=0;
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
+		wndStruct *H=wndGetHandleByLua(1);
+		if(H==0 || ((H->drawData.controlType & ctEditBox)==0))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
-		}
-		if(H==0)
-		{
-			lua_pushnil(L);
-			return 1;
-		}
+		}	
 		wchar_t *R=(wchar_t*) noxCallWndProc(H,0x401D,0,0);///считать строку
 		if(R==0)
 		{
@@ -60,35 +43,12 @@ namespace
 	}
 	int editBoxSetText(lua_State *L)
 	{
-		void *H=0;
-		if(lua_type(L,2)==LUA_TNIL)
+		wndStruct *H=wndGetHandleByLua(1);
+		if(H==0 || lua_type(L,2)!=LUA_TSTRING || ((H->drawData.controlType & ctEditBox)==0))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
-		}
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}
-		if(H==0)
-		{
-			lua_pushnil(L);
-			return 1;
-		}
-		
+		}		
 		size_t Len;
 		const char *R;
 		R=lua_tolstring(L,2,&Len);
@@ -107,33 +67,11 @@ namespace
 	}
 	int buttonSetText(lua_State *L)
 	{
-		void *H=0;
-		if(lua_type(L,2)==LUA_TNIL)
+		wndStruct *H=wndGetHandleByLua(1);
+		if(H==0 || lua_type(L,2)!=LUA_TSTRING || ((H->drawData.controlType & ctPushButton)==0))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
-		}
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error(L);
-		}
-		if(H==0)
-		{
-			lua_pushnil(L);
-			return 1;
 		}
 		size_t Len;
 		const char *R;
@@ -154,29 +92,11 @@ namespace
 
 	int ListBoxAddText(lua_State *L)
 	{
-		void *H=0;
-		lua_settop(L,2);
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-							{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
+		wndStruct *H=wndGetHandleByLua(1);
+		if(H==0 || lua_type(L,2)!=LUA_TSTRING || ((H->drawData.controlType & ctListBox)==0))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
-		}
-		if(H==0)
-		{
-			lua_pushnil(L);
-			return 1;
 		}
 		size_t Len;
 		const char *R;
@@ -196,33 +116,19 @@ namespace
 	}
 	int ListBoxClear(lua_State *L)
 	{
-		void *H=0;
-		lua_settop(L,1);
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
+		wndStruct *H=wndGetHandleByLua(1);
+		if(H==0 || ((H->drawData.controlType & ctListBox)==0))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
 		}
-		if(H!=0)
-			noxCallWndProc(H,0x400F,0,0);///Очистить список
+		noxCallWndProc(H,0x400F,0,0);///Очистить список
 		return 0;
 	}
-	int ListBoxSetItem(lua_State *L)
+	int ListBoxSetLine(lua_State *L)
 	{
 		wndStruct *H=wndGetHandleByLua(1);
-		if (H==0 && lua_type(L,2)!=LUA_TNUMBER)
+		if ((H==0) || (lua_type(L,2)!=LUA_TNUMBER) || ((H->drawData.controlType & ctListBox)==0))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
@@ -236,65 +142,29 @@ namespace
 
 	int buttonSwitchOff(lua_State *L)
 	{
-		void *H=0;
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
+		wndStruct *H=wndGetHandleByLua(1);
+		if(H==0 || ((H->drawData.controlType & ctPushButton)==0))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
-		}
-		if(H==0)
-		{
-			lua_pushnil(L);
-			return 1;
-		}
-		BYTE *P=(BYTE*)H;
-		P=P+4;
-		if ((*P & 8)!=0) 
-			*P=*P - 8;
+		}	
+
+		if ((H->flags & wfEnable)!=0) 
+			H->flags-=wfEnable;
 		return 0;
 	}
 
 	int buttonSwitchOn(lua_State *L)
 	{
-		void *H=0;
-		if(lua_type(L,1)==LUA_TLIGHTUSERDATA)
-			H=lua_touserdata(L,1);
-		else if(lua_type(L,1)==LUA_TTABLE)
-		{
-			lua_getfield(L,1,"handle");
-			if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
-			{
-				lua_pushstring(L,"wrong args!");
-				lua_error(L);
-			}
-			H=lua_touserdata(L,-1);
-		}
-		else
+		wndStruct *H=wndGetHandleByLua(1);
+		if(H==0 || ((H->drawData.controlType & ctPushButton)==0))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
-		}
-		if(H==0)
-		{
-			lua_pushnil(L);
-			return 1;
-		}
-		BYTE *P=(BYTE*)H;
-		P=P+4;
-		if ((*P & 8)==0) 
-			*P=*P + 8;
+		}	
+
+		if ((H->flags & wfEnable)!=0) 
+			H->flags+=wfEnable;
 		return 0;
 	}
 }
@@ -304,7 +174,7 @@ void windowMsgInit(lua_State*L)
 	registerclient("wndSetText",&editBoxSetText);/// для эдитов
 	registerclient("wndLbAddText",&ListBoxAddText);/// добавляет строчку в листбокс
 	registerclient("wndLbClear",&ListBoxClear);
-	registerclient("wndLbSelectItem",&ListBoxSetItem);
+	registerclient("wndLbSelectLine",&ListBoxSetLine);
 	registerclient("wndButtonSetText",&buttonSetText);
 	registerclient("wndButtonSwitchOn",&buttonSwitchOn);
 	registerclient("wndButtonSwitchOff",&buttonSwitchOff);

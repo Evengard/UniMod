@@ -104,6 +104,38 @@ struct staticTextDataStruct
 	wchar_t Buf[]; // чисто студийное жульничество - говорим что здесь  будет строка, но не говорим размер
 };
 
+enum wndControlType
+{
+	ctPushButton=0x1, // странно имеет еще 0x100
+	ctRadioButton=0x2, // странно имеет еще 0x100
+	ctCheckBox=0x4, // странно имеет еще 0x100
+	ctVerticalSlider=0x8,
+	ctHorizontalSlider=0x10,
+	ctListBox=0x20,
+	ctEditBox=0x80,
+	ctStaticText=0x800,
+	ctUser=0x2000,
+};
+
+enum wndFlags
+{
+	wf_1=0x1,
+	wf_2=0x2,
+	wf_4=0x4,
+	wfEnabled=0x8,
+	wfHidden=0x10,
+	wfAbove=0x20,
+	wfBelow=0x40,
+	wfImage=0x80,
+	wf_100=0x100,
+	wfNoInput=0x200,
+	wfNoFocus=0x400,
+	wf_800=0x800,
+	wfBorder=0x1000,
+	wf_2000=0x2000,
+	wfOneLine=0x4000,
+
+};
 
 extern wndStruct *wndGetHandleByLua(int idx);
 extern void *(__cdecl *noxCallWndProc)(void* Window,int Msg,int A,int B);
