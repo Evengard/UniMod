@@ -14,6 +14,7 @@ int (__cdecl *myCastSpellByUser)(int Spell, void *Caster, SpellTargetBlock *Targ
 //
 extern int (__cdecl *audSyllStartSpeak)(int SpellN);
 extern bigUnitStruct **unitCreatedList;
+extern DWORD *GameFlags;
 namespace
 {
 
@@ -38,6 +39,8 @@ namespace
 	int myCastSpellByUserPlayer(int Spell, void *Caster, SpellTargetBlock *TargetBlock)
 	{
 		bool check=true;
+		if (*GameFlags & 0x1000!=0)  // если ноксквест то нафги проверку
+			return myCastSpellByUser(Spell, Caster, TargetBlock);
 		if(spellDefHasFlags(Spell,0x200400)==1 && Spell!=34 && (Spell<75 || Spell>114))
 		{
 			if(Caster!=TargetBlock->target && spellDefHasFlags(Spell,0x600)==1)
