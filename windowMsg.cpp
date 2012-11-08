@@ -148,9 +148,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
 		}	
-
-		if ((H->flags & wfEnabled)!=0) 
-			H->flags-=wfEnabled;
+		H->flags=(H->flags ^ (H->flags & wfEnabled));
 		return 0;
 	}
 
@@ -162,11 +160,10 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
 		}	
-
-		if ((H->flags & wfEnabled)==0) 
-			H->flags+=wfEnabled;
+		H->flags|=wfEnabled;
 		return 0;
 	}
+
 }
 void windowMsgInit(lua_State*L)
 {

@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "unit.h"
+#include "player.h"
 #include <string.h>
 #include <math.h>
 
@@ -26,6 +28,7 @@ void (__cdecl *netReportCharges) (int playerIdx, void *weapon, int a,int b);
 void *(__cdecl *netGetUnitByExtent)(DWORD NetCode);/// только для динамических (на сервере)playerGoObserver
 
 void (__cdecl *netSendShieldFx)(void *Unit,noxPoint* From);
+void (__cdecl *netSendExplosionFx)(noxPoint* Pt,int count);
 
 extern "C" void conSendToServer(const char *Cmd);
 extern "C" int conDoCmd(char *Cmd,bool &PrintNil);
@@ -39,19 +42,13 @@ int (__cdecl *netSendBySock)(int Player,void *Data,int Size, int Type);
 byte authorisedState[0x20];
 char *authorisedLogins[0x20];
 
-void *playerSysop=(void*)0x0069D720;
+playerInfoStruct **playerSysop=(playerInfoStruct**)0x0069D720;
 
 //char *temp; //Временная переменная
 
 extern void authCheckDelayed(byte playerIdx, char* pass);
 
 extern char authSendWelcomeMsg[0x20];
-
-extern void* getPlayerUDataFromPlayerIdx(int idx);
-
-extern void* getPlayerUDataFromPlayerNetCode(int netCode);
-
-extern void* getPlayerUDataFromPlayerInfo(void *addr);
 
 int (__cdecl *netCreatePlayerStartPacket)(void* Dst, void* playerInfo);
 void *(__cdecl *playerCheckDuplicateNames)(void* playerInfo);
@@ -213,12 +210,9 @@ namespace {
 	int netPointFx(lua_State *L)
 	{
 		lua_settop(L,3);
-		if (
-			(lua_type(L,-3)!=LUA_TNUMBER)||
+		if ((lua_type(L,-3)!=LUA_TNUMBER)||
 			(lua_type(L,-2)!=LUA_TNUMBER)||
-			(lua_type(L,-1)!=LUA_TNUMBER)||
-			0
-			)
+			(lua_type(L,-1)!=LUA_TNUMBER))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
@@ -236,14 +230,11 @@ namespace {
 	{
 		lua_settop(L,5);
 
-		if (
-			(lua_type(L,-5)!=LUA_TNUMBER)||
+		if ((lua_type(L,-5)!=LUA_TNUMBER)||
 			(lua_type(L,-4)!=LUA_TNUMBER)||
 			(lua_type(L,-3)!=LUA_TNUMBER)||
 			(lua_type(L,-2)!=LUA_TNUMBER)||
-			(lua_type(L,-1)!=LUA_TNUMBER)||
-			0
-			)
+			(lua_type(L,-1)!=LUA_TNUMBER))
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
@@ -272,6 +263,25 @@ namespace {
 		netSendShieldFx(lua_touserdata(L,-3),&Pt);
 		return 0;
 	}
+
+
+	int netExplosionFx(lua_State *L)
+	{
+		if ((lua_type(L,1)!=LUA_TNUMBER)||
+			(lua_type(L,2)!=LUA_TNUMBER)||
+			(lua_type(L,3)!=LUA_TNUMBER))
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		int count=lua_tonumber(L,1);
+		if (count>255)
+			count%=255;
+		noxPoint Pt(lua_tonumber(L,2),lua_tonumber(L,3));
+		netSendExplosionFx(&Pt,count);
+		return 0;
+	}
+
 	int netRename(lua_State *L)
 	{
 		
@@ -618,8 +628,6 @@ namespace {
 	}
 	void sysopMyTrap(wchar_t*Str,int Mode)
 	{
-		BYTE *P=(BYTE*) playerSysop;
-		byte *playerInfo=*((byte**)(P));
 		bool UniComplete=false;// если код выполнился то ставим true
 		//здесь код1АДЫНАДЫН 
 		int Len = wcslen(Str);
@@ -637,17 +645,15 @@ namespace {
 		lua_pcall(L, 1, 1, 0);
 		char* result=(char*)lua_tostring(L, -1);
 		delete[] Cmd;
-		void* unit = getPlayerUDataFromPlayerInfo(playerInfo);
+		bigUnitStruct *unit = getPlayerUDataFromPlayerInfo(*playerSysop);
 		if(unit==0)
 			return;
 		DWORD *DW=(DWORD*)unit;
-		if (0==(DW[2] & 0x4))
+		if (0==(unit->Class & clPlayer))
 		{
 			return;
 		}
-		void **PP=(void **)(((char*)unit)+0x2EC);
-		PP=(void**)(((char*)*PP)+0x114);
-		byte *P2=(byte*)(*PP);
+		byte *P2=(byte*)(((ucPlayer*)unit->unitController)->playerInfo);
 		char *BuffS = new char[strlen(result)+10];
 		memset(BuffS, 0, strlen(result)+10);
 		sprintf(BuffS,"sysop> %s",result);
@@ -1085,6 +1091,7 @@ void netInit()
 	ASSIGN(netSendPointFx,0x522FF0);
 	ASSIGN(netSendRayFx,0x5232F0);
 	ASSIGN(netSendShieldFx,0x00523670);
+	ASSIGN(netSendExplosionFx,0x005231B0);
 
 	ASSIGN(netCreatePlayerStartPacket,0x004DDA90);
 
@@ -1092,6 +1099,7 @@ void netInit()
 	registerserver("netPointFx",&netPointFx);
 	registerserver("netRayFx",&netRayFx);
 	registerserver("netShieldFx",&netShieldFx);
+	registerserver("netExplosionFx",&netExplosionFx);
 	registerserver("netReq",&netDoReq);
 
 	registerserver("netReportCharges",&netReportChargesL);

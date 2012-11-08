@@ -48,47 +48,45 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\lua\src;E:\Lua\5.1\include;F:\lua-5.1.4\src;Libs\lpng151;Libs\zlib;C:\Users\Evengard\dev\lua-5.1.4\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UNIMOD_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Libs\zlib;Libs\lpng151;Libs\lua\src;Libs\lua\dynasm</AdditionalIncludeDirectories>
-      <OmitDefaultLibName>false</OmitDefaultLibName>
     </ClCompile>
     <Link>
       <AdditionalDependencies>User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>Libs\lua\src;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>..\$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AddModuleNamesToAssembly>%(AddModuleNamesToAssembly)</AddModuleNamesToAssembly>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <BaseAddress>0x36900000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
+      <AdditionalIncludeDirectories>..\..\lua\src;E:\Lua\5.1\include;F:\lua-5.1.4\src;Libs\lpng151;Libs\zlib;C:\Users\Evengard\dev\lua-5.1.4\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;UNIMOD_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Libs\zlib;Libs\lpng151;Libs\lua\src;Libs\lua\dynasm</AdditionalIncludeDirectories>
-      <OmitDefaultLibName>true</OmitDefaultLibName>
     </ClCompile>
     <Link>
       <AdditionalDependencies>User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\$(ProjectName).dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <BaseAddress>0x36900000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -110,8 +108,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="libVer.cpp" />
     <ClCompile Include="mapUtil.cpp" />
+    <ClCompile Include="playerExternFunction.cpp" />
     <ClCompile Include="polygon.cpp" />
     <ClCompile Include="SendBuffer.cpp" />
     <ClCompile Include="Libs\csha1\SHA1.cpp">
@@ -123,6 +121,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="UniMod.cpp" />
+    <ClCompile Include="unitExternFunction.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="Libs\webserver.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -188,28 +187,23 @@
     <ClCompile Include="map.cpp" />
     <ClCompile Include="tiles.cpp" />
     <ClCompile Include="Waypoints.cpp" />
+    <ClCompile Include="windowsUniModFunction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libs\lpeg.h" />
     <ClInclude Include="Libs\csha1\SHA1.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="bzip2\bzlib.h" />
     <ClInclude Include="bzip2\bzlib_private.h" />
+    <ClInclude Include="unit.h" />
+    <ClInclude Include="windowUniMod.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Libs\libpng.lib" />
-    <Library Include="Libs\lua.lib" />
-    <Library Include="Libs\zlib.lib" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Libs\lpng151\projects\visualc71\libpng.vcxproj">
-      <Project>{0008960e-e0dd-41a6-8265-00b31ddb4c21}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="Libs\lpng151\projects\visualc71\zlib.vcxproj">
-      <Project>{2d4f8105-7d21-454c-9932-b47cab71a5c0}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
+    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\libpng.lib" />
+    <Library Include="LibVer.lib" />
+    <Library Include="Libs\lua51static_mt.lib" />
+    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\ZLib\zlib.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

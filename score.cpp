@@ -1,7 +1,10 @@
 #include "stdafx.h"
+#include "unit.h"
+#include "player.h"
 #include <deque>
 #include <algorithm>
 #include "winsock2.h"
+
 /*
 Здесь начисление/получение фрагов и т.п.
 */

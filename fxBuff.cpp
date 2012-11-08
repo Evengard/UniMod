@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "unit.h"
+#include "player.h"
 
 extern void (__cdecl *noxRasterPoint)(int X,int Y);
 extern void (__cdecl *noxRasterPointRel)(int X,int Y);
@@ -9,8 +11,6 @@ extern int (__cdecl *noxSetRectColorMB) (int);
 extern DWORD *GameFlags;
 FxBuffer_t *FxFirstBuffer=0;
 extern BYTE **clientPlayerInfoPtr;
-extern bigUnitStruct* (__cdecl *playerFirstUnit)();
-extern bigUnitStruct* (__cdecl *playerNextUnit)(void* Prev);
 
 void FxBuffer_t::getValues(int First,int Len)
 {

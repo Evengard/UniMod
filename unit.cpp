@@ -1,35 +1,28 @@
 #include "stdafx.h"
+#include "unit.h"
 #include <math.h>
+#include "player.h"
 
-int playersListL(lua_State *L);
-void* getPlayerUDataFromPlayerInfo(void *addr);
+void (__cdecl *unitSetFollow)(bigUnitStruct* Me,void *Him);
+void (__cdecl *unitBecomePet)(bigUnitStruct* Me,void *Him);
+void (__cdecl *noxFrozen) (bigUnitStruct* Unit,int Num);
+void (__cdecl *noxUnFrozen) (bigUnitStruct* Unit,int Num);
+void (__cdecl *unitMove)(bigUnitStruct *Who,noxPoint *Pt);
+void (__cdecl *unitActivate) (bigUnitStruct *Unit);
+void (__cdecl *dropAllItems)(bigUnitStruct*Unit);
+void (__cdecl *noxUnitHunt) (bigUnitStruct *Unit);
+void (__cdecl *noxAgressionLevel) (bigUnitStruct *Unit,float *level);
+void (__cdecl *noxMirrorShot) (bigUnitStruct *Shot,void *);
+int (__cdecl *noxUnitTestBuff) (bigUnitStruct *Unit,int buffN);
 
-void (__cdecl *unitSetFollow)(void* Me,void *Him);
-void (__cdecl *unitBecomePet)(void* Me,void *Him);
-void (__cdecl *noxFrozen) (void* Unit,int Num);
-void (__cdecl *noxUnFrozen) (void* Unit,int Num);
-void (__cdecl *unitMove)(void *Who,noxPoint *Pt);
-void (__cdecl *unitActivate) (void *Unit);
-void (__cdecl *dropAllItems)(void*Unit);
-void (__cdecl *noxUnitHunt) (void *Unit);
-void (__cdecl *noxAgressionLevel) (void *Unit,float *level);
-void (__cdecl *noxMirrorShot) (void *Shot,void *);
-void (__cdecl *noxUnitDelete) (void *Unit);
-void (__cdecl *noxUnitSetOwner) (void *NewOwner,void *Owner);
-int (__cdecl *noxUnitTestBuff) (void *Unit,int buffN);
-
-void (__cdecl *inventoryPut)(void *Who,void *What,int A);
-
-bigUnitStruct *(__cdecl *unitDamageFindParent) (void *Unit); // кто источник урона
+void (__cdecl *inventoryPut)(bigUnitStruct *Who,bigUnitStruct *What,int A);
 
 /// список созданных в текущем кадре на сервере
 bigUnitStruct **unitCreatedList;
 
 extern const char *(__cdecl *noxThingNameByType)(int Type);
 extern int (__cdecl *noxGetUnitsInRect)(FloatRect *Rect, void (__cdecl *SomeFn)(void *Unit, void *Arg), void *Arg);
-extern void *(__cdecl *noxAlloc)(int Size);
-extern void (__cdecl *noxFree)(void *Ptr);
-extern void printI(const char *S);
+
 struct UnitAndEye_s
 {
 	float unitX,unitY;
@@ -40,95 +33,9 @@ int (__cdecl *noxUnknown535250)(UnitAndEye_s *Ptr,int Unk1,int Unk2,int Unk3);//
 void (__cdecl *unitSetDecayTime)(void *Unit,int Time);//bool
 void (__cdecl *noxDeleteUnit)(void *Unit);
 
-bigUnitStruct* (__cdecl *playerFirstUnit)(); ///возвращает первый юнит сетевого игрока
-bigUnitStruct* (__cdecl *playerNextUnit)(void* Prev); /// Возвращает следующего сетевого игрока
 void* (__cdecl *noxUnitDefByName)(const char *Name);//Возвращает юнитдеф
-void (__cdecl *noxDeleteObject)(void *Unit);
 
-unitBigStructPtr	(__cdecl* objectCreateByName)(char const *ObjName);
-void 				(__cdecl* noxCreateAt)(unitBigStructPtr Obj,unitBigStructPtr ParentUnit, float X,float Y);
-
-
-int playersListL(lua_State *L)
-{
-	void *P;
-	P=playerFirstUnit();
-	if(P==0)
-	{
-		lua_pushnil(L);		
-		return 1;
-	}
-	lua_newtable(L);
-	int i=1;
-	while(P!=0)
-	{
-		lua_pushinteger(L,i++);
-		lua_pushlightuserdata(L,P);
-		lua_settable(L,-3);
-		P=playerNextUnit(P);
-	}
-	return 1;
-}
-
-
-void* getPlayerUDataFromPlayerInfo(void* addr)
-{
-	void *P;
-	P=playerFirstUnit();
-	while(P!=0)
-	{
-		BYTE *B=(BYTE *)P;
-		B+=0x2EC;//контроллер
-		B=*((BYTE**)B);
-		B+=0x114;//плэеринфо?
-		B=*((BYTE**)B);
-		if(addr==B)
-			return P;
-		P=playerNextUnit(P);
-	}
-	return 0;
-}
-
-
-void* getPlayerUDataFromPlayerIdx(int idx)
-{
-	void *P;
-	P=playerFirstUnit();
-	while(P!=0)
-	{
-		BYTE *B=(BYTE *)P;
-		B+=0x2EC;//контроллер
-		B=*((BYTE**)B);
-		B+=0x114;//плэеринфо?
-		B=*((BYTE**)B);
-		B+=0x810;
-		int idxFound=*((BYTE*)B);
-		if(idx==idxFound)
-			return P;
-		P=playerNextUnit(P);
-	}
-	return 0;
-}
-
-void* getPlayerUDataFromPlayerNetCode(int netCode)
-{
-	void *P;
-	P=playerFirstUnit();
-	while(P!=0)
-	{
-		BYTE *B=(BYTE *)P;
-		B+=0x2EC;//контроллер
-		B=*((BYTE**)B);
-		B+=0x114;//плэеринфо?
-		B=*((BYTE**)B);
-		B+=0x80C;
-		int netCodeFound=*((short*)B);
-		if(netCode==netCodeFound)
-			return P;
-		P=playerNextUnit(P);
-	}
-	return 0;
-}
+void (__cdecl* noxCreateAt)(unitBigStructPtr Obj,unitBigStructPtr ParentUnit, float X,float Y);
 
 namespace
 {
@@ -140,11 +47,11 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		BYTE* P=(BYTE*) lua_touserdata(L,1);
-		if(P==NULL)
+		bigUnitStruct *Unit=(bigUnitStruct*)lua_touserdata(L,1);
+		if(Unit==NULL)
 			return 0;
-		lua_pushnumber(L, *((float*)(P+0x38)) );
-		lua_pushnumber(L, *((float*)(P+0x3C)) );
+		lua_pushnumber(L,Unit->unitX);
+		lua_pushnumber(L,Unit->unitY);
 		return 2;
 	}
 	void unitPickImpl(void *Unit, void *L_)
@@ -190,7 +97,7 @@ namespace
 		if (!T)
 			return 0;
 		noxCreateAt(T,0,lua_tonumber(L,2),lua_tonumber(L,3));
-		if (T->Class  & 0x00400000)// immobile
+		if (T->Class  & clImmobile)
 		{
 			BYTE Buf[256],*Out=Buf;
 			int Size=16;
@@ -218,7 +125,7 @@ namespace
 			(bigUnitStruct *)objectCreateByName(lua_tostring(L,1));
 		if (!T)
 			return 0;
-		inventoryPut(lua_touserdata(L,2),T,1);
+		inventoryPut((bigUnitStruct*)lua_touserdata(L,2),T,1);
 		lua_pushlightuserdata(L,T);
 		return 1;
 	}
@@ -229,10 +136,10 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		bigUnitStruct *P=(bigUnitStruct *)lua_touserdata(L,1);
+		bigUnitStruct *P=(bigUnitStruct*)lua_touserdata(L,1);
 		if(P!=0)
 		{
-			if (P->Class&0x400000)///immobile
+			if (P->Class & clImmobile)
 			{
 				BYTE Buf[256],*Out=Buf;
 				int Size=4;
@@ -244,31 +151,6 @@ namespace
 		}
 		return 0;
 	}
-	int playerMouseL(lua_State *L)
-	{
-		if ( (lua_type(L,1)!=LUA_TLIGHTUSERDATA) )
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error_(L);
-		}
-		void *P=lua_touserdata(L,1);
-		void *Q=playerFirstUnit();
-		for (;Q!=NULL;Q=playerNextUnit(Q))
-		{
-			if (Q==P) break;
-		}
-		if (Q==NULL)
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error_(L);
-		}
-		BYTE *B=(BYTE *)P;B+=0x2EC;//контроллер
-		B=*((BYTE**)B);B+=0x114;//плэеринфо?
-		B=*((BYTE**)B);B+=0x8EC;
-		lua_pushinteger(L,*((int*)B));B+=4;
-		lua_pushinteger(L,*((int*)B));
-		return 2;
-	}
 	int unitSetFollowL(lua_State*L)
 	{
 		if ( (lua_type(L,1)!=LUA_TLIGHTUSERDATA)||(lua_type(L,2)!=LUA_TLIGHTUSERDATA) )
@@ -276,8 +158,8 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		void *P1,*P2;
-		P1=lua_touserdata(L,1);P2=lua_touserdata(L,2);
+		bigUnitStruct *P1,*P2;
+		P1=(bigUnitStruct*)lua_touserdata(L,1);P2=(bigUnitStruct*)lua_touserdata(L,2);
 		if(P1==0 || P2==0)
 			return 0;
 		unitSetFollow(P1,P2);
@@ -290,8 +172,8 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		void *P1,*P2;
-		P1=lua_touserdata(L,1);P2=lua_touserdata(L,2);
+		bigUnitStruct *P1,*P2;
+		P1=(bigUnitStruct*)lua_touserdata(L,1);P2=(bigUnitStruct*)lua_touserdata(L,2);
 		if(P1==0 || P2==0)
 			return 0;
 		unitBecomePet(P2,P1);/// Вызывается наоборот
@@ -305,7 +187,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		noxUnitHunt(lua_touserdata(L,1));
+		noxUnitHunt((bigUnitStruct*)lua_touserdata(L,1));
 		return 0;
 	}
 
@@ -355,7 +237,7 @@ namespace
 			lua_error_(L);
 		}
 		noxPoint Pt(lua_tonumber(L,2),lua_tonumber(L,3));
-		unitMove(lua_touserdata(L,1),&Pt);
+		unitMove((bigUnitStruct*)lua_touserdata(L,1),&Pt);
 		return 0;
 	}
 	
@@ -366,7 +248,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		noxFrozen(lua_touserdata(L,1),1);
+		noxFrozen((bigUnitStruct*)lua_touserdata(L,1),1);
 		return 1;
 	}
 
@@ -383,7 +265,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		noxAgressionLevel(lua_touserdata(L,1),&lev);
+		noxAgressionLevel((bigUnitStruct*)lua_touserdata(L,1),&lev);
 		return 0;
 	}
 
@@ -394,7 +276,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		noxUnFrozen(lua_touserdata(L,1),1);
+		noxUnFrozen((bigUnitStruct*)lua_touserdata(L,1),1);
 		return 1;
 	}
 	int unitDropAll(lua_State*L)
@@ -404,7 +286,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		dropAllItems(lua_touserdata(L,1));
+		dropAllItems((bigUnitStruct*)lua_touserdata(L,1));
 		return 1;
 	}
 	int unitInventoryPut(lua_State*L)
@@ -417,7 +299,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		inventoryPut(lua_touserdata(L,1),lua_touserdata(L,2),1);
+		inventoryPut((bigUnitStruct*)lua_touserdata(L,1),(bigUnitStruct*)lua_touserdata(L,2),1);
 		return 0;
 	}
 	int unitSpeedL(lua_State*L)
@@ -427,9 +309,9 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		BYTE *P=(BYTE *) lua_touserdata(L,1);		
-		lua_pushnumber(L,*((float*)(P+0x50)));
-		lua_pushnumber(L,*((float*)(P+0x54)));
+		bigUnitStruct *P=(bigUnitStruct*)lua_touserdata(L,1);		
+		lua_pushnumber(L,P->velX);
+		lua_pushnumber(L,P->velY);
 		if (lua_gettop(L)<5)
 		{
 			return 2;
@@ -443,13 +325,13 @@ namespace
 		if((lua_gettop(L)>5)&& lua_toboolean(L,4))
 		{
 			float a=lua_tonumber(L,3),v=lua_tonumber(L,2);
-			*((float*)(P+0x50))=v*a;
-			*((float*)(P+0x54))=-v*a;
+			P->velX=v*a;
+			P->velY=-v*a;
 		}
 		else
 		{
-			*((float*)(P+0x50))=lua_tonumber(L,2);
-			*((float*)(P+0x54))=lua_tonumber(L,3);
+			P->velX=lua_tonumber(L,2);
+			P->velY=lua_tonumber(L,3);
 		}
 		unitActivate(P);
 		return 2;
@@ -463,7 +345,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		if (noxUnitTestBuff(lua_touserdata(L,1),lua_tonumber(L,2))==1)
+		if (noxUnitTestBuff((bigUnitStruct*)lua_touserdata(L,1),lua_tonumber(L,2))==1)
 			lua_pushboolean(L,true);
 		else
 			lua_pushboolean(L,false);
@@ -471,21 +353,15 @@ namespace
 	}
 }
 float (__cdecl *getFloatByName)(const char *Name);
-extern void unit2Init();
 void unitInit()
 {
 	ASSIGN(getFloatByName,0x00419D40);
 	ASSIGN(unitCreatedList,0x00750710);
-	ASSIGN(unitDamageFindParent,0x004EC580);
 	ASSIGN(unitSetFollow,0x5158C0);
 	ASSIGN(unitBecomePet,0x4E7B00);
 	ASSIGN(noxUnknown535250,0x535250);
-	ASSIGN(playerFirstUnit,0x4DA7C0);
-	ASSIGN(playerNextUnit,0x4DA7F0);
 	ASSIGN(unitSetDecayTime,0x00511660);
 	ASSIGN(noxUnitDefByName,0x004E3830);
-	ASSIGN(noxDeleteObject,0x004E5CC0);
-	ASSIGN(objectCreateByName,0x004E3810);
 	ASSIGN(noxCreateAt,0x004DAA50);
 	ASSIGN(unitMove,0x004E7010);
 	ASSIGN(unitActivate,0x00537610);
@@ -496,8 +372,6 @@ void unitInit()
 	ASSIGN(noxUnitHunt,0x5449D0); 
 	ASSIGN(noxAgressionLevel,0x00515980);
 	ASSIGN(noxMirrorShot,0x004E0A70);
-	ASSIGN(noxUnitDelete,0x004E5E80);
-	ASSIGN(noxUnitSetOwner,0x004EC290);
 	ASSIGN(noxUnitTestBuff,0x004FF350);
 
 	registerserver("unitSetFollow",&unitSetFollowL);
@@ -514,13 +388,9 @@ void unitInit()
 	registerserver("unitSetAgression",&unitAgressionLevel);
 	registerserver("unitTestBuff",&unitTestBuff);
 
-	registerserver("playerList",&playersListL);
-	registerserver("playerMouse",&playerMouseL);
-
 	registerserver("unitMove",&unitMoveL);
 	registerserver("unitSpeed",&unitSpeedL);
 	registerserver("unitDropAll",&unitDropAll);
 	registerserver("unitInventoryPut",&unitInventoryPut);
 	registerserver("createObjectIn",&createObjectIn);
-	unit2Init();
 }
