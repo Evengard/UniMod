@@ -1087,14 +1087,14 @@ void lua_error_(lua_State*L)
 }
 
 extern void windowsAllInit();
-extern void unitInit();
+extern void unitFunctionInit();
 extern void mapInit();
 extern void reactInit();
 extern void spellsInit();
 extern void netInit();
 extern void keysInit();
 extern void consoleInit();
-extern void playerInit();
+extern void playerFunctionInint();
 extern void spriteInit();
 extern void spellListInit();
 extern void clientViewInit();
@@ -1267,14 +1267,14 @@ void injectCon()
 
 	windowsAllInit();
 	clientViewInit();
-	unitInit();
+	unitFunctionInit();
 	mapInit();
 	tilesInit();
 	unitDefsInit();
 	spellsInit();
 	netInit();
 	keysInit();
-	playerInit();
+	playerFunctionInint();
 	spriteInit();
 	spellListInit();
 	guiInit();

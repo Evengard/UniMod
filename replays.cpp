@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "unit.h"
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -54,7 +55,6 @@ void* (__cdecl *netOnPacketRecvCli)(int plrId, void* listPtr, int listSize);
 extern int (__cdecl *playerKickByIdx)(int playerIdx, int unknownArg);
 extern void* getPlayerUDataFromPlayerIdx(int idx);
 extern bigUnitStruct *netUnitByCodeServ(DWORD NetCode);
-extern void (__cdecl *noxDeleteObject) (void *Unit);
 bigUnitStruct* (__cdecl *unitCreateByThingType)(int thingType);
 
 ServerData replayViewFormGameData;
