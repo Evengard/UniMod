@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "unit.h"
 
 struct wallBreakable_s
 {
@@ -39,7 +40,6 @@ void (__cdecl *mapInitialize)();
 bigUnitStruct **scriptCallerUnit;
 bigUnitStruct **scriptTriggerUnit;
 
-extern bigUnitStruct *(__cdecl *unitDamageFindParent) (void *Unit);
 extern void mapUnloadFilesystem();
 extern void mapUnloadUtil();
 extern void mapLoadFilesystem(const char *);

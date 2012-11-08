@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "unit.h"
 
 int (__cdecl *unitGetHP)(void *U);
 void (__cdecl *unitSetHP)(void *U,int New);

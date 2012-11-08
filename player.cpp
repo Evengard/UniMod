@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "unit.h"
+#include "player.h"
 #include <vector>
 
 void (__cdecl *playerObserveCre)(void *Player,void *Creature);
@@ -9,7 +11,6 @@ void (__cdecl *sub_4E6040) (void*);
 void *(__cdecl *netUnitFromPacketMB)(int NetIdx);
 
 extern int (__cdecl *printCentered)(wchar_t *Text);
-extern bigUnitStruct *(__cdecl *unitDamageFindParent) (void *Unit);
 /*
 во вселенном состоянии надо фильтровать сообщение 0x79 тру спелл и делать на него
 обход до 0051C16C, подменив источник
@@ -30,7 +31,6 @@ extern void (__cdecl *noxTeamDelete)(void *TeamPtr,int SendClient);
 
 extern int (__cdecl *noxGetUnitsInRect)(FloatRect *Rect, void (__cdecl *SomeFn)(void *Unit, void *Arg), void *Arg);
 
-extern unitBigStructPtr	(__cdecl* objectCreateByName)(char const *ObjName);
 extern void 			(__cdecl* noxCreateAt)(unitBigStructPtr Obj,unitBigStructPtr ParentUnit, float X,float Y);
 
 extern void (__cdecl *serverFlagsSet)(DWORD V);
@@ -120,19 +120,18 @@ namespace
 		}
 	}
 
-	void __cdecl onPlayerDie(BYTE* Player)
+	void __cdecl onPlayerDie(bigUnitStruct *Player)
 	{
 		int Top=lua_gettop(L);
 		getServerVar("playerOnDie");
 		if (lua_isfunction(L,-1))
 		{
-			lua_pushlightuserdata(L,(void*)Player);
-			Player=*(BYTE**)(Player+0x208);
-			Player=(BYTE*)unitDamageFindParent((void*)Player);
+			lua_pushlightuserdata(L,Player);
+			Player=unitDamageFindParent(Player->unitDamaged);
 			if (Player==0)
 				lua_pushnil(L);
 			else
-				lua_pushlightuserdata(L,(void*)Player);
+				lua_pushlightuserdata(L,Player);
 			if (0!=lua_pcall(L,2,0,0))
 				conPrintI(lua_tostring(L,-1));
 		}
@@ -326,6 +325,32 @@ l1:
 		return R;
 	}
 
+	int playerMouseL(lua_State *L)
+	{
+		if ( (lua_type(L,1)!=LUA_TLIGHTUSERDATA) )
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		void *P=lua_touserdata(L,1);
+		void *Q=playerFirstUnit();
+		for (;Q!=NULL;Q=playerNextUnit(Q))
+		{
+			if (Q==P) break;
+		}
+		if (Q==NULL)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		BYTE *B=(BYTE *)P;B+=0x2EC;//контроллер
+		B=*((BYTE**)B);B+=0x114;//плэеринфо?
+		B=*((BYTE**)B);B+=0x8EC;
+		lua_pushinteger(L,*((int*)B));B+=4;
+		lua_pushinteger(L,*((int*)B));
+		return 2;
+	}
+
 }
 
 /// Вызывается перед попыткой колдовать спелл
@@ -404,5 +429,6 @@ void playerInit()
 	InjectJumpTo(0x4E6653,&onPlayerLeaveObservTrap);
 
 	registerserver("playerLook",&playerLookL);
+	registerserver("playerMouse",&playerMouseL);
 	
 }

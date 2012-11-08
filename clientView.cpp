@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "unit.h"
 BYTE *(__cdecl *playerInfoFromNetCodeCli) (int NetCode);
 void (__cdecl *clientCollideOrUse)(void *sprite);
 extern BYTE **clientPlayerInfoPtr;

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "unit.h"
 
 #define ASSIGN2(A,B) *((void**)&(A))=(B);
 
@@ -7,7 +8,6 @@ extern int (__cdecl *spellAccept)(int SpellType,void *Caster,void *CasterMB2,voi
 
 creatureAction* (__cdecl *monsterActionPush)(void *Unit,int ActionType);
 void (__cdecl *monsterActionPop)(void *Unit);
-extern bigUnitStruct *(__cdecl *unitDamageFindParent) (void *Unit);
 void (__cdecl *noxReportComplete)(void *Unit);
 void printI(const char *S);
 void (__cdecl *noxMonsterCallDieFn) (void *Unit);
@@ -42,7 +42,7 @@ namespace
 		spellAccept(SpellType,Owner,Source,Carrier,Block,Power);
 	}
 
-	int __cdecl reactUse(void *User,void* Thing)
+	int __cdecl reactUse(bigUnitStruct *User,bigUnitStruct *Thing)
 	{
 		lua_pushlightuserdata(L,&reactUse);
 		lua_gettable(L,LUA_REGISTRYINDEX);
@@ -55,7 +55,7 @@ namespace
 		}
 		lua_pushlightuserdata(L,User);
 		lua_pushlightuserdata(L,Thing);
-		void **P=(void **)(((char*)Thing)+0x2E0);
+		void **P=(void **)(Thing->useFnData);
 		if(*P==NULL)
 			lua_pushnil(L);
 		else
@@ -84,8 +84,8 @@ namespace
 		///Здесь неплохо бы зарегить уничтожение объекта, чтобы таблица не росла
 		lua_pushvalue(L,2);
 		lua_settable(L,lua_upvalueindex(2));
-		void **P=(void **)(((char*)lua_touserdata(L,1))+0x2DC);
-		*P=&reactUse;
+		bigUnitStruct *Unit=(bigUnitStruct *)lua_touserdata(L,1);
+		Unit->useFnPtr=&reactUse;
 		return 0;
 	}
 	int unitSetAction(lua_State*L)
@@ -114,7 +114,7 @@ namespace
 		monsterActionPop(lua_touserdata(L,1));
 		return 0;
 	}
-	void __cdecl unitReportComplete(void *Unit)
+	void __cdecl unitReportComplete(bigUnitStruct *Unit)
 	{
 		lua_pushlightuserdata(L,&unitReportComplete);
 		lua_gettable(L,LUA_REGISTRYINDEX);
@@ -171,7 +171,7 @@ namespace
 		lua_pushlightuserdata(L,Fn(lua_touserdata(L,2),lua_touserdata(L,3)));
 		return 1;
 	}
-	void __cdecl dieFn(void *Me);
+	void __cdecl dieFn(bigUnitStruct *Me);
 
 
 	int unitSetDieFnL(lua_State*L)
@@ -190,42 +190,37 @@ namespace
 				lua_pushstring(L,"wrong arg: can't remove die handler - it doesn't exist!");
 				lua_error_(L);
 			}
-			BYTE* P=(BYTE *)lua_touserdata(L,1);
-			P+=0x2D4;
-			*((void **)P)=lua_touserdata(L,-1);
+			bigUnitStruct *P=(bigUnitStruct *)lua_touserdata(L,1);
+			P->dieFnPtr=lua_touserdata(L,-1);
 			lua_pop(L,1);
 			lua_pushvalue(L,1);
 			lua_pushnil(L);
 			lua_settable(L,lua_upvalueindex(1));
 			return 0;
 		}
-		BYTE* P=(BYTE *)lua_touserdata(L,1);
-		P+=0x2D4;
+		bigUnitStruct *P=(bigUnitStruct *)lua_touserdata(L,1);
 		lua_pushvalue(L,1);
-		lua_pushlightuserdata(L,*((void **)P));
+		lua_pushlightuserdata(L,P->dieFnPtr);
 		lua_settable(L,lua_upvalueindex(1));/// запишем в таблицу
 		lua_pushvalue(L,1);
 		lua_pushvalue(L,2);
 		lua_settable(L,lua_upvalueindex(2));/// запишем в таблицу что нам вызывать
-		*((void **)P)=&dieFn;
+		P->dieFnPtr=&dieFn;
 		return 0;
 	}
 	
-	void __cdecl dieFn(void *Me)
+	void __cdecl dieFn(bigUnitStruct *Me)
 	{
 		lua_pushlightuserdata(L,&dieFn);
 		lua_gettable(L,LUA_REGISTRYINDEX);
-		lua_pushlightuserdata(L,Me);
+		lua_pushlightuserdata(L,(void*)Me);
 		lua_gettable(L,-2);
 		if(lua_type(L,-1)!=LUA_TFUNCTION)
 		{
 			lua_pop(L,1);
 			return;
 		}
-		BYTE *Un=(BYTE*)Me;
-		lua_pushlightuserdata(L,Me);
-		Un=*(BYTE**)(Un+0x208);
-		BYTE *Unit=(BYTE*)unitDamageFindParent((void*)Un);
+		bigUnitStruct *Unit=unitDamageFindParent(Me->unitDamaged);
 			if (Unit==0)
 				lua_pushnil(L);
 			else
@@ -239,7 +234,7 @@ namespace
 		}
 		lua_pushlightuserdata(L,&unitSetDieFnL);
 		lua_gettable(L,LUA_REGISTRYINDEX);
-		lua_pushlightuserdata(L,Me);
+		lua_pushlightuserdata(L,(void*)Me);
 		lua_gettable(L,-2);
 		if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
 		{
@@ -248,9 +243,8 @@ namespace
 		}
 		void (__cdecl *Old)(void *);
 		Old=(void (__cdecl *)(void *))lua_touserdata(L,-1);
-		BYTE* P=(BYTE *)Me;
-		P+=0x2D4;
-		*((void **)P)=(void*)Old;
+
+		Me->dieFnPtr=(void*)Old;
 
 		lua_pushlightuserdata(L,Me);
 		lua_pushnil(L);
@@ -262,7 +256,7 @@ namespace
 		lua_pop(L,4);/// удаляем таблицу
 		return;
 	}
-	void __cdecl collideFn(void *Me,void *Him,noxPoint *Pt);
+	void __cdecl collideFn(bigUnitStruct *Me,bigUnitStruct *Him,noxPoint *Pt);
 
 
 	int unitSetCollideFnL(lua_State*L)
@@ -281,28 +275,26 @@ namespace
 				lua_pushstring(L,"wrong arg: can't remove collide handler - it doesn't exist!");
 				lua_error_(L);
 			}
-			BYTE* P=(BYTE *)lua_touserdata(L,1);
-			P+=0x2B8;
-			*((void **)P)=lua_touserdata(L,-1);
+			bigUnitStruct *P=(bigUnitStruct *)lua_touserdata(L,1);
+			P->collideFn=lua_touserdata(L,-1);
 			lua_pop(L,1);
 			lua_pushvalue(L,1);
 			lua_pushnil(L);
 			lua_settable(L,lua_upvalueindex(1));
 			return 0;
 		}
-		BYTE* P=(BYTE *)lua_touserdata(L,1);
-		P+=0x2B8;
+		bigUnitStruct *P=(bigUnitStruct *)lua_touserdata(L,1);
 		lua_pushvalue(L,1);
-		lua_pushlightuserdata(L,*((void **)P));
+		lua_pushlightuserdata(L,P->collideFn);
 		lua_settable(L,lua_upvalueindex(1));/// запишем в таблицу
 		lua_pushvalue(L,1);
 		lua_pushvalue(L,2);
 		lua_settable(L,lua_upvalueindex(2));/// запишем в таблицу что нам вызывать
-		*((void **)P)=&collideFn;
+		P->collideFn=&collideFn;
 		return 0;
 	}
 	
-	void __cdecl collideFn(void *Me,void *Him,noxPoint *Pt)
+	void __cdecl collideFn(bigUnitStruct *Me,bigUnitStruct *Him,noxPoint *Pt)
 	{
 		lua_pushlightuserdata(L,&collideFn);
 		lua_gettable(L,LUA_REGISTRYINDEX);

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "unit.h"
 
 int (__cdecl *spellAccept)(int SpellType,void *Caster,void *CasterMB2,void *Carrier,
 								SpellTargetBlock *Block,int Power);

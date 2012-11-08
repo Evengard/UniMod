@@ -63,12 +63,6 @@ namespace
 		bool isChild=false;
 		switch(Msg)
 		{
-		case 0x15: /// нажатие на кнопку A- код, B - 1-отпускание,2- нажатие
-			/// похоже return 1 съедает кнопку, return 0 передает дальше
-			return 0;
-		case 0x11: /// mouse Enter
-		case 0x12: /// mouse Leave  A-coords,
-			return 1;
 		case 5: // тут ловим клик (левый) что бы он дальше не ушел
 			lua_getfield(L,-1,"onLMDown");
 			if (!lua_isfunction(L,-1))
@@ -124,7 +118,7 @@ namespace
 			if (lua_tonumber(L,-1)==1)
 				return 1;
 			return 0;
-		case 12: // Ловим правый клик (тут долгий)
+		case 0xC: // Ловим правый клик (тут долгий)
 			lua_getfield(L,-1,"onRMDown");
 			if (!lua_isfunction(L,-1))
 				break;
@@ -137,6 +131,37 @@ namespace
 			}
 			if (lua_tonumber(L,-1)==1)
 				return 1;
+			return 0;
+		case 0x11: /// mouse Enter
+			lua_getfield(L,-1,"onEnter");
+			if (!lua_isfunction(L,-1))
+				break;
+			lua_pushvalue(L,-2); /// таблица окна
+			lua_pushvalue(L,(short)(A&0xFFFF));
+			lua_pushvalue(L,(short)(A>>16));
+			if (0!=lua_pcall(L,3,1,0))
+			{
+				const char *S=lua_tostring(L,-1);
+				break;
+			}
+			if (lua_tonumber(L,-1)==1)
+				return 1;
+		case 0x12: // on leave
+			lua_getfield(L,-1,"onLeave");
+			if (!lua_isfunction(L,-1))
+				break;
+			lua_pushvalue(L,-2); /// таблица окна
+			lua_pushvalue(L,(short)(A&0xFFFF));
+			lua_pushvalue(L,(short)(A>>16));
+			if (0!=lua_pcall(L,3,1,0))
+			{
+				const char *S=lua_tostring(L,-1);
+				break;
+			}
+			if (lua_tonumber(L,-1)==1)
+				return 1;
+		case 0x15: /// нажатие на кнопку A- код, B - 1-отпускание,2- нажатие
+			/// похоже return 1 съедает кнопку, return 0 передает дальше
 			return 0;
 /*
 сообщение о изменении фокуса 
@@ -172,7 +197,7 @@ B - ChildId
 			switch (Msg)
 		{
 		case 0x4007:
-			lua_getfield(L,-1,"onClick");
+			lua_getfield(L,-1,"onPress");
 			if (!lua_isfunction(L,-1))
 				break;
 			lua_pushvalue(L,-2); /// таблица окна
@@ -215,7 +240,7 @@ B - ChildId
 		return 0;
 	}
 
-	int __cdecl newWindowProc(void* Window,int Msg,int A,int B)
+	int __cdecl newWindowProc(wndStruct* Window,int Msg,int A,int B)
 	{
 		int Top=lua_gettop(L);
 		int Ret=0;
@@ -268,24 +293,12 @@ B - ChildId
 				lua_pushnil(L);
 				lua_settable(L,-3);*/
 			/// прочие случаи
-			case 0x16:// создано дочернее окно + A= ID
-/// надо добавить
-			case 0x04:/// RB click MB
-			case 0x05:/// LB Down
-			case 0x06:/// LB Up - причем даже после драга
-			case 0x08:/// DRAG?
-			
-			case 0x09:
-			case 0x0A:
-
-			case 0x4000:// lmb press (непрерывно) посылают дочернии кнопки 
-			
-			
+			case 0x16:// создано дочернее окно + A= ID			
 
 			default:
 				lua_pushlightuserdata(L,&noxWndLoad);
 				lua_gettable(L,LUA_REGISTRYINDEX);
-				lua_pushlightuserdata(L,Window);
+				lua_pushlightuserdata(L,Window);// Удаляем таблицу из реестра
 				lua_gettable(L,-2);
 				if(lua_type(L,-1) ==LUA_TNIL)
 					break;
@@ -317,6 +330,43 @@ B - ChildId
 						}
 					}
 				}
+		}
+		lua_settop(L,Top);
+		return Ret;
+	}
+	int __cdecl newWindowControlProc(wndStruct* Window,int Msg,int A,int B) // специально для контролов
+	{
+		int Top=lua_gettop(L);
+		int Ret=0;
+
+		wndStruct *Parent=Window->drawData.wndPtr; // не совсем парент, но в это окно по идее идут мсж 
+		lua_pushlightuserdata(L,&noxWndLoad);
+		lua_gettable(L,LUA_REGISTRYINDEX);
+		lua_pushlightuserdata(L,Parent);
+		lua_gettable(L,-2);
+		lua_getfield(L,-1,"children");
+
+		if (Msg==2)
+		{
+			lua_pushlightuserdata(L,Window);
+			lua_pushnil(L);
+			lua_settable(L,-3);
+			
+		}
+		lua_pushlightuserdata(L,Window);
+		lua_gettable(L,-2);
+		if	(!lua_type(L,-1)==LUA_TTABLE)
+			return 0;
+		int Tops=lua_gettop(L);
+		parseChildProc((byte*)Window,Msg,A,B);
+		lua_settop(L,Tops);
+		lua_getfield(L,-1,"wndControlProc");
+		if (lua_type(L,-1)==LUA_TLIGHTUSERDATA)
+		{
+			int (__cdecl *wndControlProc)(wndStruct* Window,int Msg,int A,int B);
+			*((void**)&wndControlProc)=lua_touserdata(L,-1);
+			if (wndControlProc)
+				Ret=wndControlProc(Window,Msg,A,B);
 		}
 		lua_settop(L,Top);
 		return Ret;
@@ -583,13 +633,18 @@ public:
 					return;
 				}
 				lua_getfield(L,-1,"handle");
+
+				wndStruct *createdWnd=(wndStruct*) lua_touserdata(L,-1);
+				lua_getfield(L,-2,"wndControlProc"); // нужно вернуть дефлотный прок, ибо эти окна не имеют своих таблиц
+				createdWnd->wndProc=lua_touserdata(L,-1);
+
 				listBoxDataStruct *listboxData=(listBoxDataStruct*)Wnd->someData;
 				if (isSlider)
-					listboxData->slider=(wndStruct*) lua_touserdata(L,-1);
+					listboxData->slider=createdWnd;
 				else if (listboxData->buttonUp==0)
-					listboxData->buttonUp=(wndStruct*) lua_touserdata(L,-1);
+					listboxData->buttonUp=createdWnd;
 				else 
-					listboxData->buttonDown=(wndStruct*) lua_touserdata(L,-1);		
+					listboxData->buttonDown=createdWnd;		
 				Wnd->drawFn=&uniListBoxDrawFn;
 				lua_settop(L,3);
 			}
@@ -826,6 +881,9 @@ public:
 			{
 				VS.Create(L,1);
 				DataPtr=&VS;
+			}else if (0==strcmpi(ControlType,"PUSHBUTTON"))
+			{
+				Wdd.controlType=0x100;
 			}
 			wndStruct *Wnd=wndLoadControl(ControlType,Parent, Wdd.status,x,y,w,h, &Wdd,DataPtr);
 			if (Wnd==NULL)
@@ -841,13 +899,18 @@ public:
 			} 
 
 			Wnd->wndId=nextChildId;
+			lua_pushstring(L,"wndControlProc");
+			lua_pushlightuserdata(L,Wnd->wndProc);
+			lua_settable(L,1);
+			Wnd->wndProc=&newWindowControlProc;
 			lua_pushstring(L,"childId");
 			lua_pushinteger(L,nextChildId++);
 			lua_settable(L,1);
 			lua_pushstring(L,"handle");
 			lua_pushlightuserdata(L,Wnd);
 			lua_settable(L,1);
-/*			lua_pushlightuserdata(L,&noxWndLoad);
+			/*lua_pushlightuserdata(L,&noxWndLoad);
+			lua_gettable(L,LUA_REGISTRYINDEX);
 			lua_pushlightuserdata(L,Wnd);
 			lua_pushvalue(L,1);
 			lua_settable(L,-3);*/
@@ -874,7 +937,7 @@ public:
 			lua_error(L);
 		}
 		Wnd->drawFn=&uniWindowDrawFn; // наа рисовалка
-		Wnd->wndProc=&newWindowProc;
+		Wnd->wndProcPre=&newWindowProc;
 
 		Wnd->wndId=nextChildId;
 		lua_pushstring(L,"childId");

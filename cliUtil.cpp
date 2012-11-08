@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "unit.h"
+#include "player.h"
 #include <list>
 
 int (__cdecl *getTTByNameSpriteMB)(void *Key);
