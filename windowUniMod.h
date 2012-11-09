@@ -89,10 +89,10 @@ struct editBoxDataStruct
 };
 struct scrollBoxDataStruct
 {
-	int Param_1;
-	int Param_2;
-	int Param_3;
-	int Param_4;
+	int minValue;
+	int maxValue;
+	int stepValue;
+	int Value;
 };
 struct staticTextDataStruct
 {
@@ -114,13 +114,14 @@ enum wndControlType
 	ctListBox=0x20,
 	ctEditBox=0x80,
 	ctStaticText=0x800,
+	ctProgressBar=0x1000,
 	ctUser=0x2000,
 };
 
 enum wndFlags
 {
 	wf_1=0x1,
-	wf_2=0x2,
+	wfSelected=0x2,
 	wf_4=0x4,
 	wfEnabled=0x8,
 	wfHidden=0x10,

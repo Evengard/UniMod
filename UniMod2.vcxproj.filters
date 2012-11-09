@@ -2,29 +2,38 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{0ad00954-233f-442c-b903-d7f3f10003e3}</UniqueIdentifier>
+      <UniqueIdentifier>{8fe9ac8c-897f-40b3-8009-10f9dae9aaf5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
     <Filter Include="Source Files\Util">
-      <UniqueIdentifier>{f6e9be7f-d558-498a-be19-0d31d9823ab3}</UniqueIdentifier>
+      <UniqueIdentifier>{34a4119e-e5fa-4d1a-a6b2-f45351fb5b5f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Util\bzip2">
-      <UniqueIdentifier>{920e855f-c770-4546-a7a6-70705968bab3}</UniqueIdentifier>
+      <UniqueIdentifier>{e6ea556f-e87f-4748-8683-24e09f1b9917}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\server">
-      <UniqueIdentifier>{67c0ca54-1a2f-4147-b1ae-6fcda6038e92}</UniqueIdentifier>
+      <UniqueIdentifier>{5f7fcda7-1c8b-410a-be55-6528009636dc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\client">
-      <UniqueIdentifier>{d4975033-5e69-4a2c-bb78-2eb7c45f6ea7}</UniqueIdentifier>
+      <UniqueIdentifier>{ea430b2d-f699-4fd9-9c67-f93e0d02c4d1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\map">
-      <UniqueIdentifier>{dd3af796-6454-4d39-8ea6-781dffe992b8}</UniqueIdentifier>
+      <UniqueIdentifier>{6513d6ef-7e02-403a-a365-9f89d9fe3e54}</UniqueIdentifier>
     </Filter>
     <Filter Include="lib">
-      <UniqueIdentifier>{57887fbd-1b8e-4827-89d8-422d1a39efda}</UniqueIdentifier>
+      <UniqueIdentifier>{1b884322-9afd-4145-9d5c-3778f7a00823}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\client\Windows">
+      <UniqueIdentifier>{637151d7-d560-4954-a969-28c457acec80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\server\player">
+      <UniqueIdentifier>{83c77bc4-3c12-49bf-9011-053080db158f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\server\unit">
+      <UniqueIdentifier>{ec9b412c-14f4-466e-8278-753ed28aeb8e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,9 +112,6 @@
     <ClCompile Include="net.cpp">
       <Filter>Source Files\server</Filter>
     </ClCompile>
-    <ClCompile Include="player.cpp">
-      <Filter>Source Files\server</Filter>
-    </ClCompile>
     <ClCompile Include="react.cpp">
       <Filter>Source Files\server</Filter>
     </ClCompile>
@@ -113,12 +119,6 @@
       <Filter>Source Files\server</Filter>
     </ClCompile>
     <ClCompile Include="spells.cpp">
-      <Filter>Source Files\server</Filter>
-    </ClCompile>
-    <ClCompile Include="unit.cpp">
-      <Filter>Source Files\server</Filter>
-    </ClCompile>
-    <ClCompile Include="unit2.cpp">
       <Filter>Source Files\server</Filter>
     </ClCompile>
     <ClCompile Include="clientView.cpp">
@@ -151,12 +151,6 @@
     <ClCompile Include="sprite.cpp">
       <Filter>Source Files\client</Filter>
     </ClCompile>
-    <ClCompile Include="windowMsg.cpp">
-      <Filter>Source Files\client</Filter>
-    </ClCompile>
-    <ClCompile Include="windows.cpp">
-      <Filter>Source Files\client</Filter>
-    </ClCompile>
     <ClCompile Include="filesystem.cpp">
       <Filter>Source Files\map</Filter>
     </ClCompile>
@@ -169,8 +163,29 @@
     <ClCompile Include="Waypoints.cpp">
       <Filter>Source Files\map</Filter>
     </ClCompile>
-    <ClCompile Include="libVer.cpp">
-      <Filter>Source Files\Util</Filter>
+    <ClCompile Include="windows.cpp">
+      <Filter>Source Files\client\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windowMsg.cpp">
+      <Filter>Source Files\client\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windowsUniModFunction.cpp">
+      <Filter>Source Files\client\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Source Files\server\player</Filter>
+    </ClCompile>
+    <ClCompile Include="unit2.cpp">
+      <Filter>Source Files\server\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="unit.cpp">
+      <Filter>Source Files\server\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="unitExternFunction.cpp">
+      <Filter>Source Files\server\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="playerExternFunction.cpp">
+      <Filter>Source Files\server\player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -189,15 +204,27 @@
     <ClInclude Include="bzip2\bzlib_private.h">
       <Filter>Source Files\Util\bzip2</Filter>
     </ClInclude>
+    <ClInclude Include="windowUniMod.h">
+      <Filter>Source Files\client\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="unit.h">
+      <Filter>Source Files\server\unit</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Source Files\server\player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Libs\zlib.lib">
+    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\libpng.lib">
       <Filter>lib</Filter>
     </Library>
-    <Library Include="Libs\libpng.lib">
+    <Library Include="LibVer.lib">
       <Filter>lib</Filter>
     </Library>
-    <Library Include="Libs\lua.lib">
+    <Library Include="Libs\lua51static_mt.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\ZLib\zlib.lib">
       <Filter>lib</Filter>
     </Library>
   </ItemGroup>

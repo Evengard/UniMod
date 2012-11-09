@@ -135,16 +135,6 @@ struct SpellTargetBlock
 };
 typedef void * unitBigStructPtr;
 
-struct creatureAction
-{
-  int actionTypeMB;
-  int arg0;
-  int arg1;
-  int arg3;
-  char gap_10[4];
-  int field_14;
-};
-
 struct ServerData
 {
 	char mapName[8];
@@ -160,144 +150,10 @@ struct ServerData
 	char isNew;
 };
 
-struct bigUnitStruct
-{
-  int ScriptNameMB;
-  __int16 thingType;
-  char field_6;
-  char gap_7[1];
-  int Class;
-  int SubClass;
-  int flags0;
-  int field_14;
-  int field_18;
-  float unitXP;
-  char gap_20[4];
-  int netCode;
-  int mapExtentId;
-  int globalID;
-  void *field_30;
-  int flags2;
-  int unitX;
-  int unitY;
-  int someX_2;
-  int someY_2;
-  int someX_1;
-  float someY_1;
-  int velX;
-  int velY;
-  float field_58;
-  float field_5C;
-  char gap_60[8];
-  float field_68;
-  float field_6C;
-  char gap_70[4];
-  float field_74;
-  char gap_78[4];
-  __int16 unitLookAt;
-  __int16 direction1;
-  int time_80;
-  char gap_84[4];
-  int createTime;
-  int field_8C;
-  int field_90;
-  int field_94;
-  int unitTargetMB;
-  float someX_3;
-  float someY_3;
-  float fallingX;
-  float fallingY;
-  int moveClassMB;
-  int unitRadius;
-  float unkfield_B4;
-  float field_B8;
-  float field_BC;
-  float field_C0;
-  float someY_4;
-  float someX_4;
-  int field_CC;
-  float someX_6;
-  float field_D4;
-  int field_D8;
-  float someY_6;
-  float field_E0;
-  float field_E4;
-  float someX_5;
-  float someY_5;
-  float someX_7;
-  float someY_7;
-  char gap_f8[8];
-  __int16 shortX;
-  __int16 shortY;
-  void *nextBlockStruct;
-  void *prevBlockStruct;
-  void *objectInBlock;
-  char unkfield_110[68];
-  int buffMB;
-  __int16 buffTimers[32];
-  char buffSomeByte[32];
-  char gap_1b8[4];
-  void *nextUnit;
-  bigUnitStruct *prevUnit;
-  int nextDeletedThisFrameUnitMB;
-  int deleteTime;
-  char gap_1cc[8];
-  int nextDecayPtrMB;
-  char gap_1d8[4];
-  int nextUpdatableUnit;
-  int prevUpdatableUnit;
-  int isInUpdatableList;
-  char unitWeight;
-  char gap_1e9[1];
-  __int16 unitCapacity;
-  void *prevInventoryObj;
-  void *nextInventoryObj;
-  void *prevSome;
-  void *firstInventoryObj;
-  void *parentUnit;
-  void *nextSlave;
-  void *firstSlave;
-  int field_208;
-  char gap_20c[4];
-  int damageX;
-  int damageY;
-  int time_218;
-  char decelTimeMB;
-  char accelTimeMB;
-  __int16 movement_21E;
-  float unitSpeed;
-  float unitAccelMB;
-  int field_228;
-  void *field_22C;
-  int field_230[32];
-  void *unkFnPtr2B0;
-  void *unkFn2B0DataPtr;
-  void *collideFn;
-  void *collideDataMB;
-  void *XFerFnPtr2C0;
-  void *pickupFnPtr;
-  void *dropFnPtr;
-  void *damageFnPtr;
-  void *soundDamageFnPtr;
-  void *dieFnPtr;
-  void *spawnAtDeath;
-  void *useFnPtr;
-  void *useFnData;
-  char gap_2e4[4];
-  void *onUpdateFn;
-  void *unitController;
-  char gap_2f0[4];
-  int field_2F4;
-  char gap_2f8[4];
-//  scriptEvent_s field_2FC;
-};
-
 #define ASSIGN(X,Y) *((DWORD*)&(X))=((DWORD)(Y));
 DWORD uniCalcJump(DWORD From,void *To);
 
 extern void printI(const char *S);
-extern bigUnitStruct* (__cdecl *playerFirstUnit)(); ///возвращает первый юнит сетевого игрока
-extern bigUnitStruct* (__cdecl *playerNextUnit)(void* Prev); /// ¬озвращает следующего сетевого игрока
 
 extern void conSetNextColor(int C); // устанавливает цвет след. сообщени€ консоли
 extern void conPrintI(const char *S);
@@ -400,30 +256,7 @@ struct keyPack
   int field_FC;
 };
 
-enum unitClass
-{
-  clMissile = 0x1,
-  clMonster = 0x2,
-  clPlayer = 0x4,
-  clObstacle = 0x8,
-  clShort = 0x10,
-  clKey = 0x40,
-  clDoor = 0x80,
-  clInfoBook = 0x100,
-  clTrigger = 0x200,
-  clWand = 0x1000,
-  clMonsterGen = 0x20000,
-  clLight = 0x80000,
-  clSimple = 0x100000,
-  clComplex = 0x200000,
-  clImmobile = 0x400000,
-  clVisibleEnable = 0x800000,
-  clWeapon = 0x1000000,
-  clArmor = 0x2000000,
-  clFlag = 0x10000000,
-  clClientPersist = 0x20000000,
-  clPickup = 0x80000000,
-};
+
 enum spellFlags
 {
 	sfNeedFly        = 4,
