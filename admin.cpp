@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "player.h"
+#include "unit.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -60,8 +62,6 @@ extern void httpGetCallback(lua_State *L);
 
 void *(__cdecl *getConfigData)();
 
-void *(__cdecl *playerGetDataFromIndex)(int index);
-
 extern byte authorisedState[0x20];
 extern char* authorisedLogins[0x20];
 DWORD* currentIP;
@@ -80,8 +80,6 @@ char authSendWelcomeMsg[0x20];
 vector<string> mapCycleCurrentList;
 __int16 mapCycleLastModeId;
 int mapCycleCurrentPosition;
-
-extern void* getPlayerUDataFromPlayerInfo(void *addr);
 
 extern void netVersionServerRq(int sendTo);
 
@@ -1093,7 +1091,7 @@ namespace
 
 	void* onPlayerLeave(byte Index)
 	{
-		void* result = playerGetDataFromIndex(Index);
+		playerInfoStruct *result = playerGetDataFromIndex(Index);
 		if(*GameFlags&0x800)
 		{}
 		else
@@ -1107,7 +1105,7 @@ namespace
 			getServerVar("playerOnLeave");
 			if (lua_isfunction(L,-1))
 			{
-				void* Player = getPlayerUDataFromPlayerInfo(result);
+				bigUnitStruct *Player = getPlayerUDataFromPlayerInfo(result);
 				lua_pushlightuserdata(L,Player);
 				if (0!=lua_pcall(L,1,0,0))
 					conPrintI(lua_tostring(L,-1));
@@ -1120,7 +1118,7 @@ namespace
 	void* onPlayerJoin(int Index)
 	{
 		clientsVersions[Index]=0;
-		void* result=playerGetDataFromIndex(Index);
+		playerInfoStruct *result=playerGetDataFromIndex(Index);
 		if(Index!=0x1F && specialAuthorisation==true)
 		{
 			authorisedState[(byte)Index]=0; // Перестраховщик я какой то... (c) Evengard
@@ -1168,7 +1166,6 @@ void adminInit(lua_State *L)
 	ASSIGN(saveBanList, 0x004E43F0);
 	ASSIGN(flushBanList, 0x00425760);
 	ASSIGN(getConfigData, 0x00416640);
-	ASSIGN(playerGetDataFromIndex,0x00417090);
 	ASSIGN(playerGoObserver,0x004E6860);
 	ASSIGN(currentIP,0x0097EBC4);
 	ASSIGN(currentPort,0x0097EBC8);

@@ -1,11 +1,9 @@
 #include "stdafx.h"
+#include "unit.h"
 
 extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
 
-extern void (__cdecl *noxUnitDelete) (void *Unit);
-extern void (__cdecl *noxUnitSetOwner) (void *NewOwner,void *Owner);
-extern void (__cdecl *noxDeleteObject)(void *Unit);
 extern void (__cdecl *wndShowHide)(void *Wnd,int Hide);
 
 extern DWORD *frameCounter;
@@ -283,9 +281,70 @@ namespace
 			ret
 		}
 	}
+	void __cdecl fixCastFieball(float *A,float *B)
+	{
+		float *X=*((float**)A);
+		int *XMouse=*((int**)B);
+		float *Y=X+1;
+		int *YMouse=XMouse+1;
+		int cosA=*XMouse-*X;
+		int sinA=*YMouse-*Y;
+		float dist=sqrt((float)(cosA^2+sinA^2));
+		*A=dist/cosA;
+		*B=dist/sinA;
+	}
 
+	void __declspec(naked) asmFixCastFireball() // 0052C7CD
+	{
+		__asm
+		{
+			// edi - unit
+			test byte ptr [edi+8],4 // игрок ли? ћало-ли что, мб у мен€ парано€
+			jz l1
+		/*	mov edx,edi
+			add edx,0x38
+			push edx
+			mov edx,esp
+			mov ecx,[edi+0x2ec]
+			mov ecx,[ecx+0x114]
+			add ecx,0x8ec
+			push ecx
+			push esp
+			push edx
+			call fixCastFieball
+			add esp,8
+			mov edx,[esp]
+			mov ecx,[esp+4]
+			add esp,8 */
 
-
+			mov ecx,[edi+0x2ec]
+			mov ecx,[ecx+0x114]
+			sub esp,4
+			fild [ecx+0x8ec]
+			fsub [edi+0x38]
+			fld st //  x-x1
+			fmul st,st
+			fstp [esp]
+			fild [ecx+0x8f0]
+			fsub [edi+0x3c]
+			fld st //  y-y1
+			fmul st,st
+			fadd [esp]
+			fsqrt 
+			fld st
+			fdivp st(2),st
+			fdivp st(2),st
+			fstp [esp] //cos
+			mov edx,[esp]
+			fstp [esp] //sin 
+			mov ecx,[esp]
+			add esp,4 
+			
+l1: // exit, как то блин так и назвал, удивл€лс€ почему нокс закрываетс€
+			push 0052C7D9h
+			ret
+		}
+	}
 }
 extern void InjectOffs(DWORD Addr,void *Fn);
 extern void InjectJumpTo(DWORD Addr,void *Fn);
@@ -313,6 +372,8 @@ void bugsInit()
 	InjectJumpTo(0x004C2ACC,&asmConjSummonDoAll);
 	InjectJumpTo(0x004C3147,&asmConjSummonDieOrBanish);
 	InjectJumpTo(0x004C1FA1,&asmConjSummonLoadWnd);
+
+//	InjectJumpTo(0x0052C7CD,&asmFixCastFireball);
 
 
 }
