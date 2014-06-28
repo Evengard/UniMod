@@ -9,10 +9,18 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Lib">
+      <UniqueIdentifier>{7c2e0c9e-e221-4e29-ac8e-d0f97c934f7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="init.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\LuaJIT-2.0.3\src\lua51.lib">
+      <Filter>Lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>
