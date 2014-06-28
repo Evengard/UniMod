@@ -66,7 +66,7 @@
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <AdditionalDependencies>lua51.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\LuaJIT-2.0.3\src\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ShowProgress>LinkVerboseLib</ShowProgress>
+      <ShowProgress>NotSet</ShowProgress>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
