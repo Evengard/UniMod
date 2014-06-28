@@ -339,7 +339,7 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 	if (reason == DLL_PROCESS_DETACH)
 	{
 		FreeLibrary(hL);
-		if (!hUniMod) FreeLibrary(hUniMod);
+		if (hUniMod != 0) FreeLibrary(hUniMod);
 	}
 
 	return 1;
