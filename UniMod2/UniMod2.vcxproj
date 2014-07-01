@@ -94,9 +94,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="init.cpp" />
+    <ClCompile Include="memory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\LuaJIT-2.0.3\src\lua51.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="memory.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
