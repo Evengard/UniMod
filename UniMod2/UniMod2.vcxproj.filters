@@ -23,6 +23,12 @@
     <ClCompile Include="memory.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="unimod.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\LuaJIT-2.0.3\src\lua51.lib">
@@ -31,6 +37,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="unimod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,6 +10,16 @@ void inject_addr(DWORD offset, void* fn)
 	*addr = (DWORD) fn;
 	VirtualProtect(addr, size, old_protect, &old_protect);
 }
+void inject_offs(DWORD offset, void* fn)
+{
+	const  int size = 4; // размер адреса 
+	DWORD *addr = (DWORD*)(offset+1); // на следующую инструкцию от call
+	DWORD delta = DWORD(fn) - DWORD(addr) - 4;
+ 	DWORD old_protect;
+	VirtualProtect(addr, size, PAGE_EXECUTE_READWRITE, &old_protect);
+	*addr = delta;
+	VirtualProtect(addr, size, old_protect, &old_protect);
+}
 void inject_jump(DWORD offset, void* fn)
 {
 	const  int size = 5; // размер адреса 

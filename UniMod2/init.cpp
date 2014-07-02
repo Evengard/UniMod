@@ -1,8 +1,9 @@
 #include <windows.h>
 #include "lua.hpp"
 #include "memory.h"
+#include "unimod.h"
+#include "console.h"
 #pragma pack(1)
-lua_State *globalL;
 
 void patch_nox()
 {
@@ -28,36 +29,13 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 		case DLL_PROCESS_ATTACH:
 		{
 			patch_nox();
+			console_init();
+
 			// тест
-			globalL = luaL_newstate();
-
-			if (luaL_dofile(globalL, "UniMod2.lua"))
-				break;
-			lua_getglobal(globalL, "prompt");
-			if (!lua_isstring(globalL, -1))
-			{
-				lua_pop(globalL, 1);
-				break;
-			}
-			const char *s = lua_tostring(globalL, -1);
-			int size = strlen(s) + 1;
-			wchar_t *ws = new wchar_t[size];
-			
-			mbstowcs(ws, s, size);
-
-			MessageBox(
-				NULL,
-				ws,
-				L"UniMod2",
-				MB_OK
-				);
-			break;
-
-			lua_pop(globalL, 1);
-			delete ws;
+			lua_State *L = unimod_State.L;
+			luaL_openlibs(L);
 		}
 		case DLL_PROCESS_DETACH:
-			lua_close(globalL);
 			break;
 	}
 	return 1;

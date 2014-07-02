@@ -93,14 +93,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="console.cpp" />
     <ClCompile Include="init.cpp" />
     <ClCompile Include="memory.cpp" />
+    <ClCompile Include="unimod.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\LuaJIT-2.0.3\src\lua51.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="console.h" />
     <ClInclude Include="memory.h" />
+    <ClInclude Include="unimod.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
