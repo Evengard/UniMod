@@ -64,8 +64,31 @@ void __cdecl console_on_cmd()
 
 }
 
+void __declspec(naked) check_token_size()
+{
+	void (__cdecl *fn)(); // функция которая херит стек при  большом токене
+	ASSIGN(fn, 0x00443BF0);
+	__asm {
+		push eax // птр на токен
+		call wcslen
+		add esp, 4
+		cmp eax, 31 
+		jg l_exit // если длина(токена) > 31 -> выходим
+		call fn
+		push  0x00443A76
+		retn
+
+l_exit:
+		add esp, 8 // чистим стек от fn
+		mov eax, 0 // неудача
+		push 0x00443BDA
+		retn
+	}
+}
+
 void console_init()
 {
 	ASSIGN(nox_console_print, 0x00450B90);
 	inject_offs(0x00443E16, console_on_cmd); // место, где принтиться сообщение о синтактической ошибке
+	inject_jump(0x00443A71, check_token_size);// Фикс. Был вылет, если длина токена превышала (31+1) символ.
 }
