@@ -7,6 +7,7 @@
 #include <vector>
 
 int (__cdecl *nox_console_print)(int color,const wchar_t* text);
+
 void print_to_console(const std::string& s, int color)
 {
 	//std::wstring buffer(s.begin(), s.end()); // по другому надо
@@ -31,12 +32,17 @@ void __cdecl console_on_cmd()
 	int top = lua_gettop(L);
 
 	bool is_variable = true;
-	for (unsigned int i = 0;cmd[i] ; ++i) // проверяем, не отдельная ли это переменная
-		if (strchr("_ABCDEFGHIJKLMNOPQRSTUVWXUZabcdefghijklmnopqrstuvwxyz1234567890", cmd[i]) == NULL)
-		{
-			is_variable = false;
-			break;
-		}
+	if (strchr("_ABCDEFGHIJKLMNOPQRSTUVWXUZabcdefghijklmnopqrstuvwxyz", cmd[0]) == NULL) // проверяем, не отдельная ли это переменная
+		is_variable = false;
+	else
+	{
+		for (unsigned int i = 1; cmd[i] ; ++i) // все остальные её символы
+			if (strchr("_ABCDEFGHIJKLMNOPQRSTUVWXUZabcdefghijklmnopqrstuvwxyz1234567890", cmd[i]) == NULL)
+			{
+				is_variable = false;
+				break;
+			}
+	}
 	if (is_variable)
 	{
 		lua_getglobal(L, "tostring");
@@ -78,7 +84,7 @@ void __declspec(naked) check_token_size()
 		push  0x00443A76
 		retn
 
-l_exit:
+	l_exit:
 		add esp, 8 // чистим стек от fn
 		mov eax, 0 // неудача
 		push 0x00443BDA
