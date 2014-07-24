@@ -1,7 +1,8 @@
 #pragma once
 #include "lua.hpp"
 
-#define ASSIGN(X,Y) *((int*)&(X))=((int)(Y));
+// для екстерна нокс-фн (вместо ASSIGN)
+#define NOX_FN(TYPE, NAME, OFFSET, ...)		TYPE (__cdecl * NAME)(__VA_ARGS__) = (TYPE (*)(__VA_ARGS__)) OFFSET;
 
 class Unimod_State
 {
