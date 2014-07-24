@@ -10,13 +10,13 @@
 
 NOX_FN(int, nox_console_print, 0x00450B90, int color, const wchar_t* text)
 
-void print_to_console(const std::string& s, int color)
+void Console::print(const std::string& s, Console::Color color)
 {
 	//std::wstring buffer(s.begin(), s.end()); // по другому надо
 	int size = s.size()+1;
 	std::vector<wchar_t> ws(size, 0); // хз насколько безопасно
 	mbstowcs(&ws[0], s.c_str(), size);
-	nox_console_print(color, &ws[0]);
+	nox_console_print(int(color), &ws[0]);
 }
 
 namespace {
@@ -80,23 +80,30 @@ namespace {
 			lua_getglobal(L, "tostring");
 			get_global(L, cmd);
 			lua_pcall(L, 1, 1, 0);
-			print_to_console(lua_tostring(L, -1), 2);
+			Console::print(lua_tostring(L, -1), Console::Grey);
 			lua_settop(L, top);
 			return;
 		}
 
 		if (luaL_loadstring(L, cmd)) // грузим в луа
 		{
-			print_to_console(lua_tostring(L, -1), 2);
+			Console::print(lua_tostring(L, -1), Console::Grey);
 			lua_settop(L, top);
 			return;
 		}
-		if (lua_pcall(L, 0, 0, 0)) // вызываем
+
+		if (lua_pcall(L, 0, 1, 0)) // вызываем
 		{
-			print_to_console(lua_tostring(L, -1), 2);
+			Console::print(lua_tostring(L, -1), Console::Grey);
 			lua_settop(L, top);
 			return;
 		}
+		lua_getglobal(L, "tostring"); // что вернулась  - печатаем
+		lua_insert(L,-2);
+
+		lua_pcall(L, 1, 1, 0);
+		Console::print(lua_tostring(L, -1), Console::Grey);
+
 		lua_settop(L, top);
 	}
 
@@ -124,7 +131,7 @@ namespace {
 
 } // anonumys namespace
 
-void console_init()
+void Console::init()
 {
 	inject_offs(0x00443E16, console_on_cmd); // место, где принтиться сообщение о синтактической ошибке
 	inject_jump(0x00443A71, check_token_size);// Фикс. Был вылет, если длина токена превышала (31+1) символ.

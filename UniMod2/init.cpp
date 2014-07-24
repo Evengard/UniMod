@@ -29,7 +29,7 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 		case DLL_PROCESS_ATTACH:
 		{
 			patch_nox();
-			console_init();
+			Console::init();
 
 			// тест
 			lua_State *L = unimod_State.L;

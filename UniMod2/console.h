@@ -1,6 +1,11 @@
 #pragma once
 #include <string>
 
-void console_init();
-void print_to_console(const std::string& s, int color); // печатает в консоль
+namespace Console {
 
+	enum Color {
+		Grey = 2 };
+
+	void print(const std::string& s, Console::Color color); // печатает в консоль
+	void init();
+}
