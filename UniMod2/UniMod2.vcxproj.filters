@@ -31,11 +31,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\LuaJIT-2.0.3\src\lua51.lib">
-      <Filter>Lib</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -45,5 +40,10 @@
     <ClInclude Include="console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\lua-5.1.5\lua-5.1.5.lib">
+      <Filter>Lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>
