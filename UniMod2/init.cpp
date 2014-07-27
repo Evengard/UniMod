@@ -16,6 +16,7 @@ void patch_nox()
 	DWORD bt3=0x00401114;
 	DWORD bt4=0x0043E82B;
 	DWORD bt5=0x0041353D;
+
 	write_array(bt, &OperatorJmps, sizeof(OperatorJmps));  // это убираем серийник
 	write_array(bt2, &OperatorJmps, sizeof(OperatorJmps)); // это на запуск 2 -ух ноксов
 	write_array(bt3, OperatorMovEax1, sizeof(OperatorMovEax1)); // убиваем мутекс

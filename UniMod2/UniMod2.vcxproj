@@ -97,6 +97,9 @@
     <ClCompile Include="init.cpp" />
     <ClCompile Include="lualib\lbaselib.cpp" />
     <ClCompile Include="lualib\linit.cpp" />
+    <ClCompile Include="lualib\lmathlib.cpp" />
+    <ClCompile Include="lualib\lstrlib.cpp" />
+    <ClCompile Include="lualib\ltablib.cpp" />
     <ClCompile Include="lua_unimod.cpp" />
     <ClCompile Include="memory.cpp" />
     <ClCompile Include="unimod.cpp" />

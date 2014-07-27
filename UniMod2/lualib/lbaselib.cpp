@@ -623,7 +623,6 @@ static void auxopen(lua_State *L, const char *name,lua_CFunction f, lua_CFunctio
 
 static void base_open (lua_State *L) {
   /* set _G itself to table */
-  lua_pop(L, 1); // pop libname
   lua_pushvalue(L, 1);
   lua_setfield(L, 1, "_G");
   /* open lib into global table */

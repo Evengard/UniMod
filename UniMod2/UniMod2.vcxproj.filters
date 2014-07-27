@@ -41,6 +41,15 @@
     <ClCompile Include="lualib\linit.cpp">
       <Filter>Source Files\lualib</Filter>
     </ClCompile>
+    <ClCompile Include="lualib\lmathlib.cpp">
+      <Filter>Source Files\lualib</Filter>
+    </ClCompile>
+    <ClCompile Include="lualib\ltablib.cpp">
+      <Filter>Source Files\lualib</Filter>
+    </ClCompile>
+    <ClCompile Include="lualib\lstrlib.cpp">
+      <Filter>Source Files\lualib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="memory.h">

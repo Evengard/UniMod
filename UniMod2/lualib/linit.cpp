@@ -13,9 +13,9 @@
 
 static const luaL_Reg lualibs[] = {
   {"", luaopen_base},
-  //{LUA_TABLIBNAME, luaopen_table},
-  //{LUA_STRLIBNAME, luaopen_string},
-  //{LUA_MATHLIBNAME, luaopen_math},
+  {LUA_TABLIBNAME, luaopen_table},
+  {LUA_STRLIBNAME, luaopen_string},
+  {LUA_MATHLIBNAME, luaopen_math},
   //{LUA_DBLIBNAME, luaopen_debug},
   {NULL, NULL}
 };
@@ -30,8 +30,7 @@ LUALIB_API void luaL_openlibs (lua_State *L)
 	{
 		lua_pushcfunction(L, lib->func);
 		lua_pushvalue(L, -2); // table for inserting
-		lua_pushstring(L, lib->name);
-		lua_call(L, 2, 0);
+		lua_call(L, 1, 0);
 	}
 }
 
