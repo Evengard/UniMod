@@ -13,29 +13,20 @@
   <ItemGroup>
     <ClCompile Include="src\lapi.c" />
     <ClCompile Include="src\lauxlib.c" />
-    <ClCompile Include="src\lbaselib.c" />
     <ClCompile Include="src\lcode.c" />
-    <ClCompile Include="src\ldblib.c" />
     <ClCompile Include="src\ldebug.c" />
     <ClCompile Include="src\ldo.c" />
     <ClCompile Include="src\ldump.c" />
     <ClCompile Include="src\lfunc.c" />
     <ClCompile Include="src\lgc.c" />
-    <ClCompile Include="src\linit.c" />
-    <ClCompile Include="src\liolib.c" />
     <ClCompile Include="src\llex.c" />
-    <ClCompile Include="src\lmathlib.c" />
     <ClCompile Include="src\lmem.c" />
-    <ClCompile Include="src\loadlib.c" />
     <ClCompile Include="src\lobject.c" />
     <ClCompile Include="src\lopcodes.c" />
-    <ClCompile Include="src\loslib.c" />
     <ClCompile Include="src\lparser.c" />
     <ClCompile Include="src\lstate.c" />
     <ClCompile Include="src\lstring.c" />
-    <ClCompile Include="src\lstrlib.c" />
     <ClCompile Include="src\ltable.c" />
-    <ClCompile Include="src\ltablib.c" />
     <ClCompile Include="src\ltm.c" />
     <ClCompile Include="src\lundump.c" />
     <ClCompile Include="src\lvm.c" />
@@ -62,7 +53,6 @@
     <ClInclude Include="src\lua.h" />
     <ClInclude Include="src\lua.hpp" />
     <ClInclude Include="src\luaconf.h" />
-    <ClInclude Include="src\lualib.h" />
     <ClInclude Include="src\lundump.h" />
     <ClInclude Include="src\lvm.h" />
     <ClInclude Include="src\lzio.h" />

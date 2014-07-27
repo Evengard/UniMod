@@ -2,21 +2,28 @@
 #include "unimod.h"
 #include "console.h"
 #include "memory.h"
+#include "lua_unimod.h"
 
 #include <cstdlib>
 #include <string>
 #include <cstring>
 #include <vector>
 
+int Console::environment = -1;
+
 NOX_FN(int, nox_console_print, 0x00450B90, int color, const wchar_t* text)
 
-void Console::print(const std::string& s, Console::Color color)
+int Console::print(const std::string& s, Console::Color color)
 {
 	//std::wstring buffer(s.begin(), s.end()); // по другому надо
 	int size = s.size()+1;
 	std::vector<wchar_t> ws(size, 0); // хз насколько безопасно
 	mbstowcs(&ws[0], s.c_str(), size);
-	nox_console_print(int(color), &ws[0]);
+	return nox_console_print(int(color), &ws[0]);
+}
+int Console::print(const std::wstring& s, Console::Color color)
+{
+	return nox_console_print(int(color), s.c_str());
 }
 
 namespace {
@@ -39,11 +46,11 @@ namespace {
 			}
 		return true;
 	}
-	void get_global(lua_State* L, char* s)
+	void get_var(lua_State* L, char* s)
 	{ // возвращает значение переменной с подтаблицами
 		int top = lua_gettop(L);
 		char *token = std::strtok(s, ".");
-		lua_pushvalue(L, LUA_GLOBALSINDEX);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, Console::environment);
 		while (token != NULL)
 		{
 			char *next_token = std::strtok(NULL, ".");
@@ -77,9 +84,8 @@ namespace {
 
 		if (is_variable(cmd))
 		{
-			lua_getglobal(L, "tostring");
-			get_global(L, cmd);
-			lua_pcall(L, 1, 1, 0);
+			get_var(L, cmd);
+			luaU_tostring(L, -1);
 			Console::print(lua_tostring(L, -1), Console::Grey);
 			lua_settop(L, top);
 			return;
@@ -92,17 +98,15 @@ namespace {
 			return;
 		}
 
-		if (lua_pcall(L, 0, 1, 0)) // вызываем
+		lua_rawgeti(L, LUA_REGISTRYINDEX, Console::environment);
+		lua_setfenv(L, -2);
+
+		if (lua_pcall(L, 0, 0, 0)) // вызываем
 		{
 			Console::print(lua_tostring(L, -1), Console::Grey);
 			lua_settop(L, top);
 			return;
 		}
-		lua_getglobal(L, "tostring"); // что вернулась  - печатаем
-		lua_insert(L,-2);
-
-		lua_pcall(L, 1, 1, 0);
-		Console::print(lua_tostring(L, -1), Console::Grey);
 
 		lua_settop(L, top);
 	}
@@ -135,4 +139,14 @@ void Console::init()
 {
 	inject_offs(0x00443E16, console_on_cmd); // место, где принтиться сообщение о синтактической ошибке
 	inject_jump(0x00443A71, check_token_size);// Фикс. Был вылет, если длина токена превышала (31+1) символ.
+
+	lua_State *L = unimod_State.L; // таблица для консоли
+	lua_pushvalue(L, LUA_REGISTRYINDEX);
+	lua_newtable(L);
+
+	luaL_openlibs(L);
+
+	Console::environment = luaL_ref(L, -2);
+	lua_pop(L,1);
+
 }

@@ -55,7 +55,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UNIMOD2_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\lua-5.1.5\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\lualib;.\;..\lua-5.1.5\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -95,11 +95,16 @@
   <ItemGroup>
     <ClCompile Include="console.cpp" />
     <ClCompile Include="init.cpp" />
+    <ClCompile Include="lualib\lbaselib.cpp" />
+    <ClCompile Include="lualib\linit.cpp" />
+    <ClCompile Include="lua_unimod.cpp" />
     <ClCompile Include="memory.cpp" />
     <ClCompile Include="unimod.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="console.h" />
+    <ClInclude Include="lualib\lualib.h" />
+    <ClInclude Include="lua_unimod.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="unimod.h" />
   </ItemGroup>

@@ -30,10 +30,6 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 		{
 			patch_nox();
 			Console::init();
-
-			// тест
-			lua_State *L = unimod_State.L;
-			luaL_openlibs(L);
 		}
 		case DLL_PROCESS_DETACH:
 			break;

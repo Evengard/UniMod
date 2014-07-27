@@ -10,16 +10,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 
 #define lbaselib_c
 #define LUA_LIB
 
-#include "lua.h"
-
-#include "lauxlib.h"
-#include "lualib.h"
-
-
+#include "lua.hpp"
+#include "lua_unimod.h"
+#include "console.h"
 
 
 /*
@@ -31,21 +29,21 @@
 static int luaB_print (lua_State *L) {
   int n = lua_gettop(L);  /* number of arguments */
   int i;
-  lua_getglobal(L, "tostring");
+  std::string str;
   for (i=1; i<=n; i++) {
     const char *s;
-    lua_pushvalue(L, -1);  /* function to be called */
     lua_pushvalue(L, i);   /* value to print */
-    lua_call(L, 1, 1);
+    luaU_tostring(L, -1);
     s = lua_tostring(L, -1);  /* get result */
     if (s == NULL)
       return luaL_error(L, LUA_QL("tostring") " must return a string to "
                            LUA_QL("print"));
-    if (i>1) fputs("\t", stdout);
-    fputs(s, stdout);
+    if (i>1)	str += '\t';
+    str += s;
     lua_pop(L, 1);  /* pop result */
   }
-  fputs("\n", stdout);
+  str += '\n';
+  Console::print(str, Console::Grey);
   return 0;
 }
 
@@ -446,12 +444,12 @@ static int luaB_newproxy (lua_State *L) {
 
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
-  {"collectgarbage", luaB_collectgarbage},
+//  {"collectgarbage", luaB_collectgarbage},
   {"dofile", luaB_dofile},
   {"error", luaB_error},
   {"gcinfo", luaB_gcinfo},
   {"getfenv", luaB_getfenv},
-  {"getmetatable", luaB_getmetatable},
+//  {"getmetatable", luaB_getmetatable},
   {"loadfile", luaB_loadfile},
   {"load", luaB_load},
   {"loadstring", luaB_loadstring},
@@ -615,8 +613,8 @@ static const luaL_Reg co_funcs[] = {
 /* }====================================================== */
 
 
-static void auxopen (lua_State *L, const char *name,
-                     lua_CFunction f, lua_CFunction u) {
+static void auxopen(lua_State *L, const char *name,lua_CFunction f, lua_CFunction u) 
+{
   lua_pushcfunction(L, u);
   lua_pushcclosure(L, f, 1);
   lua_setfield(L, -2, name);
@@ -624,14 +622,17 @@ static void auxopen (lua_State *L, const char *name,
 
 
 static void base_open (lua_State *L) {
-  /* set global _G */
-  lua_pushvalue(L, LUA_GLOBALSINDEX);
-  lua_setglobal(L, "_G");
+  /* set _G itself to table */
+  lua_pop(L, 1); // pop libname
+  lua_pushvalue(L, 1);
+  lua_setfield(L, 1, "_G");
   /* open lib into global table */
-  luaL_register(L, "_G", base_funcs);
+  luaU_insert_fn(L, base_funcs);
+
   lua_pushliteral(L, LUA_VERSION);
-  lua_setglobal(L, "_VERSION");  /* set global _VERSION */
+  lua_setfield(L, -2, "_VERSION");  /* set global _VERSION */
   /* `ipairs' and `pairs' need auxiliary functions as upvalues */
+
   auxopen(L, "ipairs", luaB_ipairs, ipairsaux);
   auxopen(L, "pairs", luaB_pairs, luaB_next);
   /* `newproxy' needs a weaktable as upvalue */
@@ -641,13 +642,14 @@ static void base_open (lua_State *L) {
   lua_pushliteral(L, "kv");
   lua_setfield(L, -2, "__mode");  /* metatable(w).__mode = "kv" */
   lua_pushcclosure(L, luaB_newproxy, 1);
-  lua_setglobal(L, "newproxy");  /* set global `newproxy' */
+  lua_setfield(L, -2, "newproxy");  /* set global `newproxy' */
 }
 
 
-LUALIB_API int luaopen_base (lua_State *L) {
+LUALIB_API int luaopen_base (lua_State *L) 
+{
   base_open(L);
-  luaL_register(L, LUA_COLIBNAME, co_funcs);
+  luaU_register(L, LUA_COLIBNAME, co_funcs);
   return 2;
 }
 

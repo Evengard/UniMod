@@ -15,6 +15,9 @@
     <Filter Include="Source Files\util">
       <UniqueIdentifier>{2cf11320-1abb-499c-85b3-8844eff95a5f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\lualib">
+      <UniqueIdentifier>{d48c80a4-7a7a-46d1-8690-640cb1761810}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="init.cpp">
@@ -29,6 +32,15 @@
     <ClCompile Include="console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lua_unimod.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="lualib\lbaselib.cpp">
+      <Filter>Source Files\lualib</Filter>
+    </ClCompile>
+    <ClCompile Include="lualib\linit.cpp">
+      <Filter>Source Files\lualib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="memory.h">
@@ -38,6 +50,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lualib\lualib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_unimod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

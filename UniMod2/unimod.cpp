@@ -9,3 +9,4 @@ Unimod_State::~Unimod_State()
 	lua_close(L);
 }
 Unimod_State unimod_State;
+
