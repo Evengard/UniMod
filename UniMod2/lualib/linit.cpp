@@ -10,16 +10,16 @@
 
 #include "lua.hpp"
 
-
-static const luaL_Reg lualibs[] = {
-  {"", luaopen_base},
-  {LUA_TABLIBNAME, luaopen_table},
-  {LUA_STRLIBNAME, luaopen_string},
-  {LUA_MATHLIBNAME, luaopen_math},
-  //{LUA_DBLIBNAME, luaopen_debug},
-  {NULL, NULL}
-};
-
+namespace {
+	static const luaL_Reg lualibs[] = {
+	  {"", luaopen_base},
+	  {LUA_TABLIBNAME, luaopen_table},
+	  {LUA_STRLIBNAME, luaopen_string},
+	  {LUA_MATHLIBNAME, luaopen_math},
+	  //{LUA_DBLIBNAME, luaopen_debug},
+	  {NULL, NULL}
+	};
+} // anonymus namespace
 
 LUALIB_API void luaL_openlibs (lua_State *L) 
 { // инсертит стандартные библиотеки в таблицу на верху стека

@@ -141,12 +141,7 @@ void Console::init()
 	inject_jump(0x00443A71, check_token_size);// Фикс. Был вылет, если длина токена превышала (31+1) символ.
 
 	lua_State *L = unimod_State.L; // таблица для консоли
-	lua_pushvalue(L, LUA_REGISTRYINDEX);
 	lua_newtable(L);
-
-	luaL_openlibs(L);
-
-	Console::environment = luaL_ref(L, -2);
-	lua_pop(L,1);
+	Console::environment = luaL_ref(L, LUA_REGISTRYINDEX);
 
 }

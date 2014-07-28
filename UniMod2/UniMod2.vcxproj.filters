@@ -50,6 +50,12 @@
     <ClCompile Include="lualib\lstrlib.cpp">
       <Filter>Source Files\lualib</Filter>
     </ClCompile>
+    <ClCompile Include="config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lualib\ldblib.cpp">
+      <Filter>Source Files\lualib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="memory.h">
@@ -65,6 +71,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lua_unimod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
