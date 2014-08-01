@@ -20,3 +20,24 @@ void Config::init()
 	else 
 		lua_pop(L, 1); // error msg
 }
+
+int Config::check_flag(lua_State *L, Config::Flags flag) // проверять флаги
+{
+	lua_rawgeti(L, LUA_REGISTRYINDEX, Config::environment);
+	switch (flag)
+	{
+		case Config::fl_debug_mode:
+			lua_getfield(L, -1, "debug");
+			break;
+		case Config::fl_more_noxs:
+			lua_getfield(L, -1, "more_noxs");
+			break;
+		default:
+			lua_pushboolean(L, int(false));
+			break;
+	}
+	int res = lua_toboolean(L, -1);
+	lua_pop(L, 2); // table and bool
+	
+	return res;
+}

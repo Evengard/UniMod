@@ -9,6 +9,7 @@
 #define LUA_LIB
 
 #include "lua.hpp"
+#include "console.h"
 
 namespace {
 	static const luaL_Reg lualibs[] = {
@@ -16,7 +17,7 @@ namespace {
 	  {LUA_TABLIBNAME, luaopen_table},
 	  {LUA_STRLIBNAME, luaopen_string},
 	  {LUA_MATHLIBNAME, luaopen_math},
-	  //{LUA_DBLIBNAME, luaopen_debug},
+	  {"console", Console::open_lib},
 	  {NULL, NULL}
 	};
 } // anonymus namespace

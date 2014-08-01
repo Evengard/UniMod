@@ -3,6 +3,7 @@
 #include "console.h"
 #include "memory.h"
 #include "lua_unimod.h"
+#include "config.h"
 
 #include <cstdlib>
 #include <string>
@@ -10,8 +11,9 @@
 #include <vector>
 
 int Console::environment = -1;
+Console::Color Console::current_color = Console::Grey;
 
-NOX_FN(int, nox_console_print, 0x00450B90, int color, const wchar_t* text)
+NOX_FN(int, nox_console_print, 0x00450B90, int color, const wchar_t* text);
 
 int Console::print(const std::string& s, Console::Color color)
 {
@@ -24,6 +26,25 @@ int Console::print(const std::string& s, Console::Color color)
 int Console::print(const std::wstring& s, Console::Color color)
 {
 	return nox_console_print(int(color), s.c_str());
+}
+void Console::open_libs()
+{
+	lua_State* L = unimod_State.L;
+
+	lua_newtable(L);
+	lua_pushvalue(L, -1);
+	lua_rawseti(L, LUA_REGISTRYINDEX, Console::environment);
+
+	luaL_openlibs(L);
+
+	if (Config::check_flag(L, Config::fl_debug_mode))
+	{
+		lua_pushcfunction(L, luaopen_debug);
+		lua_pushvalue(L, -2);
+		lua_call(L, 1, 0);
+	}
+		
+	lua_pop(L, 1);
 }
 
 namespace {
@@ -141,7 +162,7 @@ void Console::init()
 	inject_jump(0x00443A71, check_token_size);// Фикс. Был вылет, если длина токена превышала (31+1) символ.
 
 	lua_State *L = unimod_State.L; // таблица для консоли
-	lua_newtable(L);
+	lua_pushnil(L);
 	Console::environment = luaL_ref(L, LUA_REGISTRYINDEX);
 
 }

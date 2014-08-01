@@ -2,7 +2,7 @@
 #include "lua.hpp"
 
 // для екстерна нокс-фн (вместо ASSIGN)
-#define NOX_FN(TYPE, NAME, OFFSET, ...)		TYPE (__cdecl * NAME)(__VA_ARGS__) = (TYPE (*)(__VA_ARGS__)) OFFSET;
+#define NOX_FN(TYPE, NAME, OFFSET, ...)		TYPE (__cdecl * NAME)(__VA_ARGS__) = (TYPE (*)(__VA_ARGS__)) OFFSET
 
 class Unimod_State
 {
@@ -14,3 +14,11 @@ public:
 };
 
 extern Unimod_State unimod_State;
+
+namespace Nox {
+	enum Server_flags {
+		sf_is_server = 0x1
+	};
+	extern Server_flags *server_flags;
+	int check_server_flags(Nox::Server_flags);
+}

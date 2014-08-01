@@ -28,28 +28,6 @@
 */
 namespace {
 
-	static int luaB_print (lua_State *L) {
-	  int n = lua_gettop(L);  /* number of arguments */
-	  int i;
-	  std::string str;
-	  for (i=1; i<=n; i++) {
-		const char *s;
-		lua_pushvalue(L, i);   /* value to print */
-		luaU_tostring(L, -1);
-		s = lua_tostring(L, -1);  /* get result */
-		if (s == NULL)
-		  return luaL_error(L, LUA_QL("tostring") " must return a string to "
-							   LUA_QL("print"));
-		if (i>1)	str += '\t';
-		str += s;
-		lua_pop(L, 1);  /* pop result */
-	  }
-	  str += '\n';
-	  Console::print(str, Console::Grey);
-	  return 0;
-	}
-
-
 	static int luaB_tonumber (lua_State *L) {
 	  int base = luaL_optint(L, 2, 10);
 	  if (base == 10) {  /* standard conversion */
@@ -457,7 +435,6 @@ namespace {
 	  {"loadstring", luaB_loadstring},
 	  {"next", luaB_next},
 	  {"pcall", luaB_pcall},
-	  {"print", luaB_print},
 	  {"rawequal", luaB_rawequal},
 	  {"rawget", luaB_rawget},
 	  {"rawset", luaB_rawset},
@@ -652,6 +629,6 @@ LUALIB_API int luaopen_base (lua_State *L)
 {
   base_open(L);
   luaU_register(L, LUA_COLIBNAME, co_funcs);
-  return 2;
+  return 1;
 }
 

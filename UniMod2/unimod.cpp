@@ -10,3 +10,8 @@ Unimod_State::~Unimod_State()
 }
 Unimod_State unimod_State;
 
+Nox::Server_flags *Nox::server_flags = (Nox::Server_flags*)0x005D53A4;
+int Nox::check_server_flags(Nox::Server_flags f)
+{
+	return int(*Nox::server_flags) & int(f);
+}
