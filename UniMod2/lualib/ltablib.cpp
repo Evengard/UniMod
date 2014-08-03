@@ -276,7 +276,7 @@ namespace {
 	  {"sort", sort},
 	  {NULL, NULL}
 	};
-} // anonymus namespace
+} // anonymous namespace
 
 LUALIB_API int luaopen_table (lua_State *L) {
   luaU_register(L, LUA_TABLIBNAME, tab_funcs);

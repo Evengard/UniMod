@@ -154,7 +154,7 @@ namespace {
 		}
 	}
 
-} // anonumys namespace
+} // anonymous namespace
 
 void Console::init()
 {
@@ -162,7 +162,7 @@ void Console::init()
 	inject_jump(0x00443A71, check_token_size);// Фикс. Был вылет, если длина токена превышала (31+1) символ.
 
 	lua_State *L = unimod_State.L; // таблица для консоли
-	lua_pushnil(L);
+	lua_pushnil(L); // подефлоту таблица создается при ините игры
 	Console::environment = luaL_ref(L, LUA_REGISTRYINDEX);
 
 }

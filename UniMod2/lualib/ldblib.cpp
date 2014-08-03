@@ -387,7 +387,7 @@ namespace {
 	  {"traceback", db_errorfb},
 	  {NULL, NULL}
 	};
-} // anonymus namespace
+} // anonymous namespace
 
 LUALIB_API int luaopen_debug (lua_State *L) {
   luaU_register(L, LUA_DBLIBNAME, dblib);

@@ -622,7 +622,7 @@ namespace {
 	  lua_pushcclosure(L, luaB_newproxy, 1);
 	  lua_setfield(L, -2, "newproxy");  /* set global `newproxy' */
 	}
-} // anonymus namespace
+} // anonymous namespace
 
 
 LUALIB_API int luaopen_base (lua_State *L) 

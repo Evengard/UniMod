@@ -241,7 +241,7 @@ namespace {
 	  {NULL, NULL}
 	};
 
-} // anonymus namespace
+} // anonymous namespace
 
 /*
 ** Open math library

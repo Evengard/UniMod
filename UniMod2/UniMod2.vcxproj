@@ -96,6 +96,7 @@
     <ClCompile Include="config.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_lua.cpp" />
+    <ClCompile Include="file_system.cpp" />
     <ClCompile Include="init.cpp" />
     <ClCompile Include="lualib\lbaselib.cpp" />
     <ClCompile Include="lualib\ldblib.cpp" />
@@ -111,6 +112,7 @@
   <ItemGroup>
     <ClInclude Include="config.h" />
     <ClInclude Include="console.h" />
+    <ClInclude Include="file_system.h" />
     <ClInclude Include="lualib\lualib.h" />
     <ClInclude Include="lua_unimod.h" />
     <ClInclude Include="map.h" />

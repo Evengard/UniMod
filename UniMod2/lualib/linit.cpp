@@ -20,7 +20,7 @@ namespace {
 	  {"console", Console::open_lib},
 	  {NULL, NULL}
 	};
-} // anonymus namespace
+} // anonymous namespace
 
 LUALIB_API void luaL_openlibs (lua_State *L) 
 { // инсертит стандартные библиотеки в таблицу на верху стека

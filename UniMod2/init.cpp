@@ -43,7 +43,7 @@ namespace {
 
 		inject_offs(0x00435E93, init_game); // перед первым парсингом команд
 	}
-} // anonymus namespace
+} // anonymous namespace
 
 
 BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)

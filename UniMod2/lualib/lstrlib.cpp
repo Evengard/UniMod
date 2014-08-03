@@ -852,7 +852,7 @@ namespace {
 	  lua_setfield(L, -2, "__index");  /* ...is the __index metamethod */
 	  lua_pop(L, 1);  /* pop metatable */
 	}
-} // anonymus namespace
+} // anonymous namespace
 
 /*
 ** Open string library
