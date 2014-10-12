@@ -37,7 +37,7 @@ void Console::open_libs()
 
 	luaL_openlibs(L);
 
-	if (Config::check_flag(L, Config::fl_debug_mode))
+	if (Config::check_flag(Config::fl_debug_mode))
 	{
 		lua_pushcfunction(L, luaopen_debug);
 		lua_pushvalue(L, -2);

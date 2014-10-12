@@ -14,13 +14,12 @@ namespace {
 	bool map_loaded = false;
 
 	int __cdecl map_on_load()
-	try
 	{
 		map_loaded = true;
 		Console::print(L"Map load", Console::Yellow);
 
 		lua_State *L = unimod_State.L;
-		int ret_status = Fsystem::open_file(L, "server.lua");
+		int ret_status = Fsystem::load_map_file(L, "server.lua");
 		if (lua_isfunction(L, -1))
 		{
 			lua_rawgeti(L, LUA_REGISTRYINDEX, Console::environment);
@@ -32,17 +31,11 @@ namespace {
 				lua_pop(L, 1);
 			}
 		}
-		else if (ret_status == LUA_ERRSYNTAX)
+		else if (ret_status != 0)
 		{
 			Console::print(lua_tostring(L, -1), Console::Light_red);
 			lua_pop(L, 1);
 		}
-		static NOX_FN(int, some_fn, 0x004DA7C0);
-		return some_fn();
-	}
-	catch (Fsystem::Invalid& e)
-	{
-		Console::print(e.what, Console::Light_red);
 		static NOX_FN(int, some_fn, 0x004DA7C0);
 		return some_fn();
 	}

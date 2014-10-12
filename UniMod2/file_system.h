@@ -8,7 +8,7 @@ namespace Fsystem {
 	const int max_path = 0x104; // from win header
 	const int tar_block = 512;
 
-	int open_file(lua_State *L,const std::string& file_to_open);
+	int load_map_file(lua_State *L, const std::string& file_to_open); // ищет нужный луа файл, взависмости от карты и текущего режима
 
 	class Invalid { // for errors
 	public:

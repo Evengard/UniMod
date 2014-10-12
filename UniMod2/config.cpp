@@ -21,8 +21,9 @@ void Config::init()
 		lua_pop(L, 1); // error msg
 }
 
-int Config::check_flag(lua_State *L, Config::Flags flag) // проверять флаги
+int Config::check_flag(Config::Flags flag) // проверять флаги
 {
+	lua_State *L = unimod_State.L; // всё равно
 	lua_rawgeti(L, LUA_REGISTRYINDEX, Config::environment);
 	switch (flag)
 	{

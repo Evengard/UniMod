@@ -9,7 +9,7 @@ namespace Config {
 
 	void init();
 
-	int check_flag(lua_State *L, Config::Flags flag);
+	int check_flag(Config::Flags flag);
 
 	extern int environment;
 }

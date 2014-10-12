@@ -2,7 +2,7 @@
 #include "unimod.h"
 
 Unimod_State::Unimod_State()
-	:L(luaL_newstate()), debug_mode(true)
+	:L(luaL_newstate()), debug_mode(false)
 {}
 Unimod_State::~Unimod_State()
 {

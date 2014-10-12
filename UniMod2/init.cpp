@@ -32,7 +32,7 @@ namespace {
 
 		write_array(bt, &OperatorJmps, sizeof(OperatorJmps));  // это убираем серийник
 
-		if (Config::check_flag(unimod_State.L, Config::fl_more_noxs))
+		if (Config::check_flag(Config::fl_more_noxs))
 		{
 			write_array(bt2, &OperatorJmps, sizeof(OperatorJmps)); // это на запуск 2 -ух ноксов
 			write_array(bt3, OperatorMovEax1, sizeof(OperatorMovEax1)); // убиваем мутекс
