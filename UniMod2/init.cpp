@@ -6,6 +6,7 @@
 #include "config.h"
 #include "map.h"
 #include "lua_unimod.h"
+#include "events.h"
 #pragma pack(1)
 
 namespace {
@@ -56,6 +57,7 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 			patch_nox();
 			Console::init();
 			Map::init();
+			Events::init();
 		}
 		case DLL_PROCESS_DETACH:
 			break;

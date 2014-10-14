@@ -18,6 +18,12 @@
     <Filter Include="Source Files\lualib">
       <UniqueIdentifier>{d48c80a4-7a7a-46d1-8690-640cb1761810}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\console">
+      <UniqueIdentifier>{d94f13ba-cba4-4af9-9cb4-319a14390fe8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\timer">
+      <UniqueIdentifier>{e70ab32c-2606-4329-8171-18e33fb5e605}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="init.cpp">
@@ -27,9 +33,6 @@
       <Filter>Source Files\util</Filter>
     </ClCompile>
     <ClCompile Include="unimod.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="lua_unimod.cpp">
@@ -56,14 +59,26 @@
     <ClCompile Include="lualib\ldblib.cpp">
       <Filter>Source Files\lualib</Filter>
     </ClCompile>
-    <ClCompile Include="console_lua.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="file_system.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="events.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="console.cpp">
+      <Filter>Source Files\console</Filter>
+    </ClCompile>
+    <ClCompile Include="console_lua.cpp">
+      <Filter>Source Files\console</Filter>
+    </ClCompile>
+    <ClCompile Include="timer.cpp">
+      <Filter>Source Files\timer</Filter>
+    </ClCompile>
+    <ClCompile Include="timer_lua.cpp">
+      <Filter>Source Files\timer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -73,13 +88,7 @@
     <ClInclude Include="unimod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="console.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="lualib\lualib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lua_unimod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config.h">
@@ -90,6 +99,18 @@
     </ClInclude>
     <ClInclude Include="file_system.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="events.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="console.h">
+      <Filter>Source Files\console</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>Source Files\timer</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_unimod.h">
+      <Filter>Source Files\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

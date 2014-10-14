@@ -10,8 +10,19 @@ Unimod_State::~Unimod_State()
 }
 Unimod_State unimod_State;
 
-Nox::Server_flags *Nox::server_flags = (Nox::Server_flags*)0x005D53A4;
-int Nox::check_server_flags(Nox::Server_flags f)
-{
-	return int(*Nox::server_flags) & int(f);
+namespace {
+	Nox::Server_flags* server_flags = (Nox::Server_flags*)0x005D53A4;
+	unsigned __int32* nox_frame_counter = (unsigned __int32*)0x0084EA04;
+}//anonymous namespace
+
+
+namespace Nox {
+	int check_server_flags(Nox::Server_flags f)
+	{
+		return int(*server_flags) & int(f);
+	}
+	unsigned __int32 frame_counter()
+	{
+		return *nox_frame_counter;
+	}
 }

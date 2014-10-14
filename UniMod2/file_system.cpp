@@ -72,12 +72,12 @@ namespace {
 			ifile.read(s_size, sizeof(s_size));
 			size = oct_to_int(s_size);
 
-			int temp_pos = std::ceil(ifile.tellg() / double(Fsystem::tar_block)) * Fsystem::tar_block; //Начало файла
+			int temp_pos = int(std::ceil(ifile.tellg() / double(Fsystem::tar_block))) * Fsystem::tar_block; //Начало файла
 			ifile.seekg(temp_pos, std::ifstream::beg);
 
 			if (t_name != file_to_open)
 			{
-				int tt = std::ceil((int(ifile.tellg()) + size) / double(Fsystem::tar_block)) * Fsystem::tar_block;;
+				int tt = int(std::ceil((int(ifile.tellg()) + size)) / double(Fsystem::tar_block)) * Fsystem::tar_block;
 				ifile.seekg( tt, std::ifstream::beg);
 				continue;
 			}

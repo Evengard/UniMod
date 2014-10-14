@@ -19,6 +19,6 @@ namespace Nox {
 	enum Server_flags {
 		sf_is_server = 0x1
 	};
-	extern Server_flags *server_flags;
 	int check_server_flags(Nox::Server_flags);
+	unsigned __int32 frame_counter();
 }
