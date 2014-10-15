@@ -10,6 +10,7 @@
 
 #include "lua.hpp"
 #include "console.h"
+#include "events.h"
 
 namespace {
 	static const luaL_Reg lualibs[] = {
@@ -18,6 +19,7 @@ namespace {
 	  {LUA_STRLIBNAME, luaopen_string},
 	  {LUA_MATHLIBNAME, luaopen_math},
 	  {"console", Console::open_lib},
+	  {"events", Events::open_lib},
 	  {NULL, NULL}
 	};
 } // anonymous namespace

@@ -1,22 +1,15 @@
 // aux fn
 #include "lua.hpp"
 #include "lua_unimod.h"
-
+#include "timer.h"
 void luaU_tostring(lua_State *L, int idx)
 {
-  if (lua_getmetatable(L, idx))
-  {
-	  lua_getfield(L, -1, "__tostring");
-	  if (lua_isfunction(L, -1))
-	  {
-		  lua_pushvalue(L, idx);
-		  lua_pcall(L, 1, 1, 0);
-		  lua_replace(L, -2); // remove metatable
-		  return;
-	  }
-	  lua_pop(L, 2);
-  }
-
+	lua_pushvalue(L, idx);
+	if (luaL_callmeta(L, -1, "__tostring"))  /* is there a metafield? */
+		return;
+	else
+		lua_pop(L,1);
+	
   switch (lua_type(L, idx)) {
     case LUA_TNUMBER:
       lua_pushstring(L, lua_tostring(L, idx));
@@ -24,7 +17,7 @@ void luaU_tostring(lua_State *L, int idx)
     case LUA_TSTRING:
       lua_pushvalue(L, idx);
       return;
-    case LUA_TBOOLEAN:
+	case LUA_TBOOLEAN:
       lua_pushstring(L, (lua_toboolean(L, idx) ? "true" : "false"));
       return;
     case LUA_TNIL:
@@ -61,6 +54,15 @@ void luaU_register(lua_State* L, const char* name, const luaL_Reg *fns)
 	luaU_insert_fn(L, fns); // инсертим фнки в таблицу, что лежит в поле name
 	lua_pop(L, 1);
 }
+void luaU_newweaktable(lua_State* L, const char* mode)
+{
+	lua_newtable(L);
+		lua_newtable(L);
+		lua_pushstring(L, mode);
+		lua_setfield(L, -2, "__mode");
+	lua_setmetatable(L, -2);
+}
+
 
 
 

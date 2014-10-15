@@ -424,7 +424,7 @@ namespace {
 
 	static const luaL_Reg base_funcs[] = {
 	  {"assert", luaB_assert},
-	//  {"collectgarbage", luaB_collectgarbage},
+	  {"collectgarbage", luaB_collectgarbage},
 	  {"dofile", luaB_dofile},
 	  {"error", luaB_error},
 	  {"gcinfo", luaB_gcinfo},

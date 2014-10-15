@@ -20,34 +20,24 @@ namespace {
 		timer->delta = delta; // инициализируем
 		timer->frame = Nox::frame_counter() + delta;
 
-		lua_pushlightuserdata(L, Timer::add_to_list);
-		lua_gettable(L, LUA_REGISTRYINDEX); // достаём таблицу для функций таймера
+		lua_rawgeti(L, LUA_REGISTRYINDEX, Timer::timer_function_table); // достаём таблицу для функций таймера
 			lua_pushvalue(L, -2); // юзердата таймера
 			lua_pushvalue(L, 1); // функция
 			lua_settable(L, -3);
+		lua_pop(L, 1); // выкидываем таблицу для таймеров
 
+		lua_rawgeti(L, LUA_REGISTRYINDEX, Timer::ptr_timer_table);
 			lua_pushlightuserdata(L, (void*)timer);
 			lua_pushvalue(L, -3); // юзердата таймера
 			lua_settable(L, -3);
-		lua_pop(L, 1); // выкидываем таблицу для таймеров
-
-		if (delta >= 0)
-			Timer::add_to_list(timer);
-
+		lua_pop(L, 1);
+		
 		return 1;
 	}
 	static int timer_gc(lua_State* L)
 	{
 		Timer::Timer_instance* timer = (Timer::Timer_instance*)lua_touserdata(L, 1);
 		Timer::erase_from_list(timer);
-
-		lua_pushlightuserdata(L, Timer::add_to_list);
-		lua_gettable(L, LUA_REGISTRYINDEX); // достаём таблицу для функций таймера
-			lua_pushlightuserdata(L, (void*)timer);
-			lua_pushnil(L);
-			lua_settable(L, -3); // убираем юзердату по указателю
-		lua_pop(L, 1);
-
 		return 0;
 	}
 	static int timer_start(lua_State* L)
@@ -81,11 +71,11 @@ namespace {
 		Timer::erase_from_list(timer);
 		return 0;
 	}
-	static int timer_tostring(lua_State* L)
+	int timer_tostring(lua_State* L)
 	{
 		luaL_checkudata(L, 1, timer_meta);
 		Timer::Timer_instance* timer = (Timer::Timer_instance*)lua_touserdata(L, 1);
-		lua_pushfstring(L, "Timer: %x\t delta: %i\t frame: %i", (int)timer, timer->delta, timer->frame);
+		lua_pushfstring(L, "Timer: %p\t delta: %d\t frame: %d", (void*)timer, timer->delta, timer->frame);
 		return 1;
 	}
 
@@ -101,23 +91,22 @@ namespace {
 
 }//anonymous namespace
 namespace Timer {
+	int timer_function_table = -1;
+	int ptr_timer_table = -1;
+
 	int open_lib(lua_State *L)
 	{
 		/*
 			в регистре под указателем Timer::add_to_list храним слабую таблицу.
 			В этой таблицу ключи - юзерадты таймеров
 			Значения - функции, которые надо вызвать
-			Плюс используем её для хранения юзердат по указателям
 			Таблица должна быть слабой по ключу, потому что юзер сам должен забоиться о жизни таймера
 			*/
-		lua_pushlightuserdata(L, Timer::add_to_list);
-		lua_newtable(L); // делаем таблицу, куда будем складывать таймеры
-			lua_newtable(L); // метатблица, что бы сделать таблицу слабой на значения
-				lua_pushstring(L, "k");
-				lua_setfield(L, -2, "__mode"); 
-			lua_setmetatable(L, -2);
-		lua_settable(L, LUA_REGISTRYINDEX); // делаем таблицу, куда будем складывать таймеры
+		luaU_newweaktable(L, "k");
+		timer_function_table = luaL_ref(L, LUA_REGISTRYINDEX); // делаем таблицу, для соотвествия таймер - функция
 
+		luaU_newweaktable(L, "v");
+		ptr_timer_table = luaL_ref(L, LUA_REGISTRYINDEX); // делаем таблицу, для соотвествия указатель - таймер
 
 		luaL_newmetatable(L, timer_meta); // создайм метатаблицу для таймеров
 			lua_pushvalue(L, -1);
@@ -128,7 +117,7 @@ namespace Timer {
 
 
 		lua_pushcfunction(L, timer_new); //регаем в таблицу (по идее эвенты) функцию для создания таймеров
-		lua_setfield(L, -1, "timer");
+		lua_setfield(L, -2, "timer");
 		return 1;
 	}
 
