@@ -27,25 +27,6 @@ int Console::print(const std::wstring& s, Console::Color color)
 {
 	return nox_console_print(int(color), s.c_str());
 }
-void Console::open_libs()
-{
-	lua_State* L = unimod_State.L;
-
-	lua_newtable(L);
-	lua_pushvalue(L, -1);
-	lua_rawseti(L, LUA_REGISTRYINDEX, Console::environment);
-
-	luaL_openlibs(L);
-
-	if (Config::check_flag(Config::fl_debug_mode))
-	{
-		lua_pushcfunction(L, luaopen_debug);
-		lua_pushvalue(L, -2);
-		lua_call(L, 1, 0);
-	}
-		
-	lua_pop(L, 1);
-}
 
 namespace {
 	bool is_variable(const char* s)
@@ -114,7 +95,7 @@ namespace {
 
 		if (luaL_loadstring(L, cmd)) // грузим в луа
 		{
-			Console::print(lua_tostring(L, -1), Console::Grey);
+			Console::print(lua_tostring(L, -1), Console::Error);
 			lua_settop(L, top);
 			return;
 		}
@@ -124,7 +105,7 @@ namespace {
 
 		if (lua_pcall(L, 0, 0, 0)) // вызываем
 		{
-			Console::print(lua_tostring(L, -1), Console::Grey);
+			Console::print(lua_tostring(L, -1), Console::Error);
 			lua_settop(L, top);
 			return;
 		}
@@ -162,7 +143,7 @@ void Console::init()
 	inject_jump(0x00443A71, check_token_size);// Фикс. Был вылет, если длина токена превышала (31+1) символ.
 
 	lua_State *L = unimod_State.L; // таблица для консоли
-	lua_pushnil(L); // подефлоту таблица создается при ините игры
+	lua_pushinteger(L,1); // подефлоту таблица создается при ините игры
 	Console::environment = luaL_ref(L, LUA_REGISTRYINDEX);
 
 }

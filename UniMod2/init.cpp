@@ -12,8 +12,9 @@
 namespace {
 	void __cdecl init_game(int arg1, int arg2) // когда хостится игра, или идёт коннект
 	{
+		luaU_initlib(unimod_State);
 		Console::print(L"Game inited", Console::Blue);
-		Console::open_libs();
+		luaU_crenvtable(unimod_State, Console::environment);
 
 		static NOX_FN(int, console_parse, 0x00443C80, int, int);
 		console_parse(arg1, arg2);

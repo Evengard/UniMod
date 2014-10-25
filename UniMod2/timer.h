@@ -14,6 +14,7 @@ namespace Timer {
 	void add_to_list(Timer_instance* timer);
 	void erase_from_list(Timer_instance* timer);
 
-	extern int timer_function_table;
-	extern int ptr_timer_table;
+	extern int ptr_function_key; // self key
+	extern int ptr_timer_key;
+	extern int ptr_env_key;
 }

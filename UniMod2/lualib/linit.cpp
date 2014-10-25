@@ -18,8 +18,6 @@ namespace {
 	  {LUA_TABLIBNAME, luaopen_table},
 	  {LUA_STRLIBNAME, luaopen_string},
 	  {LUA_MATHLIBNAME, luaopen_math},
-	  {"console", Console::open_lib},
-	  {"events", Events::open_lib},
 	  {NULL, NULL}
 	};
 } // anonymous namespace

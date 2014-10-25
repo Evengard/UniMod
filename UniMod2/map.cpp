@@ -1,6 +1,8 @@
 #include "console.h"
 #include "memory.h"
 #include "unimod.h"
+#include "lua_unimod.h"
+#include "config.h"
 #include "map.h"
 #include "file_system.h"
 
@@ -12,6 +14,7 @@ const char* Map::current_map_name()
 }
 namespace {
 	bool map_loaded = false;
+	const char* key_to_map = "_MAP";
 
 	int __cdecl map_on_load()
 	{
@@ -19,23 +22,36 @@ namespace {
 		Console::print(L"Map load", Console::Yellow);
 
 		lua_State *L = unimod_State.L;
+		luaU_crenvtable(L, Map::environment);
+	
+
+		if (Config::check_flag(Config::fl_debug_mode))
+		{
+			lua_rawgeti(L, LUA_REGISTRYINDEX, Console::environment);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, Map::environment);
+			lua_setfield(L, -2, key_to_map);
+			lua_pop(L, 1);
+		}
+		
+
 		int ret_status = Fsystem::load_map_file(L, "server.lua");
 		if (lua_isfunction(L, -1))
 		{
-			lua_rawgeti(L, LUA_REGISTRYINDEX, Console::environment);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, Map::environment);
 			lua_setfenv(L, -2);
 			int ret = lua_pcall(L, 0, 0, 0);
 			if (ret != 0)
 			{
-				Console::print(lua_tostring(L, -1), Console::Light_red);
+				Console::print(lua_tostring(L, -1), Console::Error);
 				lua_pop(L, 1);
 			}
 		}
 		else if (ret_status != 0)
 		{
-			Console::print(lua_tostring(L, -1), Console::Light_red);
+			Console::print(lua_tostring(L, -1), Console::Error);
 			lua_pop(L, 1);
 		}
+					
 		static NOX_FN(int, some_fn, 0x004DA7C0);
 		return some_fn();
 	}
@@ -46,6 +62,20 @@ namespace {
 		{
 			Console::print(L"Map exit", Console::Yellow);
 			map_loaded = false;
+
+			lua_State* L = unimod_State.L;
+			lua_pushnil(L);
+			lua_rawseti(L, LUA_REGISTRYINDEX, Map::environment);
+			
+			if (Config::check_flag(Config::fl_debug_mode))
+			{
+				lua_rawgeti(L, LUA_REGISTRYINDEX, Console::environment);
+				lua_pushnil(L);
+				lua_setfield(L, -2, key_to_map);
+				lua_pop(L, 1); 
+			}
+
+			lua_gc(L, LUA_GCCOLLECT, 0);lua_gc(L, LUA_GCCOLLECT, 0);
 		}
 
 		static NOX_FN(void, some_nox_fn, 0x0040A4D0, int);
@@ -59,6 +89,6 @@ void Map::init()
 	inject_offs(0x004D12F9, map_on_exit); // сервер. Перед дестроем юнитов
 
 	lua_State *L = unimod_State.L; 
-	lua_pushnil(L); 
+	lua_pushinteger(L,1); 
 	Map::environment = luaL_ref(L, LUA_REGISTRYINDEX);
 }

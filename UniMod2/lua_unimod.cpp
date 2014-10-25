@@ -1,7 +1,60 @@
 // aux fn
 #include "lua.hpp"
 #include "lua_unimod.h"
-#include "timer.h"
+#include "config.h"
+
+#include "console.h"
+#include "events.h"
+
+namespace {
+	char* lib_environment = "UniMod.Lib_Environment";
+
+	static const luaL_Reg unimod_libs[] = {
+	  {"console", Console::open_lib},
+	  {"events", Events::open_lib},
+	  {NULL, NULL}
+	};
+} // anonymous namespace
+void luaU_initlib(lua_State* L) // nothing leave on stack
+{ // открывает в специальное место стандартную библиотеку луа
+	lua_newtable(L);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, LUA_REGISTRYINDEX, lib_environment);
+
+	luaL_openlibs(L);
+
+	if (Config::check_flag(Config::fl_debug_mode))
+	{
+		lua_pushcfunction(L, luaopen_debug);
+		lua_pushvalue(L, -2);
+		lua_call(L, 1, 0);
+	}
+
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index"); // self
+	lua_pop(L, 1);
+}
+void luaU_crenvtable(lua_State* L, int ref)
+{ // Создаёт енв таблицу, открыавет в неё Юнимод либу и наследует функции от стандартной либы
+	lua_newtable(L);
+	lua_pushvalue(L, -1);
+	lua_rawseti(L, LUA_REGISTRYINDEX, ref);
+
+	lua_getfield(L, LUA_REGISTRYINDEX, lib_environment);
+	lua_setmetatable(L, -2);
+		
+	const luaL_Reg *lib = unimod_libs;
+	for (; lib->func; lib++) 
+	{
+		lua_pushcfunction(L, lib->func);
+		lua_pushvalue(L, -2); // table for inserting
+		lua_call(L, 1, 0);
+	}
+
+	lua_pop(L, 1);
+}
+
+
 void luaU_tostring(lua_State *L, int idx)
 {
 	lua_pushvalue(L, idx);
@@ -63,7 +116,17 @@ void luaU_newweaktable(lua_State* L, const char* mode)
 	lua_setmetatable(L, -2);
 }
 
-
-
-
+void luaU_makeukey(lua_State* L, int index, void* key)
+{
+	int abs = index > 0 || index <= LUA_REGISTRYINDEX ? index : lua_gettop(L) + index + 1;
+	lua_pushlightuserdata(L, key);
+	lua_insert(L, -2); // меняем значение и ключ
+	lua_settable(L, abs);
+}
+void luaU_byukey(lua_State* L, int index, void* key)
+{
+	int abs = index > 0 || index <= LUA_REGISTRYINDEX ? index : lua_gettop(L) + index + 1;
+	lua_pushlightuserdata(L, key);
+	lua_gettable(L, abs);
+}
 

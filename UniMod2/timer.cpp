@@ -1,5 +1,6 @@
 #include <list>
 #include "unimod.h"
+#include "lua_unimod.h"
 #include "memory.h"
 #include "console.h"
 #include "events.h"
@@ -11,10 +12,6 @@ namespace {
 	void __cdecl on_each_frame()
 	{
 		lua_State* L = unimod_State.L;
-
-		lua_rawgeti(L, LUA_REGISTRYINDEX, Timer::timer_function_table); //достаём таблицу для функций таймера
-		lua_rawgeti(L, LUA_REGISTRYINDEX, Timer::ptr_timer_table);
-
 		unsigned __int32 current_time = Nox::frame_counter();
 		for (std::list<Timer::Timer_instance*>::iterator iter = timer_list.begin(); iter != timer_list.end();)
 		{
@@ -26,25 +23,35 @@ namespace {
 
 			if (current_time == timer->frame)
 			{
-				lua_pushlightuserdata(L, timer); // timer ptr_table funct_table
-				lua_gettable(L, -2); // достаём юзердату // timer_u ptr_table funct_table
-				lua_pushvalue(L, -1); // дублируем // timer_u timer_u  ptr_table funct_table
-				lua_gettable(L, -4); // достаём функцию  // fn timer_u  ptr_table funct_table
-				lua_insert(L, -2);
+				luaU_byukey(L, LUA_REGISTRYINDEX, &Timer::ptr_env_key);
+				luaU_byukey(L, -1, timer); // ptr_env env
+				lua_remove(L, -2); // env
+				if (!lua_istable(L, -1))
+				{
+					Console::print(L"Error: on_each_frame timer's env not defined", Console::Error);
+					lua_pop(L, 1);
+					continue;
+				}
+
+				luaU_byukey(L, -1, &Timer::ptr_function_key); // env ptr_function
+				luaU_byukey(L, -2, &Timer::ptr_timer_key); // env ptr_function ptr_timer
+
+				luaU_byukey(L, -2, timer); // env ptr_function ptr_timer function
+				luaU_byukey(L, -2, timer); // env ptr_function ptr_timer function timer
 				if (lua_isfunction(L, -2))
 				{
-					if (lua_pcall(L, 1, 0, 0)) // ptr_table funct_table
+					if (lua_pcall(L, 1, 0, 0)) // env ptr_function ptr_timer [error]
 					{
-						Console::print(lua_tostring(L, -1), Console::Grey);
-						lua_pop(L, 1);
+						Console::print(lua_tostring(L, -1), Console::Error);
+						lua_pop(L, 4);
 					}
+					lua_pop(L, 3);
 				}
 				else
-					lua_pop(L, 2); // функцию и юзердату
+					lua_pop(L, 5); // функцию и юзердату
 			}
 			
 		}
-		lua_pop(L, 2); // таблицу указателей и фукнций
 
 		static NOX_FN(void, sub51ADF0, 0x51adf0);
 		sub51ADF0();
@@ -56,9 +63,11 @@ namespace Timer {
 	void add_to_list(Timer_instance* timer)
 	{
 		std::list<Timer_instance*>::iterator iter = timer_list.begin();
-		for (; iter != timer_list.end();)
+		for (; iter != timer_list.end();++iter)
+		{
 			if ((*iter)->frame > timer->frame)
 				break;
+		}
 		timer_list.insert(iter, timer);
 	}
 	void erase_from_list(Timer_instance* timer)
@@ -81,6 +90,10 @@ namespace Timer {
 	void init()
 	{
 		inject_offs(0x4D2AB4, on_each_frame);
+
+		lua_State* L = unimod_State.L;
+		luaU_newweaktable(L, "v");
+		luaU_makeukey(L, LUA_REGISTRYINDEX, &ptr_env_key); // таблица, чтобы понять какой таймер, в какой среде
 	}
 
 }//Timer namespace
