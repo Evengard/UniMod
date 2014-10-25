@@ -11,6 +11,8 @@ public:
 	bool debug_mode;
 	Unimod_State();
 	~Unimod_State();
+
+	operator lua_State*() const { return L; }
 };
 
 extern Unimod_State unimod_State;
