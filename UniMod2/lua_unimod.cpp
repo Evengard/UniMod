@@ -5,6 +5,7 @@
 
 #include "console.h"
 #include "events.h"
+#include "unit.h"
 
 namespace {
 	char* lib_environment = "UniMod.Lib_Environment";
@@ -12,6 +13,7 @@ namespace {
 	static const luaL_Reg unimod_libs[] = {
 	  {"console", Console::open_lib},
 	  {"events", Events::open_lib},
+	  {"unit", Unit::open_lib},
 	  {NULL, NULL}
 	};
 } // anonymous namespace

@@ -24,6 +24,12 @@
     <Filter Include="Source Files\timer">
       <UniqueIdentifier>{e70ab32c-2606-4329-8171-18e33fb5e605}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\unit">
+      <UniqueIdentifier>{ea2b20f9-4098-42a6-8ee3-fa36ff384660}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\unit\unit_nox">
+      <UniqueIdentifier>{75543b89-bd4d-4057-a7fe-048145acbc55}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="init.cpp">
@@ -80,6 +86,9 @@
     <ClCompile Include="timer_lua.cpp">
       <Filter>Source Files\timer</Filter>
     </ClCompile>
+    <ClCompile Include="unit_lua.cpp">
+      <Filter>Source Files\unit</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="memory.h">
@@ -111,6 +120,12 @@
     </ClInclude>
     <ClInclude Include="lua_unimod.h">
       <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="unit.h">
+      <Filter>Source Files\unit</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_nox.h">
+      <Filter>Source Files\unit\unit_nox</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
