@@ -7,6 +7,7 @@
 #include "map.h"
 #include "lua_unimod.h"
 #include "events.h"
+#include "unit.h"
 #pragma pack(1)
 
 namespace {
@@ -59,6 +60,7 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 			Console::init();
 			Map::init();
 			Events::init();
+			Unit::init();
 		}
 		case DLL_PROCESS_DETACH:
 			break;

@@ -112,10 +112,12 @@ namespace Timer {
 		luaU_newweaktable(L, "v");
 		luaU_makeukey(L, -2, &ptr_timer_key); // делаем таблицу, для соотвествия указатель - таймер
 
-		luaL_newmetatable(L, timer_meta); // создайм метатаблицу для таймеров
+		if (luaL_newmetatable(L, timer_meta)) // создайм метатаблицу для таймеров
+		{
 			lua_pushvalue(L, -1);
 			lua_setfield(L, -2, "__index");
-		luaU_insert_fn(L, timer_meta_fn);
+			luaU_insert_fn(L, timer_meta_fn);
+		}
 		lua_pop(L, 1); // выкидываем метатаблицу
 
 		lua_pushvalue(L, -1); // upvalue - 

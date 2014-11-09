@@ -49,7 +49,7 @@ namespace Nox {
 			Pending			= 1<<	25
 		};
 		char* ScriptNameMB; //  offset (00000000)
-		__int16 thingType;
+		__int16 type_id;
 		__int16 field_6;
 		Class u_class; //  enum unitClass
 		__int32 SubClass;
@@ -63,14 +63,14 @@ namespace Nox {
 		__int32 globalID; //  »ндекс - это отправл€етс€ в стэк скрипта
 		__int32 field_30; //  такие же данные на клиенте в sprite_s+18h
 		__int32 teamId;
-		__int32 unitX;
-		__int32 unitY;
-		__int32 someX_2; //  возможно составл€юща€ скорости
-		__int32 someY_2;
-		__int32 someX_1;
-		__int32 someY_1;
-		__int32 velX;
-		__int32 velY;
+		float unitX;
+		float unitY;
+		float someX_2; //  возможно составл€юща€ скорости
+		float someY_2;
+		float someX_1;
+		float someY_1;
+		float velX;
+		float velY;
 		__int32 field_58; //  скорость X?
 		__int32 field_5C; //  скорость Y?
 		__int32 field_60;
