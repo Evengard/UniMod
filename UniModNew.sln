@@ -1,8 +1,12 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniMod", "UniMod2.vcxproj", "{524F9888-4C22-461A-81F5-F46DDAAAE4FA}"
 	ProjectSection(ProjectDependencies) = postProject
+		{0008960E-E0DD-41A6-8265-00B31DDB4C21} = {0008960E-E0DD-41A6-8265-00B31DDB4C21}
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A} = {66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}
 		{E3F788C6-ED70-4735-AD55-39BB9786156D} = {E3F788C6-ED70-4735-AD55-39BB9786156D}
 	EndProjectSection
 EndProject
@@ -11,6 +15,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "Libs\lpng151\projects\visualc71\zlib.vcxproj", "{2D4F8105-7D21-454C-9932-B47CAB71A5C0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "Libs\lua\lua.vcxproj", "{E3F788C6-ED70-4735-AD55-39BB9786156D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "socket", "Libs\luasocket\socket.vcxproj", "{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3F788C6-ED70-4735-AD55-39BB9786156D} = {E3F788C6-ED70-4735-AD55-39BB9786156D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +124,28 @@ Global
 		{E3F788C6-ED70-4735-AD55-39BB9786156D}.LIB Release|Win32.Build.0 = Release|Win32
 		{E3F788C6-ED70-4735-AD55-39BB9786156D}.Release|Win32.ActiveCfg = Release|Win32
 		{E3F788C6-ED70-4735-AD55-39BB9786156D}.Release|Win32.Build.0 = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.Debug|Win32.Build.0 = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL ASM Debug|Win32.ActiveCfg = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL ASM Debug|Win32.Build.0 = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL ASM Release|Win32.ActiveCfg = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL ASM Release|Win32.Build.0 = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL Debug|Win32.ActiveCfg = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL Debug|Win32.Build.0 = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL Release|Win32.ActiveCfg = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL Release|Win32.Build.0 = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL VB|Win32.ActiveCfg = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.DLL VB|Win32.Build.0 = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.LIB ASM Debug|Win32.ActiveCfg = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.LIB ASM Debug|Win32.Build.0 = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.LIB ASM Release|Win32.ActiveCfg = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.LIB ASM Release|Win32.Build.0 = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.LIB Debug|Win32.ActiveCfg = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.LIB Debug|Win32.Build.0 = Debug|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.LIB Release|Win32.ActiveCfg = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.LIB Release|Win32.Build.0 = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.Release|Win32.ActiveCfg = Release|Win32
+		{66E3CE14-884D-4AEA-9F20-15A0BEAF8C5A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

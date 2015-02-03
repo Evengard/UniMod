@@ -1,10 +1,15 @@
 #include "stdafx.h"
+#include "unit.h"
+
+#include "Libs/luasocket/src/socket_main.h"
 
 extern void injectCon();
 extern "C" void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E);
 extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E, BYTE *MyPlayer, BYTE *MyUc);
 extern "C" int __cdecl  playerOnTrySpell(bigUnitStruct *Unit,byte *Uc,spellPacket *Pckt);
 extern "C" void conSendToServer(const char *Cmd);
+
+extern "C" int luaopen_socket_core(lua_State *L);
 
 void* conAddr=NULL;
 
@@ -127,9 +132,19 @@ namespace
 	{
 		FixMeBack();
 		luaL_openlibs(L);
+
+		// Init the LuaSocket
+		lua_getfield(L, LUA_GLOBALSINDEX, "package");
+		lua_getfield(L, -1, "preload");
+		lua_pushcfunction(L, luaopen_socket_core);
+		lua_setfield(L, -2, "socket.core");
+		luaL_loadstring(L, (char*)socket_lua);
+		lua_call(L, 0, 1);
+
 		lua_pushcclosure(L, delayedConL, 0);
 		lua_setfield(L, LUA_REGISTRYINDEX, "delayedCon");
 		injectCon();
+
 		__asm
 		{
 			push 0x401C70;
@@ -152,7 +167,7 @@ extern void InjectAddr(DWORD Addr,void *Fn);
 void initModLib1(HMODULE hModule)
 {
 	void* MyModule = (void*)hModule;
-	void* addr = (char*)InitMe + (int)MyModule - 0x36D0FF58;
+	void* addr = (char*)InitMe + (int)MyModule - (0x36D0FF58 - 0x36900000 + (int)MyModule);
 	byte *bt=(byte*)(0x40FF54);
 	DWORD OldProtect;
 	VirtualProtect(bt,0x4,PAGE_EXECUTE_READWRITE,&OldProtect);

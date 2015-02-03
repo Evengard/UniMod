@@ -187,6 +187,9 @@
     <ClCompile Include="playerExternFunction.cpp">
       <Filter>Source Files\server\player</Filter>
     </ClCompile>
+    <ClCompile Include="libVer.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libs\lpeg.h">
@@ -215,17 +218,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\libpng.lib">
-      <Filter>lib</Filter>
-    </Library>
-    <Library Include="LibVer.lib">
-      <Filter>lib</Filter>
-    </Library>
-    <Library Include="Libs\lua51static_mt.lib">
-      <Filter>lib</Filter>
-    </Library>
-    <Library Include="Libs\lpng151\projects\visualc71\Win32_LIB_Release\ZLib\zlib.lib">
-      <Filter>lib</Filter>
-    </Library>
+    <Library Include="Libs\libpng.lib" />
+    <Library Include="Libs\lua.lib" />
+    <Library Include="Libs\zlib.lib" />
+    <Library Include="Libs\socket.lib" />
   </ItemGroup>
 </Project>
