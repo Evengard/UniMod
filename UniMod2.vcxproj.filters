@@ -219,8 +219,8 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libs\libpng.lib" />
-    <Library Include="Libs\lua.lib" />
     <Library Include="Libs\zlib.lib" />
     <Library Include="Libs\socket.lib" />
+    <Library Include="Libs\luajit.lib" />
   </ItemGroup>
 </Project>

@@ -390,6 +390,15 @@ void InjectAddr(DWORD Addr,void *Fn)// Пишем по данному адресу - адрес нашей фун
 	*Dw=Delta;
 	VirtualProtect(Dw,4,OldProtect,&OldProtect);
 }
+void InjectData(DWORD offset, byte* buff, size_t size)
+{
+	byte *addr = (byte*)(offset);
+	DWORD OldProtect;
+	VirtualProtect(addr, size, PAGE_EXECUTE_READWRITE, &OldProtect);
+	memcpy(addr, buff, size);
+	VirtualProtect(addr, 4, OldProtect, &OldProtect);
+}
+
 #include <list>
 int (__cdecl *noxGetUnitsInRect)(FloatRect *Rect, void (__cdecl *SomeFn)(void *Unit, void *Arg), void *Arg);
 

@@ -348,6 +348,13 @@ l1: // exit, как то блин так и назвал, удивлялся почему нокс закрывается
 }
 extern void InjectOffs(DWORD Addr,void *Fn);
 extern void InjectJumpTo(DWORD Addr,void *Fn);
+
+void topicOverrideInit()
+{
+	byte nop[2] = { 0x90, 0x90 };
+	//InjectData(0x0040C29B, nop, 2);
+}
+
 void bugsInit()
 {
 
@@ -375,5 +382,5 @@ void bugsInit()
 
 //	InjectJumpTo(0x0052C7CD,&asmFixCastFireball);
 
-
+	topicOverrideInit();
 }

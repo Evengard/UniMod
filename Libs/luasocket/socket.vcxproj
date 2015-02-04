@@ -42,13 +42,13 @@
     <OutDir>$(SolutionDir)Libs</OutDir>
     <IntDir>src\</IntDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)Libs\lua\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Libs</OutDir>
     <IntDir>./src\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)Libs\lua\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -116,9 +116,6 @@
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PreprocessToFile>
       <PreprocessSuppressLineNumbers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PreprocessSuppressLineNumbers>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\lua.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

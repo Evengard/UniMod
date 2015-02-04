@@ -39,8 +39,26 @@ extern char* authorisedLogins[0x20];
 
 void* noxNetStructList;
 
+int(__cdecl *noxMapCurrentFragLimit)(short gameFlags);
+int(__cdecl *noxMapCurrentTimeLimit)(short gameFlags);
+
 namespace
 {
+
+	int scoreFragLimitL(lua_State*L)
+	{
+		int fraglimit = noxMapCurrentFragLimit((__int16)*GameFlags);
+		lua_pushnumber(L, fraglimit);
+		return 1;
+	}
+
+	int scoreTimeLimitL(lua_State*L)
+	{
+		int timelimit = noxMapCurrentTimeLimit((__int16)*GameFlags);
+		lua_pushnumber(L, timelimit);
+		return 1;
+	}
+
 	struct pTeam
 	{
 	  char name[20];
@@ -775,6 +793,9 @@ void scoreInit(lua_State *L)
 	ASSIGN(noxTeamDefaultName,0x00418C20);
 	ASSIGN(noxNetStructList, 0x0097EC60);
 
+	ASSIGN(noxMapCurrentTimeLimit, 0x0040A180);
+	ASSIGN(noxMapCurrentFragLimit, 0x0040A020);
+
 	
 
 	InjectJumpTo(0x0040A8A0,teamCanPlayGame);
@@ -792,7 +813,8 @@ void scoreInit(lua_State *L)
 	registerclient("playerGetByWOL",&playerGetByWOL);
 	registerclient("httpGet",&httpGet);
 
-	
+	registerclient("scoreFragLimit", &scoreFragLimitL);
+	registerclient("scoreTimeLimit", &scoreTimeLimitL);
 	
 }
 void teamCreateDefault(int minTeamsParam=0, bool doNotSetRestriction=false)

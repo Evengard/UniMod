@@ -51,9 +51,6 @@ bool mapNextSameForced=false;
 char nextMapOverride[0x16]={0};
 bool isNewGame=false;
 
-//int (__cdecl *mapCurrentFragLimit)(short gameFlags);
-//int (__cdecl *mapCurrentTimeLimit)(short gameFlags);
-
 extern void teamCreateDefault(int TeamNumParam, bool notRestrict=false);
 extern void httpGetCallback(lua_State *L);
 
@@ -1155,8 +1152,6 @@ void adminInit(lua_State *L)
 	ASSIGN(mapLoadName,0x00409D70);// функция загрузки карты из файла - используется при загрузке из мапцикла
 	ASSIGN(mapLoadData, 0x00974880);// оффсет куда mapLoadFromFile грузит карту
 	ASSIGN(mapLoadFlags, 0x004CFFA0);// функция получения флагов из загруженного файла
-	//ASSIGN(mapCurrentTimeLimit, 0x0040A180);
-	//ASSIGN(mapCurrentFragLimit, 0x0040A020);
 	ASSIGN(noxMapCycleNext, 0x004D0CF0);
 	ASSIGN(_time,0x00566BD3);
 	ASSIGN(noxMapCycleEnabledCheck, 0x004D0D70);
@@ -1242,6 +1237,7 @@ void adminInit(lua_State *L)
 	registerserver("reloadBanList",&reloadBanListL);
 	registerserver("flushBanList",&flushBanListL);
 	registerserver("playerKickUData",&playerKickUData);
+
 	authInit(L);
 	//strcpy((char*)0x005AFA20, "So_Forum"); // Смена дефолтной чат-мапы при игре через "локальную" сеть
 	lua_settop(L,Top);
