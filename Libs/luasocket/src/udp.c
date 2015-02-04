@@ -172,8 +172,13 @@ static int meth_receive(lua_State *L) {
     err = socket_recv(&udp->sock, buffer, count, &got, tm);
     if (err != IO_DONE) {
         lua_pushnil(L);
+		if (err == WSAEMSGSIZE)
+		{
+			got = count;
+		}
         lua_pushstring(L, udp_strerror(err));
-        return 2;
+		lua_pushlstring(L, buffer, got);
+        return 3;
     }
     lua_pushlstring(L, buffer, got);
     return 1;

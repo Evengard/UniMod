@@ -20,7 +20,8 @@
 #include "socket.h"
 
 /* can't be larger than wsocket.c MAXCHUNK!!! */
-#define UDP_DATAGRAMSIZE 8192
+#define UDP_DATAGRAMSIZE 65507
+//#define UDP_DATAGRAMSIZE 8192
 
 typedef struct t_udp_ {
     t_socket sock;
