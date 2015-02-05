@@ -5,6 +5,8 @@
 #include <algorithm>
 #include "winsock2.h"
 
+extern void *(__cdecl *serverGetGameDataBySel)();
+
 /*
 Здесь начисление/получение фрагов и т.п.
 */
@@ -39,22 +41,21 @@ extern char* authorisedLogins[0x20];
 
 void* noxNetStructList;
 
-int(__cdecl *noxMapCurrentFragLimit)(short gameFlags);
-int(__cdecl *noxMapCurrentTimeLimit)(short gameFlags);
-
 namespace
 {
 
 	int scoreFragLimitL(lua_State*L)
 	{
-		int fraglimit = noxMapCurrentFragLimit((__int16)*GameFlags);
+		ServerData* servdata = (ServerData*)serverGetGameDataBySel();
+		unsigned int fraglimit = servdata->fragLimit;
 		lua_pushnumber(L, fraglimit);
 		return 1;
 	}
 
 	int scoreTimeLimitL(lua_State*L)
 	{
-		int timelimit = noxMapCurrentTimeLimit((__int16)*GameFlags);
+		ServerData* servdata = (ServerData*)serverGetGameDataBySel();
+		unsigned int timelimit = servdata->timeLimitMB;
 		lua_pushnumber(L, timelimit);
 		return 1;
 	}
@@ -792,9 +793,6 @@ void scoreInit(lua_State *L)
 
 	ASSIGN(noxTeamDefaultName,0x00418C20);
 	ASSIGN(noxNetStructList, 0x0097EC60);
-
-	ASSIGN(noxMapCurrentTimeLimit, 0x0040A180);
-	ASSIGN(noxMapCurrentFragLimit, 0x0040A020);
 
 	
 

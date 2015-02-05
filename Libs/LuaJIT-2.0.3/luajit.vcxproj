@@ -36,15 +36,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakeBuildCommandLine>src\msvcbuild.bat static</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>src\msvcbuild.bat static</NMakeReBuildCommandLine>
+    <NMakeBuildCommandLine>src\msvcbuild.bat static build</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>src\msvcbuild.bat static rebuild</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <OutDir>$(ProjectDir)src</OutDir>
     <IntDir>$(ProjectDir)src</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <NMakeBuildCommandLine>src\msvcbuild.bat static</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>src\msvcbuild.bat static</NMakeReBuildCommandLine>
+    <NMakeBuildCommandLine>src\msvcbuild.bat static build</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>src\msvcbuild.bat static rebuild</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <OutDir>$(ProjectDir)src</OutDir>
     <IntDir>$(ProjectDir)src</IntDir>

@@ -145,8 +145,8 @@ struct ServerData
 	DWORD weaponRestrictions;
 	DWORD armorRestrictions;
 	__int16 gameFlags;
-	__int16 fragLimit;
-	char timeLimitMB;
+	unsigned __int16 fragLimit;
+	unsigned char timeLimitMB;
 	char isNew;
 };
 
