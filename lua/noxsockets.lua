@@ -1,6 +1,8 @@
 local noxsockets = function(timeoutFunction)
 	local setTimeoutF = timeoutFunction;
 	
+	local socket = require('socket');
+	
 	local public = {};
 	local private = {};
 	
@@ -69,11 +71,35 @@ local noxsockets = function(timeoutFunction)
 		end;
 	end;
 	
+	private.isIp = function(addr)
+		if addr == nil or type(addr) ~= "string" then
+			return false;
+		end
+		
+		local chunks = {addr:match("(%d+)%.(%d+)%.(%d+)%.(%d+)")}
+		if (#chunks == 4) then
+			for _,v in pairs(chunks) do
+				if (tonumber(v) < 0 or tonumber(v) > 255) then
+					return false;
+				end;
+			end;
+			return true;
+		else
+			return false;
+		end
+	end;
+	
 	private.async.tcp.connect = function(addr, port)
 		private.dbg("INFO: connecting...");
 		private.link = socket.tcp();
 		private.link:settimeout(0); -- Non blocking so NoX doesn't hang when doing something with sockets
-		private.link:connect(addr, port);
+		status, err = private.link:connect(addr, port);
+		if status == nil and err ~= "timeout" then
+			private.dbg("ERROR: Couldn't connect!");
+			table.insert(private.errors, {err = "connect error!", socket_err = err, status = private.status});
+			private.closingConnection();
+			return;
+		end;
 		private.status = "connecting";
 		private.checkingCounter = private.checkingInterval;
 		private.markAsReady();
@@ -222,7 +248,13 @@ local noxsockets = function(timeoutFunction)
 			private.errors = {};
 			
 			protocol = protocol or "tcp";
-			addr = socket.dns.toip(addr); -- Seems like LuaSockets is a little bugged, it doesn't convert hostnames to IPs on connect automatically.
+			local addrorig = addr;
+			if private.isIp(addr) == false then
+				addr = socket.dns.toip(addr); -- Seems like LuaSockets is a little bugged, it doesn't convert hostnames to IPs on connect automatically.
+				if addr == nil then
+					addr = addrorig;
+				end;
+			end;
 			if protocol == "tcp" then
 				setTimeoutF(function() private.async.tcp.connect(addr, port) end, 1);
 				private.protocol = "tcp";

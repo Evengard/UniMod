@@ -1,0 +1,5 @@
+For embedding lua files into unimod:
+1. run "xxd -i embedded.lua > embedded.h"
+2. include "embedded.h" into the C/C++ code
+3. insert in your C/C++ code: "luaL_loadstring(L, (char*)embedded_lua);"
+4. You have the lua file on top of the stack, to execute it you can run "lua_call(L, 0, 1);"

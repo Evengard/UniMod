@@ -1130,7 +1130,6 @@ extern void initFilesystem();
 extern "C" void adminInit(lua_State *L);
 //extern "C" void authInit(lua_State *L);
 extern "C" int luaopen_lpeg (lua_State *L);
-extern "C" void loadJson(lua_State *L);
 extern "C" void mapUtilInit(lua_State*L);
 extern bool serverUpdate();
 
@@ -1152,7 +1151,6 @@ void injectCon()
 	exInit();
 	initModLib2();
 	luaopen_lpeg (L);
-	loadJson(L);
 	ASSIGN(consolePrint,0x00450B90);
 	ASSIGN(printCentered,0x00445490);
 	ASSIGN(sub51ADF0,0x0051ADF0);

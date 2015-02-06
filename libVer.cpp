@@ -2,6 +2,7 @@
 #include "unit.h"
 
 #include "Libs/luasocket/src/socket_main.h"
+#include "Libs/json.h"
 
 extern void injectCon();
 extern "C" void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E);
@@ -128,18 +129,34 @@ namespace
 			retn;
 		}
 	}
+
+	void registerLuaModule(const lua_CFunction cfunction, const char* modulename)
+	{
+		lua_getfield(L, LUA_GLOBALSINDEX, "package");
+		lua_getfield(L, -1, "preload");
+		lua_pushcfunction(L, cfunction);
+		lua_setfield(L, -2, modulename);
+	}
+
+	void registerLuaModule(const unsigned char* buffer, const char* modulename)
+	{
+		lua_getfield(L, LUA_GLOBALSINDEX, "package");
+		lua_getfield(L, -1, "preload");
+		luaL_loadstring(L, (const char*)buffer);
+		lua_setfield(L, -2, modulename);
+	}
+
 	void __declspec(naked) InitMe()
 	{
 		FixMeBack();
 		luaL_openlibs(L);
+		
+		// Init json engine
+		registerLuaModule(json_lua, "json");
 
 		// Init the LuaSocket
-		lua_getfield(L, LUA_GLOBALSINDEX, "package");
-		lua_getfield(L, -1, "preload");
-		lua_pushcfunction(L, luaopen_socket_core);
-		lua_setfield(L, -2, "socket.core");
-		luaL_loadstring(L, (char*)socket_lua);
-		lua_call(L, 0, 1);
+		registerLuaModule(luaopen_socket_core, "socket.core");
+		registerLuaModule(socket_lua, "socket");
 
 		lua_pushcclosure(L, delayedConL, 0);
 		lua_setfield(L, LUA_REGISTRYINDEX, "delayedCon");
