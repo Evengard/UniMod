@@ -1,22 +1,21 @@
 #include "stdafx.h"
 #include "unit.h"
 
-#include "Libs/luasocket/src/socket_main.h"
-#include "Libs/json.h"
-
 extern void injectCon();
 extern "C" void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E);
 extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E, BYTE *MyPlayer, BYTE *MyUc);
 extern "C" int __cdecl  playerOnTrySpell(bigUnitStruct *Unit,byte *Uc,spellPacket *Pckt);
 extern "C" void conSendToServer(const char *Cmd);
 
-extern "C" int luaopen_socket_core(lua_State *L);
+extern void luaAddonsLoad();
 
 void* conAddr=NULL;
 
 bool justDoNoxCmd=false;
 
 bool conDelayed=true;
+
+char requirepatch_prevmode[7];
 
 namespace
 {
@@ -130,33 +129,15 @@ namespace
 		}
 	}
 
-	void registerLuaModule(const lua_CFunction cfunction, const char* modulename)
-	{
-		lua_getfield(L, LUA_GLOBALSINDEX, "package");
-		lua_getfield(L, -1, "preload");
-		lua_pushcfunction(L, cfunction);
-		lua_setfield(L, -2, modulename);
-	}
-
-	void registerLuaModule(const unsigned char* buffer, const char* modulename)
-	{
-		lua_getfield(L, LUA_GLOBALSINDEX, "package");
-		lua_getfield(L, -1, "preload");
-		luaL_loadstring(L, (const char*)buffer);
-		lua_setfield(L, -2, modulename);
-	}
+	
 
 	void __declspec(naked) InitMe()
 	{
 		FixMeBack();
 		luaL_openlibs(L);
-		
-		// Init json engine
-		registerLuaModule(json_lua, "json");
 
-		// Init the LuaSocket
-		registerLuaModule(luaopen_socket_core, "socket.core");
-		registerLuaModule(socket_lua, "socket");
+		// Loading custom lua addons here
+		luaAddonsLoad();
 
 		lua_pushcclosure(L, delayedConL, 0);
 		lua_setfield(L, LUA_REGISTRYINDEX, "delayedCon");
@@ -170,11 +151,6 @@ namespace
 	}
 
 }
-
-
-
-
-
 
 extern void InjectOffs(DWORD Addr,void *Fn);
 extern void InjectJumpTo(DWORD Addr,void *Fn);
@@ -212,7 +188,41 @@ int conDoCmd(char *Cmd,bool &PrintNil)
 		mode="server";
 	else
 		mode="client";
+
+	int topLoad = lua_gettop(L);
+
+	bool repatch_needed = false;
+
+	if (strncmp(requirepatch_prevmode, mode, 7) != 0)
+	{
+		repatch_needed = true;
+		strncpy(requirepatch_prevmode, mode, 7);
+	}
+
+	if (repatch_needed)
+	{
+		lua_getfield(L, LUA_REGISTRYINDEX, "require.lua");
+		if (lua_isfunction(L, -1))
+		{
+			lua_getfield(L, LUA_REGISTRYINDEX, mode);
+			lua_setfenv(L, -2);
+			int err = lua_pcall(L, 0, 0, 0);
+			if (err != 0)
+			{
+				const char* errorMsg = lua_tostring(L, -1);
+				MessageBoxA(NULL, errorMsg, "LUA load error! The file won't be loaded!", MB_OK);
+				return 0;
+			}
+			//lua_pushstring(L, "require.lua");
+			//lua_pushstring(L, mode);
+			//lua_settable(L, LUA_REGISTRYINDEX);
+		}
+	}
+
+	lua_settop(L, topLoad);
+
 	lua_getfield(L, LUA_REGISTRYINDEX, mode);
+
 	lua_getfield(L, LUA_GLOBALSINDEX, "conInput");
 	if ( lua_type(L, -1) == LUA_TFUNCTION )
 	{

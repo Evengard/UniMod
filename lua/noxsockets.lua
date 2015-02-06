@@ -1,5 +1,5 @@
-local noxsockets = function(timeoutFunction)
-	local setTimeoutF = timeoutFunction;
+local noxsockets = function()
+	local setTimeoutF = cliSetTimeout;
 	
 	local socket = require('socket');
 	

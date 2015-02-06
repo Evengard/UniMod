@@ -123,6 +123,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="libVer.cpp" />
+    <ClCompile Include="lua_addons.cpp" />
     <ClCompile Include="mapUtil.cpp" />
     <ClCompile Include="playerExternFunction.cpp" />
     <ClCompile Include="polygon.cpp" />

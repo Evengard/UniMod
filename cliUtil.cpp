@@ -114,10 +114,12 @@ namespace
 					lua_gettable(L,-5); // id,Time,Fn, {Fns},{Args}
 					if (0!=lua_pcall(L,2,0,0))
 					{
-						char Err[250];
-						sprintf(Err,"Error: %240s",lua_tostring(L,-1));
+						const char* errorStr = lua_tostring(L, -1);
+						char Err[200];
+						strcpy(Err, "delayed error: ");
+						strncat(&Err[strlen(Err)], errorStr, (199 - strlen(Err)));
 						conPrintI(Err);
-						lua_pop(L,1);
+						lua_pop(L, 1);
 					}
 					///conOutput,env, fn, {Fns},{Args}
 				/*	lua_getfield(L,-2,"conOutput");// conOutput функция енв функция
