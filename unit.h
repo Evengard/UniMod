@@ -125,8 +125,8 @@ struct bigUnitStruct
 	int globalID;
 	void *field_30;
 	int teamId;
-	int unitX;
-	int unitY;
+	float unitX;
+	float unitY;
 	int someX_2;
 	int someY_2;
 	int someX_1;
