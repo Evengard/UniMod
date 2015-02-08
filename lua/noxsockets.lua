@@ -1,5 +1,8 @@
-local noxsockets = function()
-	local setTimeoutF = cliSetTimeout;
+local noxsockets = function(persistent) -- Used to set if it will persist on map change, else the main loop will stop (warning, socket won't be closed!)
+	local setTimeoutF = function(what, when)
+		local origSetTimeout = setTimeout or cliSetTimeout;
+		return origSetTimeout(what, when, nil, persistent);
+	end;
 	
 	local socket = require('socket');
 	
@@ -165,7 +168,7 @@ local noxsockets = function()
 	
 	private.tcp.handledata = function(data, err, partial)
 		local state = "error"; -- We assume we're in an error state, but if everything is OK we will be overriding that
-		if err == "timeout" then
+		if err == "timeout" or err == "Socket is not connected" then
 			state = "timeout";
 		elseif err == nil and data ~= nil then
 			state = "data";
@@ -237,6 +240,7 @@ local noxsockets = function()
 		if private.ready == true then
 			private.ready = false;
 			
+			private.dbg("INFO: preparing connect...");
 			-- Reinitialize
 			private.status = "disconnected";
 			private.checkingCounter = 0;

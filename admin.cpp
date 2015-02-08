@@ -1178,6 +1178,7 @@ void adminInit(lua_State *L)
 
 	int Top=lua_gettop(L);
 	if (0!=luaL_loadstring(L,
+		"local json=require('json'); "
 		"local f=loadstring; "
 		"return function (s) "
 		"s=string.gsub(s,'%%(%x%x)',function (v) return string.char('0x'..v) end); "

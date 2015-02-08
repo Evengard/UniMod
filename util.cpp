@@ -910,15 +910,17 @@ namespace
 	{
 		int Id;
 		DWORD Frame;
-		TimeoutListRec(int Id_,DWORD Frame_):Id(Id_),Frame(Frame_)
+		bool Persist;
+		TimeoutListRec(int Id_, DWORD Frame_, bool Persist_) :Id(Id_), Frame(Frame_), Persist(Persist_)
 		{}
 	};
 	std::list<TimeoutListRec> timeoutList;
-	int setTimeoutL(lua_State *L) /// теперь получает 3-й аргумент - таблицу
+	int setTimeoutL(lua_State *L) /// теперь получает 3-й аргумент - таблицу и 4-ый - следует ли сохранять при смене карты
 	{
-		lua_settop(L,3);
+		lua_settop(L,4);
 		if ((lua_type(L,1)!=LUA_TFUNCTION) ||(lua_type(L,2)!=LUA_TNUMBER) 
 			|| ((lua_type(L,3)!=LUA_TTABLE) && (lua_type(L,3)!=LUA_TNIL))
+			|| ((lua_type(L,4)!=LUA_TBOOLEAN) && (lua_type(L,4)!=LUA_TNIL))
 			)
 		{
 			lua_pushstring(L,"wrong args!");
@@ -935,7 +937,7 @@ namespace
 			lua_pushvalue(L,3);
 			lua_settable(L,-3);
 
-		
+		bool ispersistant = lua_toboolean(L, 4);
 		lua_pushinteger(L,timeoutNextId);
 		
 		DWORD Time=*frameCounter +(DWORD)lua_tointeger(L,2);
@@ -946,7 +948,7 @@ namespace
 			if(I->Frame > Time)
 				break;
 		}
-		timeoutList.insert(I,TimeoutListRec(timeoutNextId++,Time) );
+		timeoutList.insert(I, TimeoutListRec(timeoutNextId++, Time, ispersistant));
 		return 1;
 	}
 	void (__cdecl *sub51ADF0)();/// событие проверки скриптов карты по таймауту
@@ -984,35 +986,37 @@ namespace
 				}
 			}
 		serverUpdate();
-		DWORD Time=*frameCounter;
-		int Top=lua_gettop(L);
-		lua_pushlightuserdata(L,&timeoutNextId);/// таблица аргументов
-		lua_gettable(L,LUA_REGISTRYINDEX);
-		lua_pushlightuserdata(L,setTimeoutL);/// таблица функций
-		lua_gettable(L,LUA_REGISTRYINDEX);
+		DWORD Time = *frameCounter;
+		int Top = lua_gettop(L);
+		lua_pushlightuserdata(L, &timeoutNextId);/// таблица аргументов
+		lua_gettable(L, LUA_REGISTRYINDEX);
+		lua_pushlightuserdata(L, setTimeoutL);/// таблица функций
+		lua_gettable(L, LUA_REGISTRYINDEX);
 
-		for (std::list<TimeoutListRec>::iterator I=timeoutList.begin();I!=timeoutList.end();)
+		for (std::list<TimeoutListRec>::iterator I = timeoutList.begin(); I != timeoutList.end();)
 		{
-			if ( Time < I->Frame )
-				break;
-			lua_pushinteger(L,I->Id);
-			if (I->Frame == Time)
+			if (Time < I->Frame)
 			{
-				lua_gettable(L,-2);
-				if(lua_type(L,-1)==LUA_TFUNCTION)
+				I++;
+			}
+			else
+			{
+				lua_pushinteger(L, I->Id);
+				lua_gettable(L, -2);
+				if (lua_type(L, -1) == LUA_TFUNCTION)
 				{
-					lua_getfenv(L,-1);
-					lua_pushvalue(L,-2);
-					lua_getfield(L,-2,"conOutput");// conOutput функция енв функция
-					lua_insert(L,-2);// функция conOutput енв функция
+					lua_getfenv(L, -1);
+					lua_pushvalue(L, -2);
+					lua_getfield(L, -2, "conOutput");// conOutput функция енв функция
+					lua_insert(L, -2);// функция conOutput енв функция
 					lua_pushnil(L);
-					lua_setfield(L,-4,"conOutput");
+					lua_setfield(L, -4, "conOutput");
 
-					lua_pushinteger(L,Time);
-					lua_pushinteger(L,I->Id);
+					lua_pushinteger(L, Time);
+					lua_pushinteger(L, I->Id);
 					// таблица с аргументом
-					lua_gettable(L,-8); // id,Time,Fn, conOutput, env, fn, {Fns},{Args}
-					if (0!=lua_pcall(L,2,0,0))
+					lua_gettable(L, -8); // id,Time,Fn, conOutput, env, fn, {Fns},{Args}
+					if (0 != lua_pcall(L, 2, 0, 0))
 					{
 						const char* errorStr = lua_tostring(L, -1);
 						char Err[200];
@@ -1022,31 +1026,31 @@ namespace
 						lua_pop(L, 1);
 					}
 					///conOutput,env, fn, {Fns},{Args}
-					lua_getfield(L,-2,"conOutput");// conOutput функция енв функция
-					if (lua_type(L,-1)==LUA_TNIL) // если задали другую функцию - то так и оставим, но как ее обнулить?
+					lua_getfield(L, -2, "conOutput");// conOutput функция енв функция
+					if (lua_type(L, -1) == LUA_TNIL) // если задали другую функцию - то так и оставим, но как ее обнулить?
 					{
-						lua_pop(L,1);
-						lua_setfield(L,-2,"conOutput");
-						lua_pop(L,2);
+						lua_pop(L, 1);
+						lua_setfield(L, -2, "conOutput");
+						lua_pop(L, 2);
 					}
 					else
-						lua_pop(L,3);
+						lua_pop(L, 3);
 
-					lua_pushinteger(L,I->Id); // чтобы было чего удалять
+					lua_pushinteger(L, I->Id); // чтобы было чего удалять
 				}
 				else
-					lua_pop(L,1);
+					lua_pop(L, 1);
 
+				lua_pushnil(L);
+				lua_settable(L, -3); // удаляем функцию
+				lua_pushinteger(L, I->Id);
+				lua_pushnil(L);
+				lua_settable(L, -4);// удаляем аргумент
+
+				I = timeoutList.erase(I);
 			}
-			lua_pushnil(L);
-			lua_settable(L,-3); // удаляем функцию
-			lua_pushinteger(L,I->Id);
-			lua_pushnil(L);
-			lua_settable(L,-4);// удаляем аргумент
-
-			I=timeoutList.erase(I);
 		}
-		lua_settop(L,Top);
+		lua_settop(L, Top);
 		sub51ADF0();
 	}
 
@@ -1083,7 +1087,18 @@ namespace
 };
 void mapUnloadUtil()
 {
-	timeoutList.clear();
+	for (std::list<TimeoutListRec>::iterator I = timeoutList.begin(); I != timeoutList.end();)
+	{
+		if (I->Persist == false)
+		{
+			I=timeoutList.erase(I);
+		}
+		else
+		{
+			I++;
+		}
+	}
+	DWORD Time = *frameCounter;
 }
 
 void lua_error_(lua_State*L)
@@ -1323,6 +1338,28 @@ void injectCon()
 
 	//lua_pushnil(L);
 	//lua_setglobal(L,"os");/// выкинуть вон небезопасную таблицу
+
+
+	int topLoad = lua_gettop(L);
+
+	lua_getfield(L, LUA_REGISTRYINDEX, "require.lua");
+	if (lua_isfunction(L, -1))
+	{
+		lua_getfield(L, LUA_REGISTRYINDEX, "server");
+		lua_setfenv(L, -2);
+		int err = lua_pcall(L, 0, 0, 0);
+		if (err != 0)
+		{
+			const char* errorMsg = lua_tostring(L, -1);
+			MessageBoxA(NULL, errorMsg, "LUA load error! The file won't be loaded!", MB_OK);
+			return;
+		}
+		//lua_pushstring(L, "require.lua");
+		//lua_pushstring(L, mode);
+		//lua_settable(L, LUA_REGISTRYINDEX);
+	}
+
+	lua_settop(L, topLoad);
 
 	if (0==luaL_loadfile(L, "autoexec.lua"))
 	{

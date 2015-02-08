@@ -1,5 +1,8 @@
-local xwis = function()
-	local setTimeoutF = cliSetTimeout;
+local xwis = function(persistent) -- Used to set if it will persist on map change
+	local setTimeoutF = function(what, when)
+		local origSetTimeout = setTimeout or cliSetTimeout;
+		return origSetTimeout(what, when, nil, persistent);
+	end;
 	
 	local noxsockets = require('noxsockets');
 	
@@ -7,7 +10,7 @@ local xwis = function()
 	
 	local xwis = {};
 	
-	private.link = noxsockets();
+	private.link = noxsockets(persistent);
 	
 	private.status = "disconnected";
 	private.login = nil;
@@ -30,7 +33,7 @@ local xwis = function()
 		xwis.talk("NICK "..private.login);
 		xwis.talk("apgar "..private.apgar.." 0");
 		xwis.talk("USER UserName HostName irc.westwood.com :RealName");
-		setTimeoutF(private.logintimedout, 90);
+		setTimeoutF(private.logintimedout, 900);
 	end;
 	
 	private.dataReceiver = function(data)
@@ -66,6 +69,7 @@ local xwis = function()
 	private.link.debug = true;
 	
 	xwis.connect = function(login, apgar)
+		print('XWIS preparing connection');
 		private.login = login;
 		private.apgar = apgar;
 		private.status = "disconnected";
