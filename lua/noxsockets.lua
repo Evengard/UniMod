@@ -11,6 +11,7 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 	
 	-- Class declaration
 	public.debug = false; -- Set to true to show debug prints
+	public.timeout_default = 5; -- Set the socket timeout period. negative to infinite
 	
 	-- Private values
 	
@@ -93,6 +94,29 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 		end
 	end;
 	
+	private.handleresultstate = function(state, err)
+		if state == "connecting" then
+			if private.connect_timeout ~= public.timeout_default * frameLimiter() then -- We assume that if socket isn't connected after timeout_default seconds then the host connection has probably timed out
+				private.connect_timeout = private.connect_timeout + 1;
+				private.status = "connecting";
+			else
+				private.closingConnection();
+				private.dbg("ERROR: socket connection timeout! Closing connection");
+				table.insert(private.errors, {err = "socket connection timeout!", socket_err = err, status = private.status});
+			end;
+		elseif state ~= "error" then
+			private.status = "connected";
+		else
+			private.closingConnection();
+			private.dbg("ERROR: socket error! Closing connection");
+			table.insert(private.errors, {err = "socket error!", socket_err = err, status = private.status});
+		end;
+		if state == "timeout" then
+			private.checkingCounter = 0; -- Resetting the counter only if we got a timeout which means we didn't received data on this tick
+		end;
+	end;
+	
+	-- Specific TCP async methods
 	private.async.tcp.connect = function(addr, port)
 		private.dbg("INFO: connecting...");
 		private.link = socket.tcp();
@@ -112,6 +136,7 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 		setTimeoutF(function() private.async.dataloop() end, 1);
 	end;
 	
+	-- Specific async udp methods
 	private.async.udp.connect = function(addr, port)
 		private.dbg("INFO: setting up udp...");
 		private.link = socket.udp();
@@ -161,6 +186,16 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 		end;
 	end;
 	
+	private.udp.handlesendstate = function(sent, err, spart)
+		local state = "error"; -- We assume we're in an error state, but if everything is OK we will be overriding that
+		if err == nil then
+			state = "data";
+			private.dbg("SEND: "..private.dataToSend[1]);
+			table.remove(private.dataToSend, 1);
+		end; -- Everything else is considered as error, because udp should never timeout on send
+		return state;
+	end;
+	
 	
 	-- TCP specific methods
 	private.tcp.getquantity = function()
@@ -169,12 +204,14 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 	
 	private.tcp.handledata = function(data, err, partial)
 		local state = "error"; -- We assume we're in an error state, but if everything is OK we will be overriding that
-		if err == "timeout" or err == "Socket is not connected" then
+		if err == "timeout" then
 			state = "timeout";
 		elseif err == nil and data ~= nil then
 			state = "data";
 			table.insert(private.tcp.receivedData, data);
 			private.dbg("RECV: "..data);
+		elseif err == "Socket is not connected" then
+			state = "connecting";
 		end;
 		return state;
 	end;
@@ -187,29 +224,40 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 		end;
 	end;
 	
+	private.tcp.handlesendstate = function(sent, err, spart)
+		local state = "error"; -- We assume we're in an error state, but if everything is OK we will be overriding that
+		if (err == nil and (sent == nil or sent == private.dataToSend[1]:len())) or (err ~= nil and spart == private.dataToSend[1]:len()) then
+			state = "data";
+			private.dbg("SEND: "..private.dataToSend[1]);
+			table.remove(private.dataToSend, 1);
+		elseif (err == nil and sent < private.dataToSend[1]:len()) or (err ~= nil and spart ~= nil and spart < private.dataToSend[1]:len() and spart > 0) then
+			state = "partialdata";
+			private.dbg("SEND PART: "..private.dataToSend[1]:sub(1, (sent or spart)));
+			private.dataToSend[1] = private.dataToSend[1]:sub(1, (sent or spart)); -- Writing back to the next send try the unsent data
+		end;
+		if err == "closed" then
+			state = "error";
+		elseif err == "Socket is not connected" then
+			state = "connecting";
+		end;
+		return state;
+	end;
+	
+	-- Main dataloop
 	private.async.dataloop = function()
 		private[private.protocol].getdata();
 		if #(private.dataToSend) > 0 then
 			private.checkingCounter = private.checkingInterval; -- We are going to receive after we send data because we could have some immediate answer
-			private.link:send(private.dataToSend[1]);
-			private.dbg("SEND: "..private.dataToSend[1]);
-			table.remove(private.dataToSend, 1);
+			local sent,err,spart = private.link:send(private.dataToSend[1]);
+			local state = private[private.protocol].handlesendstate(data, err, partial);
+			private.handleresultstate(state, err);
 		elseif private.checkingCounter < private.checkingInterval then
 			private.checkingCounter = private.checkingCounter + 1;
 		else
 			local quantity = private[private.protocol].getquantity();
 			local data, err, partial = private.link:receive(quantity);
 			local state = private[private.protocol].handledata(data, err, partial);
-			if state ~= "error" then
-				private.status = "connected";
-			else
-				private.closingConnection();
-				private.dbg("ERROR: socket error! Closing connection");
-				table.insert(private.errors, {err = "socket error!", socket_err = err, status = private.status});
-			end;
-			if state == "timeout" then
-				private.checkingCounter = 0; -- Resetting the counter only if we got a timeout which means we didn't received data on this tick
-			end;
+			private.handleresultstate(state, err);
 		end;
 		if private.requestDisconnect == true then
 			private.dbg("INFO: closing connection...");
@@ -242,6 +290,7 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 			
 			private.dbg("INFO: preparing connect...");
 			-- Reinitialize
+			private.connect_timeout = 0;
 			private.status = "disconnected";
 			private.checkingCounter = 0;
 			if private.link ~= nil then
