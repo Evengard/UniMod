@@ -220,6 +220,8 @@ namespace
 			lua_pop(L,1);
 			return;
 		}
+		
+		lua_pushlightuserdata(L, Me);
 		bigUnitStruct *Unit=unitDamageFindParent(Me->unitDamaged);
 			if (Unit==0)
 				lua_pushnil(L);
@@ -228,7 +230,8 @@ namespace
 		if(0!=lua_pcall(L,2,1,0))/// BUGBUG косяк в том, что если внутри функции удалить 
 			/// объект - то там еще старое значение
 		{
-			conPrintI(lua_tostring(L,-1));
+			const char* errormsg = lua_tostring(L, -1);
+			conPrintI(errormsg);
 			lua_pop(L,1);
 			lua_pushnil(L);
 		}

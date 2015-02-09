@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "unit.h"
 
+#include <windows.h>
+#include <conio.h>
+#include <psapi.h>
+#include <stdio.h>
+#include <objbase.h>
+
 extern void injectCon();
 extern "C" void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E);
 extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E, BYTE *MyPlayer, BYTE *MyUc);
@@ -155,7 +161,47 @@ namespace
 extern void InjectOffs(DWORD Addr,void *Fn);
 extern void InjectJumpTo(DWORD Addr,void *Fn);
 extern void InjectAddr(DWORD Addr,void *Fn);
+extern void InjectData(DWORD offset, byte* buff, size_t size);
 
+
+HRESULT __stdcall CoCreateInstanceNox(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, REFIID riid, LPVOID *ppv)
+{
+	HRESULT res = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+
+	static bool isWolapiPatched = false;
+	//static byte wolapiclsid[16] = { 0xF5, 0xBA, 0xD3, 0x4D, 0x79, 0x75, 0xD1, 0x11, 0xB1, 0xC6, 0x00, 0x60, 0x97, 0x17, 0x65, 0x56 };
+	if (/*memcmp(wolapiclsid, &rclsid, 16) == 0*/isWolapiPatched == false)
+	{
+		HMODULE hProcessModule[100];
+		DWORD dwReturn;
+		DWORD dwModuleNb;
+		char BaseName[MAX_PATH];
+
+		EnumProcessModules(GetCurrentProcess(), hProcessModule, sizeof(hProcessModule), &dwReturn);
+
+		dwModuleNb = dwReturn / sizeof(HMODULE);
+
+		for (DWORD i = 0; i < dwModuleNb; i++)
+		{
+			GetModuleBaseName(GetCurrentProcess(), hProcessModule[i], BaseName, sizeof(BaseName));
+			for (int i = 0; i < strlen(BaseName); i++)
+			{
+				char BaseNameC = BaseName[i];
+				BaseName[i] = tolower(BaseNameC);
+			}
+			if (strcmp(BaseName, "wolapi.dll") == 0)
+			{
+				DWORD patchaddr = (DWORD)hProcessModule[i] + 0x116AC;
+				byte nops[2] = { 0x90, 0x90 };
+				InjectData(patchaddr, nops, 2);
+				isWolapiPatched = true;
+				break;
+			}
+		}
+	}
+
+	return res;
+}
 
 void initModLib1(HMODULE hModule)
 {
@@ -171,6 +217,9 @@ void initModLib1(HMODULE hModule)
 	InjectJumpTo(0x51BB9B, netOnServ);
 	InjectJumpTo(0x51CE48, netOnServ);
 	InjectAddr(0x51CF08, MyOnTryCastSpell);
+
+	void* cciaddr = (void*)CoCreateInstanceNox;
+	InjectData(0x581448, (byte*)&cciaddr, sizeof(&cciaddr));
 }
 
 void __cdecl initModLib2()
