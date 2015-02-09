@@ -54,6 +54,8 @@ local xwis = function(persistent) -- Used to set if it will persist on map chang
 		if private.link.getStatus() ~= "disconnected" and private.status == "disconnected" then
 			private.status = "notloggedin";
 			private.loginprocedure();
+		elseif private.link.getStatus() == "disconnected" and private.status == "disconnected" then
+			print("INFO: ready to reconnect!");
 		end;
 	end;
 	

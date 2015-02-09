@@ -72,6 +72,7 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 		if private.closeCallback ~= nil and type(private.closeCallback) == "function" then
 			private.closeCallback();
 		end;
+		private.markAsReady();
 	end;
 	
 	private.isIp = function(addr)
@@ -214,7 +215,6 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 			private.dbg("INFO: closing connection...");
 			private.closingConnection();
 			private.requestDisconnect = false;
-			private.markAsReady();
 		elseif private.status ~= "disconnected" then
 			setTimeoutF(function() private.async.dataloop() end, 1);
 		else
@@ -287,7 +287,7 @@ local noxsockets = function(persistent) -- Used to set if it will persist on map
 	end;
 	
 	public.close = function()
-		if private.ready == true then
+		if private.ready == true and private.status ~= "disconnected" then
 			private.ready = false;
 			private.requestDisconnect = true;
 			return true;
