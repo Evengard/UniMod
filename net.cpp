@@ -16,6 +16,7 @@ extern void (__cdecl *spriteDeleteStatic)(sprite_s *Sprite);
 sprite_s *(__cdecl *netSpriteByCodeHi)(int netCode);// для статических
 sprite_s *(__cdecl *netSpriteByCodeLo)(int netCode);// для динамических
 
+void (__cdecl *netSendMsgInform2)(int id, void *data);
 void (__cdecl *netSendPointFx)(int PacketIdx,noxPoint* Pt);
 void (__cdecl *netSendRayFx)(int PacketIdx,noxRectInt* Rc);
 void (__cdecl *netPriMsg)(void *PlayerUnit,char *String,int Flag);
@@ -331,6 +332,183 @@ namespace {
 
 		return 0;
 	}
+	
+	// Отправляет всем клиентам сообщение о смерти игрока.
+	// Аргументы: игрок, атакующий, ассист
+	int playerDeathL(lua_State *L)
+	{
+		if (lua_type(L, 1) != LUA_TLIGHTUSERDATA)
+		{
+			lua_pushstring(L, "wrong args: arg1 != userdata");
+			lua_error_(L);
+		}
+		void *victim = (bigUnitStruct *) lua_touserdata(L, 1);
+		void *attacker = NULL;
+		if (!lua_isnil(L, 2)) { attacker = lua_touserdata(L, 2); }
+		void *assist = NULL;
+		if (!lua_isnil(L, 3)) { assist = lua_touserdata(L, 3); }
+		
+		struct
+		{
+			USHORT unused; //2
+			USHORT _attack; //4
+			USHORT _unknown1; //6
+			USHORT _victim; //8
+			USHORT _unknown2; //10
+		} S = {0, netGetUnitCodeServ(attacker), 0, netGetUnitCodeServ(victim), netGetUnitCodeServ(assist)};
+		
+		netSendMsgInform2(0xE, &S);
+		return 0;
+	}
+	
+	// Отправляет сообщение (с окном) указанному игроку.
+	// Аргументы: номер игрока (1 - 31), текст
+	int netSendMessageBoxL(lua_State *L)
+	{
+		if (lua_type(L, 1) != LUA_TNUMBER)
+		{
+			lua_pushstring(L, "wrong args: arg1 != int");
+			lua_error_(L);
+		}
+		if (lua_type(L, 2) != LUA_TSTRING)
+		{
+			lua_pushstring(L, "wrong args: arg2 != string");
+			lua_error_(L);
+		}
+		
+		int plrId = (int) lua_tonumber(L, 1);
+		if (plrId < 0 || plrId > 31)
+		{
+			lua_pushstring(L, "wrong args: arg1 is not a valid player index");
+			lua_error_(L);
+		}
+		const char* text = lua_tostring(L, 2);
+		int textlen = strlen(text);
+		
+		struct
+		{
+			BYTE packetID;
+			BYTE zero1;
+			BYTE zero2;
+			BYTE msgType;
+			DWORD zero3;
+			WORD msgLength;
+			BYTE zero4;
+		} packetHeader = { 0xA8, 0, 0, 0x12, 0, textlen + 1, 0 };
+		
+		byte *packetData = new byte[textlen + 12]; // 0 на конце строки
+		memcpy(packetData, &packetHeader, 11);
+		memcpy(&packetData[11], text, textlen);
+		packetData[11 + textlen] = 0;
+		netClientSend(plrId, 1, packetData, textlen + 12);
+		delete [] packetData;
+		return 0;
+	}
+	
+	// тестим PARTICLEFX убранный
+	// пример: 5, 1, 1, 10, 2, 0 - создаст 10 шариков отлетающих в стороны у ног игрока-хоста
+	/*
+	СПИСОК ВСЕЙ АНИМАЦИИ
+	fx 0: "превращение в золото": аргументы (числочастиц, неизвестно, времяжизни, носитель, неизвестно)
+	fx 1: "фонтанчик": аргументы (числочастиц, неизвестно, задержка, носитель, неизвестно)
+	fx 2: "конфуз?": аргументы (числочастиц, неизвестно, времяжизни, носитель, неизвестно)
+	fx 3: "энергия": аргументы (числочастиц, цветчастиц, времяжизни, носитель, неизвестно)
+	Цвет частиц судя по всему зависит от палитры (16 бит).
+	fx 4: создает "испарение" на коордах где был вызван fx 0
+	fx 5: "ускорение?": аргументы (неизвестно, неизвестно, времяжизни, носитель, неизвестно)
+	fx 6: есть в коде игры, но не работает
+	*/
+	int netTestParticleL(lua_State *L)
+	{
+		for (int i = 1; i <= 5; i++)
+		{
+			if (lua_type(L, i) != LUA_TNUMBER)
+			{
+				lua_pushstring(L, "wrong args: arg != int");
+				lua_error_(L);
+			}
+		}
+		
+		BYTE fxtype = (BYTE) lua_tonumber(L, 1);
+		WORD arg1 = (WORD) lua_tonumber(L, 2);
+		WORD arg2 = (WORD) lua_tonumber(L, 3);
+		WORD arg3 = (WORD) lua_tonumber(L, 4);
+		WORD netCode = (WORD) lua_tonumber(L, 5);
+		//float arg4 = (float) lua_tonumber(L, 6); не используется нигде
+		
+		struct
+		{
+			BYTE packetID;
+			BYTE fxType;
+			WORD word1;
+			WORD word2;
+			WORD word3;
+			WORD word4; // holder
+			DWORD dword;
+		} packetHeader = { 0x7C, fxtype, arg1, arg2, arg3, netCode, 0 };
+		
+		netSendAll(&packetHeader, 14);
+		return 0;
+	}
+	
+	// меняет интенсивность свечения
+	int netTestIntensityL(lua_State *L)
+	{
+		if (lua_type(L, 1) != LUA_TNUMBER)
+		{
+			lua_pushstring(L, "wrong args: arg1 != int");
+			lua_error_(L);
+		}
+		if (lua_type(L, 2) != LUA_TNUMBER)
+		{
+			lua_pushstring(L, "wrong args: arg2 != int");
+			lua_error_(L);
+		}
+		
+		WORD netcode = (WORD) lua_tonumber(L, 1);
+		float intensity = (float) lua_tonumber(L, 2);
+		
+		struct
+		{
+			BYTE packetID;
+			WORD sprite;
+			float intens;
+		} packetHeader = { 0x5D, netcode, intensity };
+		
+		netSendAll(&packetHeader, 14);
+		return 0;
+	}
+	
+	// меняет цвет свечения
+	int netTestColorL(lua_State *L)
+	{
+		for (int i = 1; i <= 4; i++)
+		{
+			if (lua_type(L, i) != LUA_TNUMBER)
+			{
+				lua_pushstring(L, "wrong args: arg != int");
+				lua_error_(L);
+			}
+		}
+		
+		WORD netcode = (WORD) lua_tonumber(L, 1);
+		BYTE cR = (BYTE) lua_tonumber(L, 2);
+		BYTE cG = (BYTE) lua_tonumber(L, 3);
+		BYTE cB = (BYTE) lua_tonumber(L, 4);
+		
+		struct
+		{
+			BYTE packetID;
+			WORD sprite;
+			BYTE R;
+			BYTE G;
+			BYTE B;
+		} packetHeader = { 0x5C, netcode, cR, cG, cB };
+		
+		netSendAll(&packetHeader, 6);
+		return 0;
+	}
+	
 	int netOnRespL(lua_State *L)
 	{
 		bigUnitStruct *Plr=(bigUnitStruct *)lua_touserdata(L,1);
@@ -1081,6 +1259,7 @@ void netInit()
 	ASSIGN(netPriMsg,0x004DA2C0);
 	ASSIGN(playerCheckDuplicateNames,0x004DDA00);
 	ASSIGN(netReportCharges,0x004D82B0);
+	ASSIGN(netSendMsgInform2,0x4DA180);
 	
 	InjectOffs(0x4441AE+1,&sysopMyTrap);
 
@@ -1105,6 +1284,13 @@ void netInit()
 	registerserver("netReportCharges",&netReportChargesL);
 	registerserver("netClientPrint",&netDoPrintConsoleL);
 	registerserver("netFake",&netFake);
+	
+	registerserver("netMsgPlrDied",&playerDeathL);
+	registerserver("netMsgBox", &netSendMessageBoxL);
+	registerserver("netParticleFx", &netTestParticleL);
+	registerserver("netSpriteIntensity", &netTestIntensityL);
+	registerserver("netSpriteColor", &netTestColorL);
+	
 	registerserver("sendChat",&sendChat);
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера

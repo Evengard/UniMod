@@ -6,6 +6,7 @@
 extern int (__cdecl *spellAccept)(int SpellType,void *Caster,void *CasterMB2,void *Carrier,
 								SpellTargetBlock *Block,int Power);
 
+int (__cdecl *monsterGetVoice)(void* Monster); // вообще птр возвращается
 creatureAction* (__cdecl *monsterActionPush)(void *Unit,int ActionType);
 void (__cdecl *monsterActionPop)(void *Unit);
 void (__cdecl *noxReportComplete)(void *Unit);
@@ -40,6 +41,29 @@ namespace
 		while(0);
 		lua_settop(L,Top);
 		spellAccept(SpellType,Owner,Source,Carrier,Block,Power);
+	}
+	
+	int hookMonsterMeleeAttack(void* Unit)
+	{
+		int voice = monsterGetVoice(Unit);
+		int Top=lua_gettop(L);
+		do
+		{
+			lua_getglobal(L,"monsterAttackSuccess");
+			if (!lua_istable(L,-1))
+				break;
+			lua_pushlightuserdata(L,Unit);
+			lua_gettable(L,-2);
+			if (!lua_isfunction(L,-1))
+				break;
+			lua_pushlightuserdata(L,Unit);
+			lua_pcall(L,1,0,0);
+			lua_settop(L,Top);
+			return voice;
+		}
+		while(0);
+		lua_settop(L,Top);
+		return voice; // хук был поставлен на эту функцию
 	}
 
 	int __cdecl reactUse(bigUnitStruct *User,bigUnitStruct *Thing)
@@ -220,11 +244,14 @@ namespace
 			lua_pop(L,1);
 			return;
 		}
-		bigUnitStruct *Unit=unitDamageFindParent(Me->unitDamaged);
+		
+		lua_pushlightuserdata(L,(void*)Me); // FIX
+		bigUnitStruct *Unit = unitDamageFindParent(Me->unitDamaged);
 			if (Unit==0)
 				lua_pushnil(L);
 			else
-				lua_pushlightuserdata(L,(void*)Unit);
+				lua_pushlightuserdata(L, (void*)Unit);
+					
 		if(0!=lua_pcall(L,2,1,0))/// BUGBUG косяк в том, что если внутри функции удалить 
 			/// объект - то там еще старое значение
 		{
@@ -463,6 +490,54 @@ namespace
 	{
 		return unitSetAnyFnL(L,0x2CC,&damageFn);
 	}
+	
+	// обработчик UPDATE функции, передает 1 аргумент - юнит
+	int unitSetUpdateL(lua_State*L);
+	void __cdecl updateFn(bigUnitStruct *Me)
+	{
+		lua_pushlightuserdata(L,&updateFn);
+		lua_gettable(L,LUA_REGISTRYINDEX);
+		lua_pushlightuserdata(L,Me);
+		lua_gettable(L,-2);
+		if(lua_type(L,-1)!=LUA_TFUNCTION)
+		{
+			lua_pop(L,1);
+			return;
+		}
+		lua_pushlightuserdata(L,Me);
+		if (0!=lua_pcall(L,1,0,0)) return;
+
+		lua_pushlightuserdata(L,&unitSetUpdateL);
+		lua_gettable(L,LUA_REGISTRYINDEX);
+		lua_pushlightuserdata(L,Me);
+		lua_gettable(L,-2);
+		if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
+		{
+			lua_pop(L,4);/// что достали - таблица - результат функции- таблица
+			return;
+		}
+		/*
+		void (__cdecl *Old)(void *);
+		Old=(void (__cdecl *)(void *))lua_touserdata(L,-1);
+
+		Me->onUpdateFn = (void*)Old;
+
+		lua_pushlightuserdata(L,Me);
+		lua_pushnil(L);
+		lua_settable(L,-4);// Удаляем себя из таблицы
+		if ( (Old!=NULL) && (0==lua_toboolean(L,-3)))
+		{
+			Old(Me);
+		}
+		lua_pop(L,4);/// удаляем таблицу
+		*/
+		return;
+	}
+	int unitSetUpdateL(lua_State*L)
+	{
+		return unitSetAnyFnL(L,0x2E8,&updateFn);
+	}
+	
 	int unitSetPickupL(lua_State*L);
 	int __cdecl pickupFn(void *Him,void *Me,void *A,void *B)
 	{
@@ -533,12 +608,14 @@ extern void InjectOffs(DWORD Addr,void *Fn);
 void reactInit()
 {
 	InjectOffs(0x004E96D5+1,&unitFlyActivate);
+	InjectOffs(0x005324FA+1,&hookMonsterMeleeAttack);
 	InjectJumpTo(0x4EE6A5,&asmOnDieMonster);
 	
 	ASSIGN(monsterActionPop,0x0050A160);
 	ASSIGN(monsterActionPush,0x0050A260);
 	ASSIGN(noxReportComplete,0x544FF0);
 	ASSIGN(noxMonsterCallDieFn,0x50A3D0);
+	ASSIGN(monsterGetVoice,0x424300);
 	void** V=(void **)(0x5BFEC8+0x204);
 	*V=&unitReportComplete;
 
@@ -549,6 +626,7 @@ void reactInit()
 	initFn(L,"unitOnPickup",&unitSetPickupL,&pickupFn);
 	initFn(L,"unitOnDrop",&unitSetDropL,&dropFn);
 	initFn(L,"unitOnDamage",&unitSetDamageL,&damageFn);
+	initFn(L,"unitOnUpdate",&unitSetUpdateL,&updateFn);
 	initFn(L,"unitOnCollide",&unitSetCollideFnL,&collideFn);
 
 	registerserver("unitSetAction",&unitSetAction);
@@ -556,8 +634,9 @@ void reactInit()
 	
 	lua_newtable(L);
 	registerServerVar("unitFlyActivate");
+	
+	lua_newtable(L);
+	registerServerVar("monsterAttackSuccess");
 
 	registerserver("ptrCall2",&callPtr2L);
-
-
 }
