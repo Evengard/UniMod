@@ -105,7 +105,7 @@ if exist luajit.exe.manifest^
 @del *.obj *.manifest minilua.exe buildvm.exe
 @echo.
 @echo === Successfully built LuaJIT for Windows/%LJARCH% ===
-@xcopy /y lua51.lib ..\..\luajit.lib
+@copy /y lua51.lib ..\..\luajit.lib
 @goto :END
 :BAD
 @echo.

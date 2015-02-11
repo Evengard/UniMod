@@ -224,7 +224,7 @@ struct bigUnitStruct
 	void *XFerFnPtr2C0;
 	void *pickupFnPtr;
 	void *dropFnPtr;
-	void *damageFnPtr;
+	void(*damageFnPtr)(bigUnitStruct* victim, void* attacker, void* dealtBy, int damage, int dmgType);
 	void *soundDamageFnPtr;
 	void *dieFnPtr;
 	void *spawnAtDeath;
