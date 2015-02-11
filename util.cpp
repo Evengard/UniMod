@@ -48,7 +48,22 @@ float* frameLimiterSetting;
 
 int (__cdecl *j_time)();
 
+void(__cdecl *consoleTokenCipher)(wchar_t* source, wchar_t* dest);
+
 using namespace std;
+
+wchar_t* tokenParseFixup(wchar_t* Dest, wchar_t* Source)
+{
+	return wcsncpy(Dest, Source, 31);
+}
+
+void tokenParseCipherFixup(wchar_t* Source, wchar_t* Dest)
+{
+	wchar_t adjustedToken[32];
+	adjustedToken[31] = L'\0';
+	tokenParseFixup(adjustedToken, Source);
+	consoleTokenCipher(adjustedToken, Dest);
+}
 
 int frameLimiter(lua_State* L)
 {
@@ -1313,6 +1328,9 @@ void injectCon()
 	InjectJumpTo(0x00443C80,&onConCmd);// Функция реакции на консольную команду
 	InjectOffs(0x4D2AB5,&onEachFrame);
 
+	InjectOffs(0x00443A81+1, &tokenParseFixup);
+	InjectOffs(0x00443A71+1, &tokenParseCipherFixup);
+
 	ASSIGN(initWindowedModeNox,0x0048AED0);
 
 	
@@ -1320,6 +1338,7 @@ void injectCon()
 
 	ASSIGN(frameLimiterSetting,0x0059449C);
 	ASSIGN(j_time,0x00416BF0);
+	ASSIGN(consoleTokenCipher, 0x00443BF0);
 
 #include "lua/binClient/clientOnJoin.lua.inc"
 
