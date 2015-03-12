@@ -1127,6 +1127,7 @@ void lua_error_(lua_State*L)
 	lua_error(L);
 }
 
+extern void initSDL();
 extern void windowsAllInit();
 extern void unitFunctionInit();
 extern void mapInit();
@@ -1179,6 +1180,7 @@ int initWindowedMode(int param1, int param2, int param3)
 
 void injectCon()
 {
+	initSDL();
 	//MessageBox(0,"!",0,0);
 	exInit();
 	initModLib2();

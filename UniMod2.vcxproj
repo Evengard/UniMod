@@ -48,10 +48,10 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
+    <IncludePath>D:\uni\git\UniMod\Libs\SDL\SDL2_ttf-2.0.12;D:\uni\git\UniMod\Libs\SDL\SDL2-2.0.3\include;$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
+    <IncludePath>D:\uni\git\UniMod\Libs\SDL\SDL2_ttf-2.0.12;D:\uni\git\UniMod\Libs\SDL\SDL2-2.0.3\include;$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -77,6 +77,9 @@
       <FixedBaseAddress>false</FixedBaseAddress>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <IgnoreSpecificDefaultLibraries>LIBCMT.LIB</IgnoreSpecificDefaultLibraries>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -101,6 +104,9 @@
       <FixedBaseAddress>false</FixedBaseAddress>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <IgnoreSpecificDefaultLibraries>LIBCMTD.lib</IgnoreSpecificDefaultLibraries>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -127,6 +133,7 @@
     <ClCompile Include="mapUtil.cpp" />
     <ClCompile Include="playerExternFunction.cpp" />
     <ClCompile Include="polygon.cpp" />
+    <ClCompile Include="SDL.cpp" />
     <ClCompile Include="SendBuffer.cpp" />
     <ClCompile Include="Libs\csha1\SHA1.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -216,10 +223,13 @@
     <ClInclude Include="windowUniMod.h" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="Libs\freetype.lib" />
     <Library Include="Libs\libpng.lib" />
     <!--<Library Include="LibVer.lib" />-->
     <!--<Library Include="Libs\lua51static_mt.lib" />-->
     <Library Include="Libs\luajit.lib" />
+    <Library Include="Libs\SDL2.lib" />
+    <Library Include="Libs\SDL2_ttf.lib" />
     <Library Include="Libs\socket.lib" />
     <Library Include="Libs\zlib.lib" />
   </ItemGroup>

@@ -193,6 +193,9 @@
     <ClCompile Include="lua_addons.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="SDL.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libs\lpeg.h">
@@ -225,5 +228,8 @@
     <Library Include="Libs\zlib.lib" />
     <Library Include="Libs\socket.lib" />
     <Library Include="Libs\luajit.lib" />
+    <Library Include="Libs\freetype.lib" />
+    <Library Include="Libs\SDL2.lib" />
+    <Library Include="Libs\SDL2_ttf.lib" />
   </ItemGroup>
 </Project>
