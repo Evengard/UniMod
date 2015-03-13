@@ -49,9 +49,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>D:\uni\git\UniMod\Libs\SDL\SDL2_ttf-2.0.12;D:\uni\git\UniMod\Libs\SDL\SDL2-2.0.3\include;$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
+    <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>D:\uni\git\UniMod\Libs\SDL\SDL2_ttf-2.0.12;D:\uni\git\UniMod\Libs\SDL\SDL2-2.0.3\include;$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
+    <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,6 +110,12 @@
       </IgnoreAllDefaultLibraries>
       <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
     </Link>
+    <Manifest>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Manifest>
+    <Manifest>
+      <VerboseOutput>true</VerboseOutput>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="admin.cpp" />

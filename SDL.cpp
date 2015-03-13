@@ -2,9 +2,11 @@
 
 #include <windows.h>
 
+bool SDL_enabled = false;
 
 namespace
 {
+	bool Stretch = false;
 
 	const char* windowTitle = "NoX: UniMod(NoXWorld.ru) with SDL patch(Zoaedk and Morden)";
 
@@ -167,8 +169,6 @@ namespace
 #define Z_QUANTUM 1
 	int z_diff;
 
-	bool SDL_enabled = false;
-
 	void ReadConfigFile()
 	{
 
@@ -249,6 +249,14 @@ namespace
 				if (value != 0)
 				{
 					SDL_enabled = true;
+				}
+			}
+			else if (!strcmp("STRETCH", Variable))
+			{
+				int value = atoi(Value);
+				if (value != 0)
+				{
+					Stretch = true;
 				}
 			}
 		}
@@ -519,10 +527,10 @@ namespace
 		SDL_RenderClear(renderer);
 
 		// Not sure why i'm not scaling on full screen - Check this
-		if (UseFullScreen == 1)
-			SDL_RenderCopy(renderer, texture, NULL, NULL);
-		else
+		if (Stretch == false)
 			SDL_RenderCopy(renderer, texture, NULL, &destRec);
+		else
+			SDL_RenderCopy(renderer, texture, NULL, NULL);
 
 		if (ShowDebug != 0)
 			SDL_RenderCopy(renderer, debugTexture, NULL, &debugPosition);
@@ -544,9 +552,15 @@ namespace
 	{
 		return 1;
 	}
+
+	static int FindMovie(int param1, char* path)
+	{
+		return 0;
+	}
 }
 
 extern void InjectJumpTo(DWORD Addr, void *Fn);
+extern void InjectOffs(DWORD Addr, void *Fn);
 void initSDL()
 {
 	// Get the players settings
@@ -564,6 +578,8 @@ void initSDL()
 		InjectJumpTo((DWORD)pTrueSkipped2, &Skipped);
 		InjectJumpTo((DWORD)pTrueDirectDrawCreatePalette, &Skipped);
 		InjectJumpTo((DWORD)pTrueSetupWindow, &SetupWindow);
+		
+		//InjectJumpTo(0x004CB230, &FindMovie); // Supressing movies
 
 		/* #TODO:
 		Add in some of the unimod hooks like NoX lists, buttons, and element message functions
@@ -615,7 +631,7 @@ void initSDL()
 			window = SDL_CreateWindow(windowTitle, // title
 				SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, // x and y
 				mode.w, mode.h, // w and h
-				SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+				SDL_WINDOW_SHOWN);
 		}
 
 

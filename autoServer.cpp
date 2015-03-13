@@ -81,6 +81,10 @@ namespace
 			memcpy((byte*)bt,&OperatorJmps,1); // убираем заставочки
 			VirtualProtect(bt,1,OldProtect,&OldProtect);
 		}
+		if (strcmp(str, "-debug") == 0)
+		{
+			*noxGameFlags = *noxGameFlags | 0x1000000;
+		}
 	}
 
 	void __declspec(naked) asmCheckAutoSrvFlag() // флаг проверяем
