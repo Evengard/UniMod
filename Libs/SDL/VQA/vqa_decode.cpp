@@ -1,7 +1,185 @@
-#include "stdafx.h"
+//#include "stdafx.h"
+
+#define XCC
 #include "vqa_decode.h"
 
-#include "shp_decode.h"
+//#include "shp_decode.h"
+
+
+void convert_palet_18_to_24(const t_palet s, t_palet d)
+{
+	for (int i = 0; i < 256; i++)
+	{
+		d[i].r = (s[i].r & 63) * 255 / 63;
+		d[i].g = (s[i].g & 63) * 255 / 63;
+		d[i].b = (s[i].b & 63) * 255 / 63;
+	}
+}
+
+
+void convert_palet_18_to_24(t_palet palet)
+{
+	convert_palet_18_to_24(palet, palet);
+}
+
+int decode80(const byte image_in[], byte image_out[])
+{
+	int cb_out;
+	/*
+	0 copy 0cccpppp p
+	1 copy 10cccccc
+	2 copy 11cccccc p p
+	3 fill 11111110 c c v
+	4 copy 11111111 c c p p
+	*/
+
+	_asm
+	{
+		push	esi
+			push	edi
+			mov		ax, ds
+			mov		es, ax
+			mov		esi, image_in
+			mov		edi, image_out
+		next0 :
+		xor		eax, eax
+			lodsb
+			mov		ecx, eax
+			test	eax, 0x80
+			jnz		c1c
+			shr		ecx, 4
+			add		ecx, 3
+			and		eax, 0xf
+			shl		eax, 8
+			lodsb
+			mov		edx, esi
+			mov		esi, edi
+			sub		esi, eax
+			jmp		copy_from_destination
+		c1c :
+		and		ecx, 0x3f
+			test	eax, 0x40
+			jnz		c2c
+			or		ecx, ecx
+			jz		end0
+			jmp		copy_from_source
+		c2c :
+		xor		eax, eax
+			lodsw
+			cmp		ecx, 0x3e
+			je		c3
+			ja		c4
+			mov		edx, esi
+			mov		esi, image_out
+			add		esi, eax
+			add		ecx, 3
+			jmp		copy_from_destination
+		c3 :
+		mov		ecx, eax
+			lodsb
+			rep		stosb
+			jmp		next0
+		c4 :
+		mov		ecx, eax
+			lodsw
+			mov		edx, esi
+			mov		esi, image_out
+			add		esi, eax
+		copy_from_destination :
+		rep		movsb
+			mov		esi, edx
+			jmp		next0
+		copy_from_source :
+		rep		movsb
+			jmp		next0
+		end0 :
+		sub		edi, image_out
+			mov		cb_out, edi
+			pop		edi
+			pop		esi
+	}
+	return cb_out;
+}
+
+int decode80r(const byte image_in[], byte image_out[])
+{
+	int cb_out;
+	/*
+	0 copy 0cccpppp p
+	1 copy 10cccccc
+	2 copy 11cccccc p p
+	3 fill 11111110 c c v
+	4 copy 11111111 c c p p
+	*/
+
+	_asm
+	{
+		push	esi
+			push	edi
+			mov		ax, ds
+			mov		es, ax
+			mov		esi, image_in
+			mov		edi, image_out
+		next0 :
+		xor		eax, eax
+			lodsb
+			mov		ecx, eax
+			test	eax, 0x80
+			jnz		c1c
+			shr		ecx, 4
+			add		ecx, 3
+			and		eax, 0xf
+			shl		eax, 8
+			lodsb
+			mov		edx, esi
+			mov		esi, edi
+			sub		esi, eax
+			jmp		copy_from_destination
+		c1c :
+		and		ecx, 0x3f
+			test	eax, 0x40
+			jnz		c2c
+			or		ecx, ecx
+			jz		end0
+			jmp		copy_from_source
+		c2c :
+		xor		eax, eax
+			lodsw
+			cmp		ecx, 0x3e
+			je		c3
+			ja		c4
+			mov		edx, esi
+			mov		esi, edi
+			sub		esi, eax
+			add		ecx, 3
+			jmp		copy_from_destination
+		c3 :
+		mov		ecx, eax
+			lodsb
+			rep		stosb
+			jmp		next0
+		c4 :
+		mov		ecx, eax
+			lodsw
+			mov		edx, esi
+			mov		esi, edi
+			sub		esi, eax
+		copy_from_destination :
+		rep		movsb
+			mov		esi, edx
+			jmp		next0
+		copy_from_source :
+		rep		movsb
+			jmp		next0
+		end0 :
+		sub		edi, image_out
+			mov		cb_out, edi
+			pop		edi
+			pop		esi
+	}
+	return cb_out;
+}
+
 
 Cvqa_decode::Cvqa_decode()
 {
@@ -33,7 +211,7 @@ void Cvqa_decode::start_decode(const t_vqa_header& header)
 	frame_index = 0;
 }
 
-void Cvqa_decode::set_pf(const DDPIXELFORMAT& pf, int cb_pixel)
+void Cvqa_decode::set_pf(const DDPIXELFORMAT_VQA& pf, int cb_pixel)
 {
 	m_pfc.set_pf(pf);
 	mcb_d_pixel = cb_pixel;
@@ -211,11 +389,6 @@ void Cvqa_decode::decode_vqfl_chunk(const byte* s, int cb_s)
 	}
 	else
 		decode_cbf_chunk(s + 8, cb_s - 8);	
-}
-
-void Cvqa_decode::decode_vqfl_chunk(const Cvirtual_binary& s)
-{
-	decode_vqfl_chunk(s.data(), s.size());
 }
 
 void Cvqa_decode::decode_vqfr_chunk(const byte* in_raw, byte* out, t_palet palet)
