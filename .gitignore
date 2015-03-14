@@ -723,3 +723,5 @@
 /Libs/SDL/freetype-2.5.5/objs/vc2010/Win32/Release/type42.obj
 /Libs/SDL/freetype-2.5.5/objs/vc2010/Win32/Release/winfnt.obj
 /Libs/VQA.lib
+/Libs/SDL/VQA/Release/VQA_XCC.Build.CppClean.log
+/Libs/SDL/VQA/Debug/VQA_XCC.Build.CppClean.log

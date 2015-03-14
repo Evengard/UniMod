@@ -231,5 +231,6 @@
     <Library Include="Libs\freetype.lib" />
     <Library Include="Libs\SDL2.lib" />
     <Library Include="Libs\SDL2_ttf.lib" />
+    <Library Include="Libs\VQA.lib" />
   </ItemGroup>
 </Project>

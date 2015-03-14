@@ -239,6 +239,7 @@
     <Library Include="Libs\SDL2.lib" />
     <Library Include="Libs\SDL2_ttf.lib" />
     <Library Include="Libs\socket.lib" />
+    <Library Include="Libs\VQA.lib" />
     <Library Include="Libs\zlib.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

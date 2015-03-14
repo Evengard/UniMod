@@ -11,13 +11,9 @@
 //#include "wav_structures.h"
 //#include "xcc_log.h"
 
-#include <Windows.h>
-#include <InitGuid.h>
-#include <Guiddef.h>
-#include <dsound.h>
-
 Cvqa_file::Cvqa_file(string filename)
 {
+	extDsoundObj = NULL;
 	fileStream.open(filename, ios::in | ios::binary);
 	bool success = fileStream.good();
 	fileStream.seekg(0, ios::end);
@@ -62,9 +58,8 @@ struct t_list_entry
 
 int Cvqa_file::extract_both(const string& name)
 {
-	LPDIRECTSOUND8 directSoundObj = NULL;
-	LPDIRECTSOUNDBUFFER tmpDirectSoundBuffer = NULL;
-	LPDIRECTSOUNDBUFFER8 directSoundBuffer = NULL;
+	LPDIRECTSOUND directSoundObj = NULL;
+	LPDIRECTSOUNDBUFFER directSoundBuffer = NULL;
 	DSBUFFERDESC directSoundBufferDescription;
 	WAVEFORMATEX waveFormat;
 
@@ -87,7 +82,14 @@ int Cvqa_file::extract_both(const string& name)
 	directSoundBufferDescription.lpwfxFormat = &waveFormat;
 
 	// Initialize DirectSound
-	DirectSoundCreate8(&DSDEVID_DefaultPlayback, &directSoundObj, NULL);
+	if (extDsoundObj != NULL)
+	{
+		directSoundObj = extDsoundObj;
+	}
+	else
+	{
+		DirectSoundCreate(&DSDEVID_DefaultPlayback, &directSoundObj, NULL);
+	}
 
 	HWND hWnd = GetForegroundWindow();
 	if (hWnd == NULL)
@@ -95,11 +97,9 @@ int Cvqa_file::extract_both(const string& name)
 		hWnd = GetDesktopWindow();
 	}
 
-	directSoundObj->SetCooperativeLevel(hWnd, DSSCL_PRIORITY);
+	directSoundObj->SetCooperativeLevel(hWnd, DSSCL_NORMAL);
 
-	directSoundObj->CreateSoundBuffer(&directSoundBufferDescription, &tmpDirectSoundBuffer, NULL);
-	tmpDirectSoundBuffer->QueryInterface(IID_IDirectSoundBuffer8, (LPVOID*)&directSoundBuffer);
-	tmpDirectSoundBuffer->Release();
+	directSoundObj->CreateSoundBuffer(&directSoundBufferDescription, &directSoundBuffer, NULL);
 
 	// Set the DirectSound buffer offset
 	dword dwOffset = 0;
@@ -120,11 +120,11 @@ int Cvqa_file::extract_both(const string& name)
 	vqa_d.set_pf(pf, 3);
 	int cs_remaining = 0;
 
-	ofstream audio;
+	/*ofstream audio;
 	audio.open(name + ".wav", ios::binary | ios::trunc);
 	t_wav_header header;
 	memset(&header, 0, sizeof(t_wav_header));
-	audio.write((char*)&header, sizeof(t_wav_header));
+	audio.write((char*)&header, sizeof(t_wav_header));*/
 
 
 	byte* frame = new byte[3 * cx * cy];
@@ -199,7 +199,7 @@ int Cvqa_file::extract_both(const string& name)
 				vqa_d.decode_snd2_chunk(data, size, e.audio);
 			}
 			cs_remaining += e.c_samples;
-			audio.write((char*)e.audio, 2 * e.c_samples);
+			//audio.write((char*)e.audio, 2 * e.c_samples);
 
 			LPVOID  lpvPtr1;
 			DWORD dwBytes1;
@@ -280,12 +280,30 @@ int Cvqa_file::extract_both(const string& name)
 			skip_chunk();
 		}
 
+		bool abort = false;
 
-		// We need to wait for the next frame
+		// We need to wait for the next frame and process other data
 		while (previousFrame < currentFrame)
 		{
+			int command = 0;
+			if (decodeCallback != NULL)
+			{
+				command = decodeCallback(frame, cx, cy);
+			}
+			switch (command)
+			{
+			case -1:
+				abort = true;
+				break;
+			default:
+				break;
+			}
+			if (abort)
+			{
+				break;
+			}
 			dword currentTime = timeGetTime();
-			// We adjust frame rate based on sound stream (and it's lag)
+			// We adjust frame rate based on sound stream
 			int adjust = 0;
 			if (defaultTOTALset)
 			{
@@ -298,7 +316,6 @@ int Cvqa_file::extract_both(const string& name)
 				{
 					adjust = soundBytesOnFrame;
 				}
-				printf("ADJUST: %d\n", adjust);
 			}
 			dword frameRate = (1000 * (soundBytesOnFrame + adjust)) / waveFormat.nAvgBytesPerSec;
 			if (currentTime - startTime >= frameRate)
@@ -318,16 +335,21 @@ int Cvqa_file::extract_both(const string& name)
 				Sleep(toSleep);
 			}
 		}
+
+		if (abort)
+		{
+			break;
+		}
 	}
 	delete[] frame;
 	if (isPlaying)
 	{
 		directSoundBuffer->Stop();
 	}
-	directSoundBuffer->Release();
-	directSoundObj->Release();
+	//directSoundBuffer->Release();
+	//directSoundObj->Release();
 
-	audio.seekp(0, ios::beg);
+	/*audio.seekp(0, ios::beg);
 	header.file_header.id = wav_file_id;
 	header.file_header.size = sizeof(header) - sizeof(header.file_header) + cs_remaining;
 	header.form_type = wav_form_id;
@@ -343,7 +365,7 @@ int Cvqa_file::extract_both(const string& name)
 	header.data_chunk_header.size = cs_remaining << 1;
 	audio.write((char*)&header, sizeof(t_wav_header));
 
-	audio.close();
+	audio.close();*/
 
 
 	return error;

@@ -153,6 +153,11 @@ inline __int32 reverse(__int32 v)
 #include "vqa_decode.h"
 #endif
 
+#include <Windows.h>
+#include <InitGuid.h>
+#include <Guiddef.h>
+#include <dsound.h>
+
 class Cvqa_file
 {
 public:
@@ -167,6 +172,16 @@ public:
 	void set_empty_chunk();
 	int skip_chunk();
 	bool is_valid();
+
+	void register_decode(int(*cb)(byte* frame, dword cx, dword cy))
+	{
+		decodeCallback = cb;
+	}
+	
+	void register_dsound(LPDIRECTSOUND dsound)
+	{
+		extDsoundObj = dsound;
+	}
 
 	size_t get_size()
 	{
@@ -272,4 +287,6 @@ private:
 	ifstream fileStream;
 	size_t fileSize;
 	size_t currentPosition;
+	LPDIRECTSOUND extDsoundObj;
+	int(*decodeCallback)(byte* frame, dword cx, dword cy);
 };

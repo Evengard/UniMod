@@ -1,8 +1,13 @@
+#include "Libs\SDL\VQA\vqa_file.h"
 #include "stdafx.h"
 
 #include <windows.h>
 
+LPDIRECTSOUND* noxDsound = (LPDIRECTSOUND*)0x83A1AC;
+
 bool SDL_enabled = false;
+
+extern std::string getGameDirectory();
 
 namespace
 {
@@ -553,14 +558,206 @@ namespace
 		return 1;
 	}
 
-	static int FindMovie(int param1, char* path)
+	std::string nextVideoFilename;
+
+
+	static int FindMovie(char* param1, char* path)
 	{
+		std::string filename = getGameDirectory() + "\\MOVIES\\" + param1;
+		strcpy(path, filename.c_str());
+		nextVideoFilename = filename;
+		/*Cvqa_file file(filename);
+		LPDIRECTSOUND dsound = *noxDsound;
+		file.register_dsound(dsound);
+		file.post_open();
+		bool valid = file.is_valid();
+		file.extract_both(filename);*/
+		return 1;
+	}
+
+	bool MessageLoopMovie()
+	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event))
+		{
+			switch (event.type)
+			{
+			case SDL_QUIT:
+				ExitProcess(0);
+				EndGameReason(0);
+				EndGame();
+				break;
+			case SDL_KEYDOWN:
+				//SetDebugText("KeyDown is %d", event.key.keysym.sym);
+				if ((event.key.keysym.mod & KMOD_ALT) && event.key.keysym.sym == SDLK_F4)
+				{
+					ExitProcess(0);
+					EndGameReason(0);
+					EndGame();
+				}
+				else if (event.key.keysym.mod & KMOD_ALT)
+				{
+					return true;
+				}
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_MOUSEBUTTONUP:
+				switch (event.button.button)
+				{
+				case SDL_BUTTON_LEFT:
+				case SDL_BUTTON_RIGHT:
+				case SDL_BUTTON_MIDDLE:
+				case SDL_BUTTON_X1:
+				case SDL_BUTTON_X2:
+					if (event.button.state == SDL_PRESSED)
+					{
+						return true;
+					}
+				}
+				//SetDebugText("%s is %s", button_name, event.button.state == SDL_PRESSED ? "DOWN" : "UP");
+				break;
+			default:
+				break;
+			}
+		}
+		return false;
+	}
+
+
+	unsigned short int rgb888Torgb565(int red, int green, int blue)
+	{
+		unsigned short  b = (blue >> 3) & 0x001f;
+		unsigned short  g = ((green >> 2) & 0x003f) << 5;
+		unsigned short  r = ((red >> 3) & 0x001f) << 11;
+
+		return (unsigned short int) (r | g | b);
+	}
+
+	SDL_Texture* textureVid = NULL;
+
+	void PlayMovieSetup(dword cx, dword cy)
+	{
+		if (textureVid)
+		{
+			SDL_DestroyTexture(textureVid);
+			textureVid = NULL;
+		}
+		textureVid = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STREAMING, cx, cy);
+	}
+
+	void PlayMovieDraw(byte* frame, dword cx, dword cy)
+	{
+		if (!textureVid)
+		{
+			PlayMovieSetup(cx, cy);
+		}
+
+
+		unsigned short int *frame565 = new unsigned short int[cx*cy];
+		for (int j = 0; j < cx * cy; j++)
+		{
+			frame565[j] = rgb888Torgb565(frame[j * 3], frame[j * 3 + 1], frame[j * 3 + 2]);
+		}
+
+		unsigned char * dstPixelData;
+		int dstPitch;
+
+
+		// This will return the size of the NoX in game screen before stretch
+		SDL_QueryTexture(textureVid, NULL, NULL, &srcRec.w, &srcRec.h);
+
+		// If the user did not set a custom scale, then automatically create one that fits best
+		if (customscaleFactor != 0.0f && srcRec.w > 640)
+			scaleFactor = customscaleFactor;
+		else
+			scaleFactor = ((float)mode.h) / ((float)srcRec.h);
+
+		destRec.h = srcRec.h*scaleFactor;
+		destRec.w = srcRec.w*scaleFactor;
+
+		if (destRec.w > mode.w)
+		{
+			// This IF is a hack, if they use 640,480 in game res for some reson it will break
+			// I didn't see this as a possibility ever so I ignored it
+			// Currently the main menus default to 640x480 so I can ignore custom scaling in menus with this
+			if (customscaleFactor != 0.0f && srcRec.w > 640)
+				scaleFactor = customscaleFactor;
+			else
+				scaleFactor = ((float)mode.w) / ((float)srcRec.w);
+
+			destRec.h = srcRec.h*scaleFactor;
+			destRec.w = srcRec.w*scaleFactor;
+		}
+
+		// Zoaedks texture writing function, not really anything to improve here, about as fast as it is going to get
+		SDL_LockTexture(textureVid, NULL, (void**)&dstPixelData, &dstPitch);
+
+		for (int i = 0; i < cy; i++)
+		{
+			void * rowPixelData = &frame565[i*cx];
+			memcpy(dstPixelData, rowPixelData, cx*2);
+			dstPixelData += dstPitch;
+		}
+
+		delete[] frame565;
+
+		SDL_UnlockTexture(textureVid);
+
+
+		// Center the scaled image on the screen if it doesn't take up X or Y fully
+
+		// Center Width
+		if (destRec.w < mode.w)
+			destRec.x = mode.w / 2 - destRec.w / 2;
+		else
+			destRec.x = 0;
+
+		// Center Height
+		if (destRec.h < mode.h)
+			destRec.y = mode.h / 2 - destRec.h / 2;
+		else
+			destRec.y = 0;
+
+		// Clear the renderer so that garbage isn't displayed on the edges
+		SDL_RenderClear(renderer);
+
+		// Not sure why i'm not scaling on full screen - Check this
+		if (Stretch == false)
+			SDL_RenderCopy(renderer, textureVid, NULL, &destRec);
+		else
+			SDL_RenderCopy(renderer, textureVid, NULL, NULL);
+
+		if (ShowDebug != 0)
+			SDL_RenderCopy(renderer, debugTexture, NULL, &debugPosition);
+
+		SDL_RenderPresent(renderer);
+	}
+
+	int PlayMovieCallback(byte* frame, dword cx, dword cy)
+	{
+		PlayMovieDraw(frame, cx, cy);
+		bool keypressed = MessageLoopMovie();
+		if (keypressed)
+			return -1;
 		return 0;
+	}
+
+	static int PlayMovie(void* args)
+	{
+		Cvqa_file file(nextVideoFilename);
+		LPDIRECTSOUND dsound = *noxDsound;
+		file.register_dsound(dsound);
+		file.register_decode(&PlayMovieCallback);
+		file.post_open();
+		bool valid = file.is_valid();
+		file.extract_both(nextVideoFilename);
+		return 1;
 	}
 }
 
 extern void InjectJumpTo(DWORD Addr, void *Fn);
 extern void InjectOffs(DWORD Addr, void *Fn);
+extern void InjectData(DWORD offset, byte* buff, size_t size);
 void initSDL()
 {
 	// Get the players settings
@@ -579,7 +776,16 @@ void initSDL()
 		InjectJumpTo((DWORD)pTrueDirectDrawCreatePalette, &Skipped);
 		InjectJumpTo((DWORD)pTrueSetupWindow, &SetupWindow);
 		
-		//InjectJumpTo(0x004CB230, &FindMovie); // Supressing movies
+		InjectJumpTo(0x004CB230, &FindMovie);
+
+		byte nopCall[5] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+		InjectData(0x004B03D8, nopCall, 5);
+		InjectData(0x004B05A0, nopCall, 5);
+
+		InjectJumpTo(0x00555430, &PlayMovie);
+
+
+
 
 		/* #TODO:
 		Add in some of the unimod hooks like NoX lists, buttons, and element message functions
