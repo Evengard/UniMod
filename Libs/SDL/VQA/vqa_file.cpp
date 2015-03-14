@@ -11,6 +11,10 @@
 //#include "wav_structures.h"
 //#include "xcc_log.h"
 
+#include <Windows.h>
+#include <InitGuid.h>
+#include <Guiddef.h>
+#include <dsound.h>
 
 Cvqa_file::Cvqa_file(string filename)
 {
@@ -58,6 +62,51 @@ struct t_list_entry
 
 int Cvqa_file::extract_both(const string& name)
 {
+	LPDIRECTSOUND8 directSoundObj = NULL;
+	LPDIRECTSOUNDBUFFER tmpDirectSoundBuffer = NULL;
+	LPDIRECTSOUNDBUFFER8 directSoundBuffer = NULL;
+	DSBUFFERDESC directSoundBufferDescription;
+	WAVEFORMATEX waveFormat;
+
+	// Setup Wave Format
+	memset(&waveFormat, 0, sizeof(WAVEFORMATEX));
+	waveFormat.wFormatTag = 1;
+	waveFormat.nChannels = get_c_channels();
+	waveFormat.nSamplesPerSec = get_samplerate();
+	waveFormat.nAvgBytesPerSec = 2 * get_c_channels() * get_samplerate();
+	waveFormat.nBlockAlign = 2 * get_c_channels();
+	waveFormat.wBitsPerSample = 16;
+
+	// Setup buffer description
+	memset(&directSoundBufferDescription, 0, sizeof(DSBUFFERDESC));
+	directSoundBufferDescription.dwSize = sizeof(DSBUFFERDESC);
+	directSoundBufferDescription.dwFlags =
+		DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY
+		| DSBCAPS_GLOBALFOCUS;
+	directSoundBufferDescription.dwBufferBytes = 3 * waveFormat.nAvgBytesPerSec;
+	directSoundBufferDescription.lpwfxFormat = &waveFormat;
+
+	// Initialize DirectSound
+	DirectSoundCreate8(&DSDEVID_DefaultPlayback, &directSoundObj, NULL);
+
+	HWND hWnd = GetForegroundWindow();
+	if (hWnd == NULL)
+	{
+		hWnd = GetDesktopWindow();
+	}
+
+	directSoundObj->SetCooperativeLevel(hWnd, DSSCL_PRIORITY);
+
+	directSoundObj->CreateSoundBuffer(&directSoundBufferDescription, &tmpDirectSoundBuffer, NULL);
+	tmpDirectSoundBuffer->QueryInterface(IID_IDirectSoundBuffer8, (LPVOID*)&directSoundBuffer);
+	tmpDirectSoundBuffer->Release();
+
+	// Set the DirectSound buffer offset
+	dword dwOffset = 0;
+
+	bool isPlaying = false;
+
+
 	int error = 0;
 	Cvqa_decode vqa_d;
 	vqa_d.start_decode(header());
@@ -77,13 +126,22 @@ int Cvqa_file::extract_both(const string& name)
 	memset(&header, 0, sizeof(t_wav_header));
 	audio.write((char*)&header, sizeof(t_wav_header));
 
-	
+
 	byte* frame = new byte[3 * cx * cy];
 
 	int currentFrame = 0;
+	int soundBytesOnFrame = 0;
 
+	dword startTime = timeGetTime();
+
+	int delayT = 0;
+	int changesTOTAL = 0;
+	bool defaultTOTALset = false;
+	int defaultTOTAL = 0;
 	while (currentFrame < get_c_frames())
 	{
+		int previousFrame = currentFrame;
+
 		if (get_chunk_id() == vqa_vqfl_id)
 		{
 			byte* data = new byte[get_chunk_size()];
@@ -92,30 +150,37 @@ int Cvqa_file::extract_both(const string& name)
 		}
 		else if (is_video_chunk())
 		{
-			byte* data = new byte[get_chunk_size()];
-			read_chunk(data);
-			vqa_d.decode_vqfr_chunk(data, frame, NULL);
-			delete[] data;
-
-			string filename = name + "_" + to_string(currentFrame) + ".bmp";
-			bitmap_image bmp(cx, cy);
-			byte* red = new byte[cx*cy];
-			byte* green = new byte[cx*cy];
-			byte* blue = new byte[cx*cy];
-			for (int j = 0; j < cx * cy; j++)
+			if (get_cbits_pixel() == 8)
 			{
+				printf("Unsupported video frame!\n");
+			}
+			else
+			{
+				byte* data = new byte[get_chunk_size()];
+				read_chunk(data);
+				vqa_d.decode_vqfr_chunk(data, frame, NULL);
+				delete[] data;
+
+				/*string filename = name + "_" + to_string(currentFrame) + ".bmp";
+				bitmap_image bmp(cx, cy);
+				byte* red = new byte[cx*cy];
+				byte* green = new byte[cx*cy];
+				byte* blue = new byte[cx*cy];
+				for (int j = 0; j < cx * cy; j++)
+				{
 				red[j] = frame[j * 3];
 				green[j] = frame[j * 3 + 1];
 				blue[j] = frame[j * 3 + 2];
-			}
-			bmp.import_rgb(red, green, blue);
-			bmp.save_image(filename);
-			delete[] red;
-			delete[] green;
-			delete[] blue;
-			// Raw frame in here (frame)
+				}
+				bmp.import_rgb(red, green, blue);
+				bmp.save_image(filename);
+				delete[] red;
+				delete[] green;
+				delete[] blue;*/
+				// Raw frame in here (frame)
 
-			currentFrame++;
+				currentFrame++;
+			}
 		}
 		else if (is_audio_chunk())
 		{
@@ -123,10 +188,7 @@ int Cvqa_file::extract_both(const string& name)
 			int size = get_chunk_size();
 			if (get_chunk_id() >> 24 == '0')
 			{
-				e.c_samples = size >> 1;
-				e.audio = new short[size / 2];
-				read_chunk(e.audio);
-				size /= 4;
+				printf("Unsupported audio frame!\n");
 			}
 			else
 			{
@@ -138,13 +200,132 @@ int Cvqa_file::extract_both(const string& name)
 			}
 			cs_remaining += e.c_samples;
 			audio.write((char*)e.audio, 2 * e.c_samples);
+
+			LPVOID  lpvPtr1;
+			DWORD dwBytes1;
+			LPVOID  lpvPtr2;
+			DWORD dwBytes2;
+
+			HRESULT result = directSoundBuffer->Lock(dwOffset, 2 * e.c_samples, &lpvPtr1, &dwBytes1, &lpvPtr2, &dwBytes2, NULL);
+			if (DSERR_INVALIDPARAM == result)
+			{
+				dwOffset = 0;
+				result = directSoundBuffer->Lock(dwOffset, 2 * e.c_samples, &lpvPtr1, &dwBytes1, &lpvPtr2, &dwBytes2, NULL);
+			}
+			if (DSERR_BUFFERLOST == result)
+			{
+				result = directSoundBuffer->Restore();
+				result = directSoundBuffer->Lock(dwOffset, 2 * e.c_samples, &lpvPtr1, &dwBytes1, &lpvPtr2, &dwBytes2, NULL);
+			}
+			if (SUCCEEDED(result))
+			{
+				memset(lpvPtr1, 0, dwBytes1);
+				memcpy(lpvPtr1, e.audio, dwBytes1);
+				dwOffset = dwOffset + dwBytes1;
+				if (dwOffset >= directSoundBufferDescription.dwBufferBytes)
+				{
+					dwOffset = 0;
+				}
+				if (NULL != lpvPtr2)
+				{
+					memset(lpvPtr2, 0, dwBytes2);
+					memcpy(lpvPtr2, e.audio + dwBytes1, dwBytes2);
+					dwOffset = dwBytes2;
+				}
+				//printf("WROTE DATA TO DSOUND");
+				directSoundBuffer->Unlock(lpvPtr1, dwBytes1, lpvPtr2, dwBytes2);
+
+				soundBytesOnFrame = soundBytesOnFrame + (2 * e.c_samples);
+
+				dword playCursor;
+				dword writeCursor;
+
+				result = directSoundBuffer->GetCurrentPosition(&playCursor, &writeCursor);
+
+				if (SUCCEEDED(result))
+				{
+					int newDelay = 0;
+					if (dwOffset < writeCursor)
+					{
+						newDelay = (directSoundBufferDescription.dwBufferBytes - writeCursor) + dwOffset;
+					}
+					else
+					{
+						newDelay = dwOffset - writeCursor;
+					}
+					int change = newDelay - delayT;
+					delayT = delayT + change;
+					if (isPlaying)
+					{
+						if (!defaultTOTALset)
+						{
+							defaultTOTAL = changesTOTAL;
+							defaultTOTALset = true;
+						}
+						else
+						{
+							changesTOTAL = changesTOTAL + change;
+						}
+					}
+					assert(delayT = newDelay);
+				}
+			}
+			else
+			{
+				printf("SOME DSOUND FAIL\n");
+			}
 		}
 		else
 		{
 			skip_chunk();
 		}
+
+
+		// We need to wait for the next frame
+		while (previousFrame < currentFrame)
+		{
+			dword currentTime = timeGetTime();
+			// We adjust frame rate based on sound stream (and it's lag)
+			int adjust = 0;
+			if (defaultTOTALset)
+			{
+				adjust = changesTOTAL - defaultTOTAL;
+				if (adjust < -soundBytesOnFrame)
+				{
+					adjust = -soundBytesOnFrame;
+				}
+				if (adjust > soundBytesOnFrame)
+				{
+					adjust = soundBytesOnFrame;
+				}
+				printf("ADJUST: %d\n", adjust);
+			}
+			dword frameRate = (1000 * (soundBytesOnFrame + adjust)) / waveFormat.nAvgBytesPerSec;
+			if (currentTime - startTime >= frameRate)
+			{
+				if (!isPlaying)
+				{
+					directSoundBuffer->Play(0, 0, DSBPLAY_LOOPING);
+					isPlaying = true;
+				}
+				soundBytesOnFrame = 0;
+				startTime = timeGetTime();
+				break;
+			}
+			dword toSleep = dword(frameRate) - (currentTime - startTime);
+			if (toSleep > 0)
+			{
+				Sleep(toSleep);
+			}
+		}
 	}
 	delete[] frame;
+	if (isPlaying)
+	{
+		directSoundBuffer->Stop();
+	}
+	directSoundBuffer->Release();
+	directSoundObj->Release();
 
 	audio.seekp(0, ios::beg);
 	header.file_header.id = wav_file_id;
