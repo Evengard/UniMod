@@ -2,6 +2,7 @@
 #include "stdafx.h"
 
 #include <windows.h>
+#include <shlwapi.h>
 
 LPDIRECTSOUND* noxDsound = (LPDIRECTSOUND*)0x83A1AC;
 
@@ -565,6 +566,11 @@ namespace
 	{
 		std::string filename = getGameDirectory() + "\\MOVIES\\" + param1;
 		strcpy(path, filename.c_str());
+		bool found = PathFileExists(filename.c_str());
+		if (!found)
+		{
+			return 0;
+		}
 		nextVideoFilename = filename;
 		/*Cvqa_file file(filename);
 		LPDIRECTSOUND dsound = *noxDsound;
