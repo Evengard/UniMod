@@ -601,7 +601,7 @@ namespace
 					EndGameReason(0);
 					EndGame();
 				}
-				else if (event.key.keysym.mod & KMOD_ALT)
+				else if (!(event.key.keysym.mod & KMOD_ALT) && !(event.key.keysym.sym == SDLK_LALT) && !(event.key.keysym.sym == SDLK_RALT))
 				{
 					return true;
 				}
