@@ -56,7 +56,7 @@ struct t_list_entry
 	short* audio;
 };
 
-int Cvqa_file::extract_both(const string& name)
+int Cvqa_file::extract_both()
 {
 	LPDIRECTSOUND directSoundObj = NULL;
 	LPDIRECTSOUNDBUFFER directSoundBuffer = NULL;
@@ -78,17 +78,21 @@ int Cvqa_file::extract_both(const string& name)
 	directSoundBufferDescription.dwFlags =
 		DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY
 		| DSBCAPS_GLOBALFOCUS;
-	directSoundBufferDescription.dwBufferBytes = 3 * waveFormat.nAvgBytesPerSec;
+	directSoundBufferDescription.dwBufferBytes = 10 * waveFormat.nAvgBytesPerSec;
 	directSoundBufferDescription.lpwfxFormat = &waveFormat;
 
 	// Initialize DirectSound
-	if (extDsoundObj != NULL)
+	if (extDsoundObj != NULL && *extDsoundObj != NULL)
 	{
-		directSoundObj = extDsoundObj;
+		directSoundObj = *extDsoundObj;
 	}
 	else
 	{
 		DirectSoundCreate(&DSDEVID_DefaultPlayback, &directSoundObj, NULL);
+	}
+	if (extDsoundObj != NULL)
+	{
+		*extDsoundObj = directSoundObj;
 	}
 
 	HWND hWnd = GetForegroundWindow();

@@ -166,7 +166,7 @@ public:
 	int post_open();
 	int extract_as_pcx(const string& name);
 	int extract_as_wav(const string& name);
-	int extract_both(const string& name);
+	int extract_both();
 	int read_chunk_header();
 	int read_chunk(void* data);
 	void set_empty_chunk();
@@ -178,7 +178,7 @@ public:
 		decodeCallback = cb;
 	}
 	
-	void register_dsound(LPDIRECTSOUND dsound)
+	void register_dsound(LPDIRECTSOUND* dsound)
 	{
 		extDsoundObj = dsound;
 	}
@@ -287,6 +287,6 @@ private:
 	ifstream fileStream;
 	size_t fileSize;
 	size_t currentPosition;
-	LPDIRECTSOUND extDsoundObj;
+	LPDIRECTSOUND* extDsoundObj;
 	int(*decodeCallback)(byte* frame, dword cx, dword cy);
 };

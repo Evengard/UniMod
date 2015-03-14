@@ -751,12 +751,14 @@ namespace
 	static int PlayMovie(void* args)
 	{
 		Cvqa_file file(nextVideoFilename);
-		LPDIRECTSOUND dsound = *noxDsound;
-		file.register_dsound(dsound);
+		file.register_dsound(noxDsound);
 		file.register_decode(&PlayMovieCallback);
 		file.post_open();
 		bool valid = file.is_valid();
-		file.extract_both(nextVideoFilename);
+		if (valid)
+		{
+			file.extract_both();
+		}
 		return 1;
 	}
 }
