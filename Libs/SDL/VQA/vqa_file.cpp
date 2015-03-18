@@ -28,6 +28,11 @@ Cvqa_file::Cvqa_file(string filename)
 
 bool Cvqa_file::is_valid()
 {
+	if (!fileStream.good())
+	{
+		return false;
+	}
+	
 	int size = get_size(); // Filesize
 	/*
 	if (get_data())

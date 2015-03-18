@@ -705,10 +705,9 @@ namespace
 			dstPixelData += dstPitch;
 		}
 
-		delete[] frame565;
-
 		SDL_UnlockTexture(textureVid);
 
+		delete[] frame565;
 
 		// Center the scaled image on the screen if it doesn't take up X or Y fully
 
