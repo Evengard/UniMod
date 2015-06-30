@@ -725,3 +725,4 @@
 /Libs/VQA.lib
 /Libs/SDL/VQA/Release/VQA_XCC.Build.CppClean.log
 /Libs/SDL/VQA/Debug/VQA_XCC.Build.CppClean.log
+/ipch/unimod2-11107902/*.ipch

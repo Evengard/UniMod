@@ -38,6 +38,8 @@ extern void netSendChatMessage(char *sendChat, int sendTo, short sendFrom=0, boo
 extern byte authorisedState[0x20];
 extern bool specialAuthorisation; //Отключение альтернативной авторизации
 
+u_int hostIdx = 0x1F;
+
 extern void replayEachFrame();
 
 char* gameDirectory;
@@ -1413,6 +1415,9 @@ void injectCon()
 	VirtualProtect(bt4,2,PAGE_EXECUTE_READWRITE,&OldProtect);
 	memcpy((byte*)bt4,&OperatorNop,2); // чиним прожорливость Нокса и архитектурный изъян.
 	VirtualProtect(bt4,2,OldProtect,&OldProtect);
+
+	// Убиваем (или чиним?...) сисоп-закладку:
+	InjectAddr(0x444158 + 1, &hostIdx);
 
 	registerclient("getGameDirectory", &getGameDirectoryL);
 	registerclient("getNormalizedPath", &getNormalizedPathL);
