@@ -12,7 +12,6 @@
 #include <winsock2.h>
 #pragma comment(lib,"wsock32.lib")
 #pragma comment (lib, "Ws2_32.lib")
-#define snprintf _snprintf_s
 #define S_ISREG(x) (0!=((x) & S_IFREG ))
 #define S_ISDIR(x) (0!=((x) & S_IFDIR ))
 
@@ -186,12 +185,12 @@ int process(SOCKET f)
     len = strlen(path);
     if (len == 0 || path[len - 1] != '/')
     {
-      snprintf(pathbuf, sizeof(pathbuf), "Location: %s/", path);
+		_snprintf_s(pathbuf, sizeof(pathbuf), "Location: %s/", path);
       send_error(f, 302, "Found", pathbuf, "Directories must end with a slash.");
     }
     else
     {
-      snprintf(pathbuf, sizeof(pathbuf), "%sindex.html", path);
+		_snprintf_s(pathbuf, sizeof(pathbuf), "%sindex.html", path);
       if (stat(pathbuf, &statbuf) >= 0)
         send_file(f, pathbuf, &statbuf);
       else

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -15,18 +15,19 @@
     <ProjectGuid>{524F9888-4C22-461A-81F5-F46DDAAAE4FA}</ProjectGuid>
     <RootNamespace>UniMod</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -48,12 +49,14 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\uni\git\UniMod\Libs\SDL\SDL2_ttf-2.0.12;D:\uni\git\UniMod\Libs\SDL\SDL2-2.0.3\include;$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(SolutionDir)Libs\SDL\SDL2_ttf-2.0.12;$(SolutionDir)Libs\SDL\SDL2-2.0.8\include;$(UniversalCRT_IncludePath);$(IncludePath)</IncludePath>
     <EmbedManifest>false</EmbedManifest>
+    <LibraryPath>$(UniversalCRT_LibraryPath_x86);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>D:\uni\git\UniMod\Libs\SDL\SDL2_ttf-2.0.12;D:\uni\git\UniMod\Libs\SDL\SDL2-2.0.3\include;$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Libs\LuaJIT-2.0.3\src;$(SolutionDir)Libs\SDL\SDL2_ttf-2.0.12;$(SolutionDir)Libs\SDL\SDL2-2.0.8\include;$(UniversalCRT_IncludePath);$(IncludePath)</IncludePath>
     <EmbedManifest>false</EmbedManifest>
+    <LibraryPath>$(UniversalCRT_LibraryPath_x86);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -68,20 +71,22 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Shlwapi.lib;User32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shlwapi.lib;User32.lib;Psapi.lib;msvcrtd.lib;vcruntimed.lib;ucrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AddModuleNamesToAssembly>%(AddModuleNamesToAssembly)</AddModuleNamesToAssembly>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <BaseAddress>0x36900000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
       <FixedBaseAddress>false</FixedBaseAddress>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
-      <IgnoreSpecificDefaultLibraries>LIBCMT.LIB</IgnoreSpecificDefaultLibraries>
-      <IgnoreAllDefaultLibraries>
-      </IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -95,20 +100,17 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Shlwapi.lib;User32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shlwapi.lib;User32.lib;Psapi.lib;msvcrt.lib;vcruntime.lib;ucrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\$(ProjectName).dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <BaseAddress>0x36900000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
       <FixedBaseAddress>false</FixedBaseAddress>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
-      <IgnoreSpecificDefaultLibraries>LIBCMTD.lib</IgnoreSpecificDefaultLibraries>
-      <IgnoreAllDefaultLibraries>
-      </IgnoreAllDefaultLibraries>
       <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
     </Link>
     <Manifest>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -233,9 +235,9 @@
   <ItemGroup>
     <Library Include="Libs\freetype.lib" />
     <Library Include="Libs\libpng.lib" />
+    <Library Include="Libs\luajit.lib" />
     <!--<Library Include="LibVer.lib" />-->
     <!--<Library Include="Libs\lua51static_mt.lib" />-->
-    <Library Include="Libs\luajit.lib" />
     <Library Include="Libs\SDL2.lib" />
     <Library Include="Libs\SDL2_ttf.lib" />
     <Library Include="Libs\socket.lib" />

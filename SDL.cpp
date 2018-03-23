@@ -1,5 +1,10 @@
 #include "Libs\SDL\VQA\vqa_file.h"
-#include "stdafx.h"
+
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 #include <windows.h>
 #include <shlwapi.h>
@@ -117,11 +122,6 @@ namespace
 	int(__cdecl * noxDrawRectAlpha) (int xLeft, int yTop, int width, int height) = (int(__cdecl *) (int xLeft, int yTop, int width, int height)) 0x0049CF10;
 	int(__cdecl *consolePrint) (int Color, wchar_t *Text) = (int(__cdecl *)(int Color, wchar_t *Text)) 0x00450B90;
 
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <stdio.h>
 
 	SDL_Window* window = NULL;
 	SDL_Renderer* renderer = NULL;
@@ -874,3 +874,6 @@ void initSDL()
 		}
 	}
 }
+
+
+#include "stdafx.h"

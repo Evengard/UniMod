@@ -224,13 +224,29 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Libs\libpng.lib" />
-    <Library Include="Libs\zlib.lib" />
-    <Library Include="Libs\socket.lib" />
-    <Library Include="Libs\luajit.lib" />
-    <Library Include="Libs\freetype.lib" />
-    <Library Include="Libs\SDL2.lib" />
-    <Library Include="Libs\SDL2_ttf.lib" />
-    <Library Include="Libs\VQA.lib" />
+    <Library Include="Libs\freetype.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="Libs\libpng.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="Libs\SDL2.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="Libs\SDL2_ttf.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="Libs\socket.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="Libs\VQA.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="Libs\zlib.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="Libs\luajit.lib">
+      <Filter>lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>
