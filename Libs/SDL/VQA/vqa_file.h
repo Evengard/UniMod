@@ -136,14 +136,13 @@ const __int32 vqa_vqfr_id = *(__int32*)"VQFR";
 
 inline __int32 reverse(__int32 v)
 {
-	_asm
-	{
-		mov		eax, v
-			xchg	al, ah
-			rol		eax, 16
-			xchg	al, ah
-			mov		v, eax
-	}
+    __int32 v2 = v;
+    byte* vp = (byte*)& v;
+    byte* v2p = (byte*)& v2;
+    vp[0] = v2p[3];
+    vp[1] = v2p[2];
+    vp[2] = v2p[1];
+    vp[3] = v2p[0];
 	return v;
 }
 

@@ -22,162 +22,110 @@ void convert_palet_18_to_24(t_palet palet)
 	convert_palet_18_to_24(palet, palet);
 }
 
+unsigned int fvqa_format80decompress(const byte image_in[], byte image_out[], int mod)
+{
+    unsigned char* Source = (byte*)image_in;
+    unsigned char* Dest = image_out;
+    unsigned int Sp = 0;
+    unsigned int len = 0;// Dp;
+    unsigned int Dp = 0;
+    unsigned char com;
+    unsigned int Count;
+    unsigned int Posit;
+
+    do
+    {
+        com = Source[Sp];
+        Sp++;
+        unsigned char b7 = com >> 7;
+        if (b7 == 0) //command 2
+        {
+            Count = ((com & 0x70) >> 4) + 3;
+            Posit = ((com & 0x0f) << 8) + Source[Sp];
+            Sp++;
+            Posit = Dp - Posit;
+            for (unsigned int i = Posit; i < (Posit + Count); i++)
+            {
+                //Dest = (unsigned char*)realloc(Dest, Dp + 1);
+                Dest[Dp] = Dest[i];
+                Dp++;
+            }
+        }
+        else if (b7 == 1) //command 1
+        {
+            unsigned char b6 = (com & 0x40) >> 6;
+            if (b6 == 0)
+            {
+                Count = com & 0x3f;
+                if (Count == 0) break;
+                for (unsigned int i = 0; i < Count; i++)
+                {
+                    //Dest = (unsigned char*)realloc(Dest, Dp + 1);
+                    Dest[Dp] = Source[Sp];
+                    Sp++;
+                    Dp++;
+                }
+            }
+            else if (b6 == 1)
+            {
+                Count = com & 0x3f;
+                if (Count < 0x3e) //command 3
+                {
+                    Count += 3;
+                    if (mod) //check version
+                        Posit = Dp - (Source[Sp + 1] * 256 + Source[Sp]);
+                    else
+                        Posit = Source[Sp + 1] * 256 + Source[Sp];
+                    Sp += 2;
+                    for (unsigned int i = Posit; i < (Posit + Count); i++)
+                    {
+                        //Dest = (unsigned char*)realloc(Dest, Dp + 1);
+                        Dest[Dp] = Dest[i];
+                        Dp++;
+                    }
+                }
+                else if (Count == 0x3f) //command 5
+                {
+                    Count = Source[Sp + 1] * 256 + Source[Sp];
+                    if (mod) //check version
+                        Posit = Dp - (Source[Sp + 3] * 256 + Source[Sp + 2]);
+                    else
+                        Posit = Source[Sp + 3] * 256 + Source[Sp + 2];
+                    Sp += 4;
+                    for (unsigned int i = Posit; i < (Posit + Count); i++)
+                    {
+                        //Dest = (unsigned char*)realloc(Dest, Dp + 1);
+                        Dest[Dp] = Dest[i];
+                        Dp++;
+                    }
+                }
+                else //command 4
+                {
+                    Count = Source[Sp + 1] * 256 + Source[Sp];
+                    Sp += 2;
+                    unsigned char b = Source[Sp];
+                    Sp++;
+                    for (unsigned int i = 0; i < Count; i++)
+                    {
+                        //Dest = (unsigned char*)realloc(Dest, Dp + 1);
+                        Dest[Dp] = b;
+                        Dp++;
+                    }
+                }
+            }
+        }
+    } while (/*Sp < len*/1);  //check for end of inputdata, because not all chunks contain the ending byte
+    return Dp;
+}
+
 int decode80(const byte image_in[], byte image_out[])
 {
-	int cb_out;
-	/*
-	0 copy 0cccpppp p
-	1 copy 10cccccc
-	2 copy 11cccccc p p
-	3 fill 11111110 c c v
-	4 copy 11111111 c c p p
-	*/
-
-	_asm
-	{
-		push	esi
-			push	edi
-			mov		ax, ds
-			mov		es, ax
-			mov		esi, image_in
-			mov		edi, image_out
-		next0 :
-		xor		eax, eax
-			lodsb
-			mov		ecx, eax
-			test	eax, 0x80
-			jnz		c1c
-			shr		ecx, 4
-			add		ecx, 3
-			and		eax, 0xf
-			shl		eax, 8
-			lodsb
-			mov		edx, esi
-			mov		esi, edi
-			sub		esi, eax
-			jmp		copy_from_destination
-		c1c :
-		and		ecx, 0x3f
-			test	eax, 0x40
-			jnz		c2c
-			or		ecx, ecx
-			jz		end0
-			jmp		copy_from_source
-		c2c :
-		xor		eax, eax
-			lodsw
-			cmp		ecx, 0x3e
-			je		c3
-			ja		c4
-			mov		edx, esi
-			mov		esi, image_out
-			add		esi, eax
-			add		ecx, 3
-			jmp		copy_from_destination
-		c3 :
-		mov		ecx, eax
-			lodsb
-			rep		stosb
-			jmp		next0
-		c4 :
-		mov		ecx, eax
-			lodsw
-			mov		edx, esi
-			mov		esi, image_out
-			add		esi, eax
-		copy_from_destination :
-		rep		movsb
-			mov		esi, edx
-			jmp		next0
-		copy_from_source :
-		rep		movsb
-			jmp		next0
-		end0 :
-		sub		edi, image_out
-			mov		cb_out, edi
-			pop		edi
-			pop		esi
-	}
-	return cb_out;
+    return fvqa_format80decompress(image_in, image_out, 0);
 }
 
 int decode80r(const byte image_in[], byte image_out[])
 {
-	int cb_out;
-	/*
-	0 copy 0cccpppp p
-	1 copy 10cccccc
-	2 copy 11cccccc p p
-	3 fill 11111110 c c v
-	4 copy 11111111 c c p p
-	*/
-
-	_asm
-	{
-		push	esi
-			push	edi
-			mov		ax, ds
-			mov		es, ax
-			mov		esi, image_in
-			mov		edi, image_out
-		next0 :
-		xor		eax, eax
-			lodsb
-			mov		ecx, eax
-			test	eax, 0x80
-			jnz		c1c
-			shr		ecx, 4
-			add		ecx, 3
-			and		eax, 0xf
-			shl		eax, 8
-			lodsb
-			mov		edx, esi
-			mov		esi, edi
-			sub		esi, eax
-			jmp		copy_from_destination
-		c1c :
-		and		ecx, 0x3f
-			test	eax, 0x40
-			jnz		c2c
-			or		ecx, ecx
-			jz		end0
-			jmp		copy_from_source
-		c2c :
-		xor		eax, eax
-			lodsw
-			cmp		ecx, 0x3e
-			je		c3
-			ja		c4
-			mov		edx, esi
-			mov		esi, edi
-			sub		esi, eax
-			add		ecx, 3
-			jmp		copy_from_destination
-		c3 :
-		mov		ecx, eax
-			lodsb
-			rep		stosb
-			jmp		next0
-		c4 :
-		mov		ecx, eax
-			lodsw
-			mov		edx, esi
-			mov		esi, edi
-			sub		esi, eax
-		copy_from_destination :
-		rep		movsb
-			mov		esi, edx
-			jmp		next0
-		copy_from_source :
-		rep		movsb
-			jmp		next0
-		end0 :
-		sub		edi, image_out
-			mov		cb_out, edi
-			pop		edi
-			pop		esi
-	}
-	return cb_out;
+    return fvqa_format80decompress(image_in, image_out, 1);
 }
 
 
