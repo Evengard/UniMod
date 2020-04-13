@@ -203,7 +203,7 @@ namespace
 				break;
 			lua_pushvalue(L, -2);
 			lua_pushlightuserdata(L, Armor);
-			lua_pushlightuserdata(L, Armor->prevInventoryObj);
+			lua_pushlightuserdata(L, Armor->inventoryOwner);
 			if (lua_pcall(L, 3, 0, 0) != 0)
 			{
 				break;

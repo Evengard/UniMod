@@ -20,6 +20,9 @@ void (__cdecl *inventoryPut)(bigUnitStruct *Who,bigUnitStruct *What,int A);
 /// список созданных в текущем кадре на сервере
 bigUnitStruct **unitCreatedList;
 
+bigUnitStruct **srvObjGeneralList;
+bigUnitStruct **srvObjMissileList;
+
 extern const char *(__cdecl *noxThingNameByType)(int Type);
 extern int (__cdecl *noxGetUnitsInRect)(FloatRect *Rect, void (__cdecl *SomeFn)(void *Unit, void *Arg), void *Arg);
 
@@ -289,6 +292,59 @@ namespace
 		dropAllItems((bigUnitStruct*)lua_touserdata(L,1));
 		return 1;
 	}
+	bool checkExistsImpl(bigUnitStruct* unit)
+	{
+		if (unit == NULL) 
+		{
+			return false;
+		}
+
+		if (unit->flags & 0x20) // DESTROYED
+		{
+			return false;
+		}
+
+		if (unit->inventoryOwner != NULL)
+		{
+			if (unit->inventoryOwner == unit) // Recursion, something is wrong
+			{
+				return false;
+			}
+			return checkExistsImpl(unit->inventoryOwner);
+		}
+
+		bool result = false;
+		bigUnitStruct* first = *srvObjGeneralList;
+
+		if (unit->Class & 1) // MISSILE
+		{
+			first = *srvObjMissileList;
+		}
+
+		while (first != NULL)
+		{
+			if (first == unit)
+			{
+				result = true;
+				break;
+			}
+			first = (bigUnitStruct*)first->nextUnit;
+		}
+		return result;
+	}
+	int unitCheckExists(lua_State*L)
+	{
+		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		bigUnitStruct* unit = (bigUnitStruct*)lua_touserdata(L, 1);
+		bool result = checkExistsImpl(unit);
+
+		lua_pushboolean(L, result);
+		return 1;
+	}
 	int unitInventoryPut(lua_State*L)
 	{
 		if (
@@ -373,6 +429,8 @@ void unitInit()
 	ASSIGN(noxAgressionLevel,0x00515980);
 	ASSIGN(noxMirrorShot,0x004E0A70);
 	ASSIGN(noxUnitTestBuff,0x004FF350);
+	ASSIGN(srvObjGeneralList, 0x750700);
+	ASSIGN(srvObjMissileList, 0x750704);
 
 	registerserver("unitSetFollow",&unitSetFollowL);
 	registerserver("unitBecomePet",&unitBecomePetL);
@@ -387,6 +445,7 @@ void unitInit()
 	registerserver("unitHunt",&unitHuntL);
 	registerserver("unitSetAgression",&unitAgressionLevel);
 	registerserver("unitTestBuff",&unitTestBuff);
+	registerserver("unitCheckExists",&unitCheckExists);
 
 	registerserver("unitMove",&unitMoveL);
 	registerserver("unitSpeed",&unitSpeedL);

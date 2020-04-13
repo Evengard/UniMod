@@ -194,10 +194,9 @@ struct bigUnitStruct
 	int nextUpdatableUnit;
 	int prevUpdatableUnit;
 	int isInUpdatableList;
-	char unitWeight;
-	char gap_1e9[1];
+	__int16 unitWeight;
 	__int16 unitCapacity;
-	void *prevInventoryObj;
+	bigUnitStruct *inventoryOwner;
 	void *nextInventoryObj;
 	void *prevSome;
 	void *firstInventoryObj;

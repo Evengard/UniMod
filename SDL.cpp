@@ -11,6 +11,7 @@
 
 LPDIRECTSOUND* noxDsound = (LPDIRECTSOUND*)0x83A1AC;
 
+// Do not load SDL because this may cause conflict between new SDL patch and ours
 bool SDL_enabled = false;
 
 extern std::string getGameDirectory();
@@ -767,11 +768,11 @@ extern void InjectOffs(DWORD Addr, void *Fn);
 extern void InjectData(DWORD offset, byte* buff, size_t size);
 void initSDL()
 {
-	// Get the players settings
-	ReadConfigFile();
-
 	if (SDL_enabled)
 	{
+		// Get the players settings
+		ReadConfigFile();
+
 		InjectJumpTo((DWORD)pTrueMessageLoop, &MessageLoop);
 		InjectJumpTo((DWORD)pTrueMouseInit, &MouseInit);
 		InjectJumpTo((DWORD)pTrueGetMouseData, &GetMouseData);

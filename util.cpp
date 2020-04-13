@@ -277,7 +277,7 @@ int setGameFlagsL(lua_State *L)
 }
 int bitOrL(lua_State *L)
 {
-	int R;
+	unsigned int R;
 	if(lua_type(L,1)!=LUA_TNUMBER)
 		return 0;
 	if(lua_type(L,2)!=LUA_TNUMBER)
@@ -288,7 +288,7 @@ int bitOrL(lua_State *L)
 }
 int bitAndL(lua_State *L)
 {
-	int R;
+	unsigned int R;
 	if(lua_type(L,1)!=LUA_TNUMBER)
 		return 0;
 	if(lua_type(L,2)!=LUA_TNUMBER)
@@ -300,7 +300,7 @@ int bitAndL(lua_State *L)
 
 int bitXorL(lua_State *L)
 {
-	int R;
+	unsigned int R;
 	if(lua_type(L,1)!=LUA_TNUMBER)
 		return 0;
 	if(lua_type(L,2)!=LUA_TNUMBER)
@@ -531,6 +531,20 @@ namespace
 		lua_pushinteger(L,  *((BYTE*)P));
 		return 1;
 	}
+	int getPtrUIntL(lua_State *L)
+	{
+		if ( (lua_type(L,1)!=LUA_TLIGHTUSERDATA)||(lua_type(L,2)!=LUA_TNUMBER) )
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		BYTE* P=(BYTE*) lua_touserdata(L,1);
+		if(P==NULL)
+			return 0;
+		P+=lua_tointeger(L,2);
+		lua_pushnumber(L, *((_Uint32t*)P));
+		return 1;
+	}
 	int getPtrIntL(lua_State *L)
 	{
 		if ( (lua_type(L,1)!=LUA_TLIGHTUSERDATA)||(lua_type(L,2)!=LUA_TNUMBER) )
@@ -643,6 +657,31 @@ namespace
 		}
 		VirtualProtect(P,4,PAGE_EXECUTE_READWRITE,&OldProtect);
 		*((int*)P) = lua_tointeger(L,3 );
+		VirtualProtect(P,4,OldProtect,&OldProtect);
+		return 0;
+	}
+	int setPtrUIntL(lua_State *L)
+	{
+		if ( ((lua_type(L,1)!=LUA_TLIGHTUSERDATA)&& (lua_type(L,1)!=LUA_TNIL))
+			||(lua_type(L,2)!=LUA_TNUMBER) 
+			||(lua_type(L,3)!=LUA_TNUMBER))
+		{
+			lua_pushstring(L,"wrong args!");
+			lua_error_(L);
+		}
+		BYTE* P=(BYTE*) lua_touserdata(L,1);
+		if (P==NULL)
+			return 0;
+		P+=lua_tointeger(L,2);
+		DWORD Pt=(DWORD)P;
+		DWORD OldProtect;
+		if( ((lua_type(L,1)==LUA_TNIL)) &&( (Pt<0x400000) || (Pt>0x600000) ) )
+		{
+			lua_pushstring(L,"wrong offset!");
+			lua_error_(L);
+		}
+		VirtualProtect(P,4,PAGE_EXECUTE_READWRITE,&OldProtect);
+		*((_Uint32t*)P) = lua_tointeger(L, 3);
 		VirtualProtect(P,4,OldProtect,&OldProtect);
 		return 0;
 	}
@@ -1184,7 +1223,7 @@ int initWindowedMode(int param1, int param2, int param3)
 void injectCon()
 {
 	initSDL();
-	//MessageBox(0,"!",0,0);
+	//MessageBox(0,"!1",0,0);
 	exInit();
 	initModLib2();
 	luaopen_lpeg (L);
@@ -1278,6 +1317,8 @@ void injectCon()
 	lua_setglobal(L,"getPtrPtr");
 	lua_pushcfunction(L,&getPtrIntL);
 	lua_setglobal(L,"getPtrInt");
+	lua_pushcfunction(L,&getPtrUIntL);
+	lua_setglobal(L,"getPtrUInt");
 	lua_pushcfunction(L,&getPtrFloatL);
 	lua_setglobal(L,"getPtrFloat");
 	lua_pushcfunction(L,&getPtrShortL);
@@ -1286,6 +1327,8 @@ void injectCon()
 	lua_setglobal(L,"setPtrFloat");
 	lua_pushcfunction(L,&setPtrIntL);
 	lua_setglobal(L,"setPtrInt");
+	lua_pushcfunction(L,&setPtrUIntL);
+	lua_setglobal(L,"setPtrUInt");
 	lua_pushcfunction(L,&setPtrPtrL);
 	lua_setglobal(L,"setPtrPtr");
 	lua_pushcfunction(L,&setPtrShortL);
@@ -1393,7 +1436,7 @@ void injectCon()
 	}
 
 
-	//MessageBox(0,"!",0,0);
+	//MessageBox(0,"!2",0,0);
 
 	byte OperatorJmps=0xEB;
 	byte OperatorMovEax1[]={0xB8,0x01,0,0,0};
@@ -1418,6 +1461,7 @@ void injectCon()
 
 	// Убиваем (или чиним?...) сисоп-закладку:
 	InjectAddr(0x444158 + 1, &hostIdx);
+	//MessageBox(0,"!3",0,0);
 
 	registerclient("getGameDirectory", &getGameDirectoryL);
 	registerclient("getNormalizedPath", &getNormalizedPathL);
