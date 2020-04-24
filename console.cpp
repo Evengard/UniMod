@@ -44,8 +44,6 @@ namespace
 		lua_settop(L,Top);
 	}
 
-
-
 	int __declspec(naked) onPrintConsoleTrap()
 	{
 		__asm

@@ -1,8 +1,0 @@
-﻿Build started 13.04.2020 20:55:50.
-     1>Project "C:\Repos\UniMod\Libs\SDL\freetype-2.5.5\builds\windows\vc2010\freetype.vcxproj" on node 2 (Clean target(s)).
-       Project file contains ToolsVersion="15.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="4.0". For more information, please see http://go.microsoft.com/fwlink/?LinkId=291333.
-     1>Done Building Project "C:\Repos\UniMod\Libs\SDL\freetype-2.5.5\builds\windows\vc2010\freetype.vcxproj" (Clean target(s)).
-
-Build succeeded.
-
-Time Elapsed 00:00:00.00

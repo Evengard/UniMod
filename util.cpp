@@ -1220,7 +1220,7 @@ int initWindowedMode(int param1, int param2, int param3)
 	return initWindowedModeNox(param1, param2, param3);
 }
 
-void injectCon()
+void initStepTwo()
 {
 	initSDL();
 	//MessageBox(0,"!1",0,0);
@@ -1388,7 +1388,8 @@ void injectCon()
 	ASSIGN(j_time,0x00416BF0);
 	ASSIGN(consoleTokenCipher, 0x00443BF0);
 
-#include "lua/binClient/clientOnJoin.lua.inc"
+// Removed by angrykirc b/c not needed now
+//#include "lua/binClient/clientOnJoin.lua.inc"
 
 	lua_getfield(L,LUA_REGISTRYINDEX,"client");
 	lua_setfenv(L,-2);
@@ -1405,7 +1406,6 @@ void injectCon()
 
 	//lua_pushnil(L);
 	//lua_setglobal(L,"os");/// выкинуть вон небезопасную таблицу
-
 
 	int topLoad = lua_gettop(L);
 
@@ -1435,9 +1435,6 @@ void injectCon()
 		lua_pcall(L, 0, 0, 0);
 	}
 
-
-	//MessageBox(0,"!2",0,0);
-
 	byte OperatorJmps=0xEB;
 	byte OperatorMovEax1[]={0xB8,0x01,0,0,0};
 	byte OperatorNop[]={0x90,0x90};
@@ -1461,7 +1458,6 @@ void injectCon()
 
 	// Убиваем (или чиним?...) сисоп-закладку:
 	InjectAddr(0x444158 + 1, &hostIdx);
-	//MessageBox(0,"!3",0,0);
 
 	registerclient("getGameDirectory", &getGameDirectoryL);
 	registerclient("getNormalizedPath", &getNormalizedPathL);

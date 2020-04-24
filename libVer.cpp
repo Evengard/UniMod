@@ -7,9 +7,9 @@
 #include <stdio.h>
 #include <objbase.h>
 
-extern void injectCon();
-extern "C" void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E);
-extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E, BYTE *MyPlayer, BYTE *MyUc);
+extern void initStepTwo();
+extern "C" void __cdecl onNetPacketClient(BYTE *&BufStart,BYTE *E);
+extern "C" void __cdecl onNetPacketServer(BYTE *&BufStart,BYTE *E, BYTE *MyPlayer, BYTE *MyUc);
 extern "C" int __cdecl  playerOnTrySpell(bigUnitStruct *Unit,byte *Uc,spellPacket *Pckt);
 extern "C" void conSendToServer(const char *Cmd);
 
@@ -38,7 +38,7 @@ namespace
 			push ebx
 			lea eax, [esp+8-4]
 			push eax
-			call onNetPacket
+			call onNetPacketClient
 			add esp, 8
 			pop ebp
 			cmp ebp, ebx
@@ -64,7 +64,7 @@ namespace
 			lea  eax, [esp+0Ch-4]
 			push ecx
 			push eax
-			call onNetPacket2
+			call onNetPacketServer
 			add esp, 10h
 			pop esi
 			cmp esi, [esp+2Ch]
@@ -147,7 +147,7 @@ namespace
 
 		lua_pushcclosure(L, delayedConL, 0);
 		lua_setfield(L, LUA_REGISTRYINDEX, "delayedCon");
-		injectCon();
+		initStepTwo();
 
 		__asm
 		{

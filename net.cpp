@@ -314,24 +314,6 @@ namespace {
 		netSendAll(&RP,sizeof(RP));
 		return 0;
 	}
-	int netFake(lua_State *L) 
-			/// высылает сообщение о смерти, но от этого помирает нокс 
-	{
-		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
-		{
-			lua_pushstring(L,"wrong args!");
-			lua_error_(L);
-		}
-	
-		struct {
-			BYTE Pckt;
-			USHORT Code;
-		} B={0xE8,netGetUnitCodeServ(lua_touserdata(L,-1))};
-
-		netSendAll(&B,sizeof(B));
-
-		return 0;
-	}
 	
 	// Отправляет всем клиентам сообщение о смерти игрока.
 	// Аргументы: игрок, атакующий, ассист
@@ -858,7 +840,7 @@ void netRegServPacket(uniPacket_e Event,netServFn_s Fn)
 {
 	ServerRegMap.insert(std::make_pair(Event,Fn));
 }
-extern "C" void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E);
+extern "C" void __cdecl onNetPacketClient(BYTE *&BufStart,BYTE *E);
 
 
 
@@ -871,7 +853,7 @@ void netUniPacket(uniPacket_e Code,BYTE *&Data,int Size)/// Отправить наш пакет
 extern void netOnWallChanged(wallRec *newData);
 extern void netOnSendArchive(int Size,char *Name,char *NameE);
 extern void netOnAbortDownload();
-void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
+void __cdecl onNetPacketClient(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
 {
 	bool found=true;
 	// ВНИМАНИЕ! Для всех ВЫФИЛЬТРОВЫВАЕМЫХ пакетов - обязательно ставьте found=true! Иначе не будет производиться обработка других пакетов в ЭТОМ же фрейме!
@@ -966,7 +948,7 @@ extern char *(__cdecl *mapGetName)();
 extern void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *MyUc);
 
 extern void netOnClientTryUse(BYTE *Start,BYTE *End,BYTE *MyUc,void *Player);
-extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
+extern "C" void __cdecl onNetPacketServer(BYTE *&BufStart,BYTE *E,
 		BYTE *MyPlayer, /// bigUnitStruct
 		BYTE *MyUc)/// Полученые сервером
 {
@@ -1283,22 +1265,23 @@ void netInit()
 
 	registerserver("netReportCharges",&netReportChargesL);
 	registerserver("netClientPrint",&netDoPrintConsoleL);
-	registerserver("netFake",&netFake);
+	//registerserver("netFake",&netFake); // crashes client
 	
 	registerserver("netMsgPlrDied",&playerDeathL);
 	registerserver("netMsgBox", &netSendMessageBoxL);
 	registerserver("netParticleFx", &netTestParticleL);
-	registerserver("netSpriteIntensity", &netTestIntensityL);
-	registerserver("netSpriteColor", &netTestColorL);
+	// research is not complete yet; messes up client
+	//registerserver("netSpriteIntensity", &netTestIntensityL);
+	//registerserver("netSpriteColor", &netTestColorL);
 	
 	registerserver("sendChat",&sendChat);
 	registerclient("netGetVersion",netGetVersion);
 	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
 	registerclient("netSendFx",&netSendFx);
-	char Buf[40]="";
-	sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
+	//char Buf[40]="";
+	//sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
+	//registerclient(Buf,&sendToServer);
 
 	registerclient("netRename",&netRename);
-	registerclient(Buf,&sendToServer);
-}
+}	
 

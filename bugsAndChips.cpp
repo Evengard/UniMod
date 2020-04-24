@@ -355,9 +355,37 @@ void topicOverrideInit()
 	//InjectData(0x0040C29B, nop, 2);
 }
 
+
+// This function is executed whenever another player is attempting to join our server
+void *(__cdecl *playerNew_4DD320)(int playerId, char *incBuffer);
+void *__cdecl playerDataJoinHook(int playerId, char *incBuffer)
+{
+	// Check if nickname starts with invalid character
+	if (incBuffer[0] <= 0x1F)
+	{
+		wcscpy((wchar_t*)incBuffer, L"Jack\0");
+		conPrintI("[UniMod] Bugged player name detected");
+	}
+
+	// Check if player class is invalid
+	if (incBuffer[0x42] >= 3)
+	{
+		incBuffer[0x42] = 0;
+		conPrintI("[UniMod] Bugged player class detected");
+	}
+
+	// Check if desired player object is invalid
+	if (incBuffer[0x43] > 0)
+	{
+		incBuffer[0x43] = 0;
+		conPrintI("[UniMod] Bugged player object detected");
+	}
+
+	return playerNew_4DD320(playerId, incBuffer);
+}
+
 void bugsInit()
 {
-
 	ASSIGN(wndSummonUsed,0x00716E88);
 
 	ASSIGN(creatureSummonCommandAll,0x005B4080);
@@ -368,7 +396,6 @@ void bugsInit()
 
 	ASSIGN(wndSummonCreateList,0x004C2560);
 	ASSIGN(cliSummondWndLoad,0x004C2E50);
-
 
 	InjectJumpTo(0x004E1C8A,&asmDeathBallBugGs);
 	InjectJumpTo(0x004E1BD6,&asmDeathBallBugSh);
@@ -383,4 +410,11 @@ void bugsInit()
 //	InjectJumpTo(0x0052C7CD,&asmFixCastFireball);
 
 	topicOverrideInit();
+
+	bool checkPlayerJoinData=true; // TODO: convert all similar hardcoded-switches into #defines in a separate file
+	if (checkPlayerJoinData)
+	{
+		InjectOffs(0x0051CEB8 + 1, &playerDataJoinHook);
+	}
+	ASSIGN(playerNew_4DD320, 0x4DD320);
 }
