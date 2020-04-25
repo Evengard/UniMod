@@ -8,6 +8,12 @@
 /Libs/LuaJIT-2.0.3/src/luajit.exe
 /Libs/LuaJIT-2.0.3/src/luajit.log
 /Libs/LuaJIT-2.0.3/src/jit/vmdef.lua
+/Libs/LuaJIT-2.0.3/src/lj_bcdef.h
+/Libs/LuaJIT-2.0.3/src/lj_ffdef.h
+/Libs/LuaJIT-2.0.3/src/lj_folddef.h
+/Libs/LuaJIT-2.0.3/src/lj_libdef.h
+/Libs/LuaJIT-2.0.3/src/lj_recdef.h
+/Libs/LuaJIT-2.0.3/src/jit/vmdef.lua
 /Libs/SDL/SDL2-2.0.3/VisualC/SDL/Win32/Debug/
 /Libs/SDL/SDL2_ttf-2.0.12/VisualC/Win32/Debug/
 /Libs/SDL/SDL2-2.0.3/VisualC/SDL/Win32/Release/
@@ -27,6 +33,8 @@
 /UniModNew.opensdf
 /UniModNew.sdf
 /*.suo
+*.user
+/Libs/*.md
 /ipch
 /Libs/SDL/SDL2-2.0.8/VisualC/SDL/Win32/Release/
 /Libs/SDL/SDL2-2.0.8/VisualC/SDL/Win32/Debug/
@@ -34,6 +42,6 @@
 /Libs/SDL/SDL2_ttf-2.0.12/VisualC/Win32/Debug/
 /Libs/SDL/VQA/Debug/
 /Libs/SDL/VQA/Release/
-/Libs/VQA.lib
+/Libs/*.lib
 /Libs/SDL/VQA/Release/
 /Libs/SDL/VQA/Debug/

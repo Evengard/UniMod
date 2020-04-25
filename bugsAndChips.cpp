@@ -355,33 +355,44 @@ void topicOverrideInit()
 	//InjectData(0x0040C29B, nop, 2);
 }
 
-
-// This function is executed whenever another player is attempting to join our server
-void *(__cdecl *playerNew_4DD320)(int playerId, char *incBuffer);
-void *__cdecl playerDataJoinHook(int playerId, char *incBuffer)
+int (__cdecl *netOnPacketRecvServ)(int playerId, char *packet, int length);
+// Validates incoming player data in order to prevent rogue players crashing the server
+int __cdecl netOnPacketRecvServ_Hook(int playerId, char *packet, int length)
 {
-	// Check if nickname starts with invalid character
-	if (incBuffer[0] <= 0x1F)
+	if (*packet == 0x20 && length < 0x9A)
 	{
-		wcscpy((wchar_t*)incBuffer, L"Jack\0");
-		conPrintI("[UniMod] Bugged player name detected");
+		char test[60];
+		sprintf(test,"[UniMod] Wrong player data len detected: 0x%X", length);
+		conPrintI(test);
+		// Go away, little bugger
+		return 0;
+	}
+
+	packet++;
+	// Check if nickname starts with invalid character
+	if (packet[0] <= 0x1F)
+	{
+		wcscpy((wchar_t*)packet, L"Jack\0");
+		conPrintI("[UniMod] Bugged player name was detected!");
 	}
 
 	// Check if player class is invalid
-	if (incBuffer[0x42] >= 3)
+	if (packet[0x42] >= 3)
 	{
-		incBuffer[0x42] = 0;
-		conPrintI("[UniMod] Bugged player class detected");
+		packet[0x42] = 0;
+		conPrintI("[UniMod] Bugged player class was detected!");
 	}
 
-	// Check if desired player object is invalid
-	if (incBuffer[0x43] > 0)
+	// Check if player object requested by client is invalid
+	if (packet[0x43] > 0)
 	{
-		incBuffer[0x43] = 0;
-		conPrintI("[UniMod] Bugged player object detected");
+		packet[0x43] = 0;
+		conPrintI("[UniMod] Bugged player object was detected!");
 	}
+	packet--;
 
-	return playerNew_4DD320(playerId, incBuffer);
+	// Carry on
+	return netOnPacketRecvServ(playerId, packet, length);
 }
 
 void bugsInit()
@@ -400,21 +411,23 @@ void bugsInit()
 	InjectJumpTo(0x004E1C8A,&asmDeathBallBugGs);
 	InjectJumpTo(0x004E1BD6,&asmDeathBallBugSh);
 
-	InjectJumpTo(0x004C2BC7,&asmConjSummonEnotherCmp); // делаем возможность ПКМ
-	InjectJumpTo(0x004C2BB6,&asmConjSummonDo); // ставим вместо списка наши 2 прикольные штуки
-	InjectJumpTo(0x0049179A,&asmConjSummonCreate);
-	InjectJumpTo(0x004C2ACC,&asmConjSummonDoAll);
-	InjectJumpTo(0x004C3147,&asmConjSummonDieOrBanish);
-	InjectJumpTo(0x004C1FA1,&asmConjSummonLoadWnd);
-
-//	InjectJumpTo(0x0052C7CD,&asmFixCastFireball);
-
-	topicOverrideInit();
-
-	bool checkPlayerJoinData=true; // TODO: convert all similar hardcoded-switches into #defines in a separate file
-	if (checkPlayerJoinData)
+	bool conjurerSummonCmdImprovements=false;
+	if (conjurerSummonCmdImprovements)
 	{
-		InjectOffs(0x0051CEB8 + 1, &playerDataJoinHook);
+		InjectJumpTo(0x004C2BC7,&asmConjSummonEnotherCmp); // делаем возможность ПКМ
+		InjectJumpTo(0x004C2BB6,&asmConjSummonDo); // ставим вместо списка наши 2 прикольные штуки
+		InjectJumpTo(0x0049179A,&asmConjSummonCreate);
+		InjectJumpTo(0x004C2ACC,&asmConjSummonDoAll);
+		InjectJumpTo(0x004C3147,&asmConjSummonDieOrBanish);
+		InjectJumpTo(0x004C1FA1,&asmConjSummonLoadWnd);
 	}
-	ASSIGN(playerNew_4DD320, 0x4DD320);
+
+	//InjectJumpTo(0x0052C7CD,&asmFixCastFireball);
+
+	bool filterPlayerJoinData=true; // TODO: convert all similar hardcoded-switches into #defines in a separate file
+	if (filterPlayerJoinData)
+	{
+		InjectOffs(0x4DEC40 + 1, &netOnPacketRecvServ_Hook);
+	}
+	ASSIGN(netOnPacketRecvServ, 0x51BAD0);
 }
