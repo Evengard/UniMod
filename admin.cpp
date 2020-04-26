@@ -1127,7 +1127,6 @@ namespace
 		}
 		return result;
 	}
-
 }
 extern "C" void adminInit(lua_State *L);
 extern void authInit(lua_State *L);

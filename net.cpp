@@ -4,7 +4,7 @@
 #include <string.h>
 #include <math.h>
 
-int UnimodVersion=010601;/// 00.06.01 
+int UnimodVersion=010602;/// 00.06.02
 
 void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
 								void *Buf,int BufSize);
@@ -752,8 +752,6 @@ namespace {
 		netSendServ(Buf,Pt-Buf);
 	}
 
-	
-
 	int netVersionRq(lua_State*L)
 	{
 		lua_settop(L,1);
@@ -945,9 +943,12 @@ extern char *(__cdecl *mapGetName)();
 		}
 	}
 }
+extern int (__cdecl *playerKickByIdx)(int playerIdx, int unknownArg);
 extern void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *MyUc);
-
 extern void netOnClientTryUse(BYTE *Start,BYTE *End,BYTE *MyUc,void *Player);
+extern bool processChatMessage(int playerId, char *string, bool teamMsg);
+extern bool processSpecialAuth(byte playerIdx, char* message);
+
 extern "C" void __cdecl onNetPacketServer(BYTE *&BufStart,BYTE *E,
 		BYTE *MyPlayer, /// bigUnitStruct
 		BYTE *MyUc)/// Полученые сервером
@@ -958,7 +959,73 @@ extern "C" void __cdecl onNetPacketServer(BYTE *&BufStart,BYTE *E,
 	{
 		found=false;
 		BYTE *P=BufStart;
-		if (*P==0x3F && specialAuthorisation==true)
+
+		if (*P == 0xA8) // MSG_TEXT_MESSAGE
+		{
+			void **PP=(void **)(((char*)MyPlayer)+0x2EC);
+			if (*PP == NULL) continue; // idk
+			PP=(void**)(((char*)*PP)+0x114);
+			byte *Pl=(byte*)(*PP);
+			byte playerIdx = *((byte*)(Pl+0x810));
+
+			bool longStr = P[3] & 2 == 0;
+			bool teamMsg = P[3] & 1;
+			byte length = P[8];
+			byte reallen;
+			char msg[255];
+			
+			// Detect and fix buffer overflows, also convert wide strings to short
+			if (longStr)
+			{
+				reallen = wcsnlen_s((wchar_t*)(P+0xB), 254);
+				wcstombs(msg, (wchar_t*)(P+0xB), reallen + 1);
+				msg[254] = 0;
+			}
+			else 
+			{
+				reallen = strnlen_s((char*)P+0xB, 254);
+				msg[254] = 0;
+				strcpy_s(msg, reallen + 1, (char*)P+0xB);
+			}
+			reallen++; // null-term
+
+			if (length != reallen)
+			{
+				// Oops, something went wrong
+				BufStart = E;
+				playerKickByIdx(playerIdx, 2);
+				return;
+			}
+
+			if (specialAuthorisation) // Authorization packets
+			{
+				if (processSpecialAuth(playerIdx, msg))
+				{
+					if (longStr)
+						BufStart += length * 2 + 0xB;
+					else
+						BufStart += length + 0xB;
+
+					found = true;
+					continue;
+				}
+			}
+
+			// Not an auth packet; pass on to Unimod
+			if (!processChatMessage(playerIdx, msg, teamMsg))
+			{
+				if (longStr)
+					BufStart += length * 2 + 0xB;
+				else
+					BufStart += length + 0xB;
+
+				found = true;
+				continue;
+			}
+			// Pass on to default handler
+		}
+
+		if (*P==0x3F && specialAuthorisation==true) // MSG_PLAYER_INPUT
 		{
 			void **PP=(void **)(((char*)MyPlayer)+0x2EC);
 			PP=(void**)(((char*)*PP)+0x114);
@@ -979,161 +1046,21 @@ extern "C" void __cdecl onNetPacketServer(BYTE *&BufStart,BYTE *E,
 						break;
 				}
 		}
-		else if(*P==0xA8 && specialAuthorisation==true)
+		else if(*P==0xBB && specialAuthorisation==true && ((char)P[0x4])>0) // MSG_SERVER_CMD
 		{
-			
 			void **PP=(void **)(((char*)MyPlayer)+0x2EC);
 			PP=(void**)(((char*)*PP)+0x114);
 			byte *Pl=(byte*)(*PP);
 			byte playerIdx = *((byte*)(Pl+0x810));
-			char *authCmd="//auth ";
-			int cmdTokenL=0;
-			if(strncmp((char*)&P[0xB], authCmd, ((BufStart[0x8]>strlen(authCmd))?(strlen(authCmd)):(BufStart[0x8])))==0)
-				cmdTokenL=strlen(authCmd);
-			if(playerIdx!=0x1F && authorisedState[playerIdx]>=0 && authorisedState[playerIdx]<4)
-			{
-				switch(authorisedState[playerIdx])
-				{
-					case 0: 
-					case 3:
-						BufStart+=BufStart[0x8]+0xB;
-						found=true;
-						break;
-					case 1:
-						// Тут только логин сейвим
-						{
-							char *login=NULL;
-							login = new char[P[0x8]-cmdTokenL];
-							strncpy(login, (char*)&P[0xB+cmdTokenL], P[0x8]-cmdTokenL);
-							authorisedLogins[playerIdx]=login;
-							authorisedState[playerIdx]++;
-							authSendWelcomeMsg[playerIdx]=-1;
-							BufStart+=BufStart[0x8]+0xB;
-							found=true;
-							login = NULL;
-						}
-						break;
-					case 2:
-						{
-							//char *data=NULL;
-							//data = new char[P[0x8]+1];
-							char* pass = new char[P[0x8]-cmdTokenL];
-							//memcpy(data, &playerIdx, 1);
-							//strncpy(&data[1], (char*)&P[0xB], P[0x8]);
-							strncpy(pass, (char*)&P[0xB+cmdTokenL], P[0x8]-cmdTokenL);
 
-							// Сюда добавить логику запуска аутентификации по http
-
-							// TEMPORARY!
-							//temp=data;
-							// TEMPORARY! END
-							authorisedState[playerIdx]++;
-							authSendWelcomeMsg[playerIdx]=-1;
-							authCheckDelayed(playerIdx, pass);
-							BufStart+=BufStart[0x8]+0xB;
-							found=true;
-							//data = NULL;
-							pass=NULL;
-						}
-						break;
-					/*case 3:
-						{
-							BufStart+=BufStart[0x8]+0xB;
-
-							// TEMPORARY!
-							if(strcmp(&temp[1], "password")==0)
-								authorisedState[playerIdx]++;
-							else
-								authorisedState[playerIdx]-=2;
-							// TEMPORARY! END
-						}
-						break;*/
-				}
-			}
-			if(cmdTokenL>0 && found==false)
-			{
-				BufStart+=BufStart[0x8]+0xB;
-				found=true;
-			}
-		}
-		else if(*P==0xBB && specialAuthorisation==true && ((char)P[0x4])>0)
-		{
-			
-			void **PP=(void **)(((char*)MyPlayer)+0x2EC);
-			PP=(void**)(((char*)*PP)+0x114);
-			byte *Pl=(byte*)(*PP);
-			byte playerIdx = *((byte*)(Pl+0x810));
-			char *authCmd=" //auth ";
-			int cmdTokenL=0;
 			char *command = new char[BufStart[0x4]];
-			wcstombs(command,((wchar_t*)&BufStart[0x5]),BufStart[0x4]);
-			if(strncmp((char*)command, authCmd, ((BufStart[0x4]>strlen(authCmd))?(strlen(authCmd)):(BufStart[0x4])))==0)
-				cmdTokenL=strlen(authCmd);
-			if(playerIdx!=0x1F && authorisedState[playerIdx]>=0 && authorisedState[playerIdx]<4 && cmdTokenL==strlen(authCmd))
-			{
-				switch(authorisedState[playerIdx])
-				{
-					case 0: 
-					case 3:
-						BufStart+=BufStart[0x4]*2+0x7;
-						found=true;
-						break;
-					case 1:
-						// Тут только логин сейвим
-						{
-							char *login=NULL;
-							login = new char[P[0x4]-cmdTokenL];
-							strncpy(login, (char*)&command[cmdTokenL], P[0x4]-cmdTokenL);
-							authorisedLogins[playerIdx]=login;
-							authorisedState[playerIdx]++;
-							authSendWelcomeMsg[playerIdx]=-1;
-							BufStart+=BufStart[0x4]*2+0x7;
-							found=true;
-							login = NULL;
-						}
-						break;
-					case 2:
-						{
-							//char *data=NULL;
-							//data = new char[P[0x8]+1];
-							//char* pass = new char[P[0x8]-cmdTokenL];
-							//memcpy(data, &playerIdx, 1);
-							//strncpy(&data[1], (char*)&P[0xB], P[0x8]);
-							//strncpy(pass, (char*)&P[0xB+cmdTokenL], P[0x8]-cmdTokenL);
-							char* pass = new char[P[0x4]-cmdTokenL];
-							strncpy(pass, (char*)&command[cmdTokenL], P[0x4]-cmdTokenL);
-							// Сюда добавить логику запуска аутентификации по http
+			wcstombs(command, ((wchar_t*)&BufStart[0x5]), BufStart[0x4]);
 
-							// TEMPORARY!
-							//temp=data;
-							// TEMPORARY! END
-							authorisedState[playerIdx]++;
-							authSendWelcomeMsg[playerIdx]=-1;
-							authCheckDelayed(playerIdx, pass);
-							BufStart+=BufStart[0x4]*2+0x7;
-							found=true;
-							//data = NULL;
-							pass=NULL;
-						}
-						break;
-					/*case 3:
-						{
-							BufStart+=BufStart[0x8]+0xB;
-
-							// TEMPORARY!
-							if(strcmp(&temp[1], "password")==0)
-								authorisedState[playerIdx]++;
-							else
-								authorisedState[playerIdx]-=2;
-							// TEMPORARY! END
-						}
-						break;*/
-				}
-			}
-			if(cmdTokenL>0 && found==false)
+			if (processSpecialAuth(playerIdx, command))
 			{
-				BufStart+=BufStart[0x4]*2+0x7;
-				found=true;
+				BufStart += BufStart[0x4]*2+0x7;
+				found = true;
+				continue;
 			}
 		}
 		else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}

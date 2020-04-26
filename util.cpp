@@ -1010,7 +1010,7 @@ namespace
 	void (__cdecl *sub51ADF0)();/// событие проверки скриптов карты по таймауту
 	int getFrameCounterL(lua_State *L)
 	{
-		lua_pushinteger(L,(int)*frameCounter);
+		lua_pushinteger(L,(unsigned int)*frameCounter);
 		return 1;
 	}
 	void __cdecl onEachFrame()

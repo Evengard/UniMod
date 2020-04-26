@@ -392,6 +392,33 @@ extern "C" int __cdecl  playerOnTrySpell(bigUnitStruct *Unit,byte *Uc,spellPacke
 	return 0;
 }
 
+// Calls Lua handler when any player says something in chat.
+// The message can be filtered and will be not visible to anyone else on the server.
+bool processChatMessage(int playerId, char *string, bool teamMsg)
+{
+	bool result = true;
+	getServerVar("playerOnChat");
+	if (lua_isfunction(L, -1))
+	{
+		lua_pushinteger(L, playerId);
+		lua_pushstring(L, string);
+		lua_pushinteger(L, teamMsg);
+
+		if (0!=lua_pcall(L, 3, 1, 0))
+		{
+			// I think there needs to be some formatting done in error messages, but I'm too lazy to rewrite just everything
+			conPrintI(lua_tostring(L,-1));
+		}
+
+		if (lua_isboolean(L, -1))
+			result = !lua_toboolean(L, -1);
+
+		lua_pop(L, 1); 
+	}
+
+	return result;
+}
+
 extern void InjectOffs(DWORD Addr,void *Fn);
 extern void InjectJumpTo(DWORD Addr,void *Fn);
 

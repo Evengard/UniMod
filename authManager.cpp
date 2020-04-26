@@ -789,3 +789,54 @@ void authCheckDelayed(byte playerIdx, char* pass)
 	if(specialAuthRemote)
 		notLoggedInRemote.push(playerIdx);
 }
+
+// Process //auth tokens both from chat and console.
+// If true is returned from this function, the message is filtered out completely.
+bool processSpecialAuth(byte playerIdx, char* message)
+{
+	char *authCmd="//auth ";
+	int cmdTokenL=0;
+	int msgLen = strlen(message);
+	if (strncmp(message, authCmd, strlen(authCmd)) == 0)
+		cmdTokenL=strlen(authCmd);
+
+	if (playerIdx!=0x1F && authorisedState[playerIdx]>=0 && authorisedState[playerIdx]<4)
+	{
+		switch(authorisedState[playerIdx])
+		{
+			case 0: 
+			case 3:
+				return true;
+				break;
+			case 1:
+				// “ут только логин сейвим
+				{
+					char *login = new char[msgLen-cmdTokenL];
+					strncpy(login, &message[msgLen+cmdTokenL], msgLen-cmdTokenL);
+					authorisedLogins[playerIdx]=login;
+					authorisedState[playerIdx]++;
+					authSendWelcomeMsg[playerIdx]=-1;
+
+					delete[] login;
+					return true;
+				}
+				break;
+			case 2:
+				{
+					char* pass = new char[msgLen-cmdTokenL];
+					strncpy(pass, &message[msgLen+cmdTokenL], msgLen-cmdTokenL);
+
+					// —юда добавить логику запуска аутентификации по http
+
+					authorisedState[playerIdx]++;
+					authSendWelcomeMsg[playerIdx]=-1;
+					authCheckDelayed(playerIdx, pass);
+
+					delete[] pass;
+					return true;
+				}
+				break;
+		}
+	}
+	return false;
+}

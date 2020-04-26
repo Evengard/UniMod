@@ -26,6 +26,7 @@
 /Libs/lpng151/projects/visualc71/Win32_LIB_Release/
 /Libs/luajit.lib
 /Libs/luasocket/src/*.log
+/Libs/luasocket/src/*.tlog
 /Libs/luasocket/src/*.obj
 /Libs/luasocket/src/*.lib
 /Libs/*.lib

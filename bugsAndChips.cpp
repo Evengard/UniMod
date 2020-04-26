@@ -357,6 +357,7 @@ void topicOverrideInit()
 
 int (__cdecl *netOnPacketRecvServ)(int playerId, char *packet, int length);
 // Validates incoming player data in order to prevent rogue players crashing the server
+// (this packet always comes singular, in contrast to regular MSG_* packets)
 int __cdecl netOnPacketRecvServ_Hook(int playerId, char *packet, int length)
 {
 	if (*packet == 0x20 && length < 0x9A)
