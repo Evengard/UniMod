@@ -360,37 +360,40 @@ int (__cdecl *netOnPacketRecvServ)(int playerId, char *packet, int length);
 // (this packet always comes singular, in contrast to regular MSG_* packets)
 int __cdecl netOnPacketRecvServ_Hook(int playerId, char *packet, int length)
 {
-	if (*packet == 0x20 && length < 0x9A)
+	if (*packet == 0x20 )
 	{
-		char test[60];
-		sprintf(test,"[UniMod] Wrong player data len detected: 0x%X", length);
-		conPrintI(test);
-		// Go away, little bugger
-		return 0;
-	}
+		if (length < 0x9A)
+		{
+			char test[60];
+			sprintf(test,"[UniMod] Wrong player data len detected: 0x%X", length);
+			conPrintI(test);
+			// Go away, little bugger
+			return 0;
+		}
+	
+		packet++;
+		// Check if nickname starts with invalid character
+		if (packet[0] <= 0x1F)
+		{
+			wcscpy((wchar_t*)packet, L"Jack\0");
+			conPrintI("[UniMod] Bugged player name was detected!");
+		}
 
-	packet++;
-	// Check if nickname starts with invalid character
-	if (packet[0] <= 0x1F)
-	{
-		wcscpy((wchar_t*)packet, L"Jack\0");
-		conPrintI("[UniMod] Bugged player name was detected!");
-	}
+		// Check if player class is invalid
+		if (packet[0x42] >= 3)
+		{
+			packet[0x42] = 0;
+			conPrintI("[UniMod] Bugged player class was detected!");
+		}
 
-	// Check if player class is invalid
-	if (packet[0x42] >= 3)
-	{
-		packet[0x42] = 0;
-		conPrintI("[UniMod] Bugged player class was detected!");
+		// Check if player object requested by client is invalid
+		if (packet[0x43] > 0)
+		{
+			packet[0x43] = 0;
+			conPrintI("[UniMod] Bugged player object was detected!");
+		}
+		packet--;
 	}
-
-	// Check if player object requested by client is invalid
-	if (packet[0x43] > 0)
-	{
-		packet[0x43] = 0;
-		conPrintI("[UniMod] Bugged player object was detected!");
-	}
-	packet--;
 
 	// Carry on
 	return netOnPacketRecvServ(playerId, packet, length);
