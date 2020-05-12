@@ -533,6 +533,7 @@ namespace
 		*/
 		return;
 	}
+
 	int unitSetUpdateL(lua_State*L)
 	{
 		return unitSetAnyFnL(L,0x2E8,&updateFn);

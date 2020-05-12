@@ -955,7 +955,7 @@ extern "C" void __cdecl onNetPacketServer(BYTE *&BufStart,BYTE *E,
 {
 	bool found=true;
 	// ВНИМАНИЕ! Для всех ВЫФИЛЬТРОВЫВАЕМЫХ пакетов - обязательно ставьте found=true! Иначе не будет производиться обработка других пакетов в ЭТОМ же фрейме!
-	while(found)
+	while (found)
 	{
 		found=false;
 		BYTE *P=BufStart;
@@ -1025,7 +1025,7 @@ extern "C" void __cdecl onNetPacketServer(BYTE *&BufStart,BYTE *E,
 			// Pass on to default handler
 		}
 
-		if (*P==0x3F && specialAuthorisation==true) // MSG_PLAYER_INPUT
+		if (*P == 0x3F && specialAuthorisation == true) // MSG_PLAYER_INPUT
 		{
 			void **PP=(void **)(((char*)MyPlayer)+0x2EC);
 			PP=(void**)(((char*)*PP)+0x114);
@@ -1053,10 +1053,10 @@ extern "C" void __cdecl onNetPacketServer(BYTE *&BufStart,BYTE *E,
 			byte *Pl=(byte*)(*PP);
 			byte playerIdx = *((byte*)(Pl+0x810));
 
-			char *command = new char[BufStart[0x4]];
+			char command[255]; // no heap alloc :|
 			wcstombs(command, ((wchar_t*)&BufStart[0x5]), BufStart[0x4]);
 
-			if (processSpecialAuth(playerIdx, command))
+			if (processSpecialAuth(playerIdx, command + 1))
 			{
 				BufStart += BufStart[0x4]*2+0x7;
 				found = true;

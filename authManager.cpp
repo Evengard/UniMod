@@ -240,6 +240,7 @@ namespace
 		unsigned char lhash[20];
 		sha.GetHash(lhash);
 		sha.Reset();
+		
 		if(authData.find(sha1hash(lhash))!=authData.end() && strncmp(authData[sha1hash(lhash)].login, login, 50)==0 && authData[sha1hash(lhash)].isActive==true)
 		{
 			sha.Update((const unsigned char*)pass, strlen(pass));
@@ -247,6 +248,7 @@ namespace
 			unsigned char phash[20];
 			sha.GetHash(phash);
 			sha.Reset();
+			
 			if(strncmp((char*)authData[sha1hash(lhash)].phash, (char*)phash, 20)==0)
 				return true;
 		}
@@ -794,12 +796,22 @@ void authCheckDelayed(byte playerIdx, char* pass)
 // If true is returned from this function, the message is filtered out completely.
 bool processSpecialAuth(byte playerIdx, char* message)
 {
-	char *authCmd="//auth ";
-	int cmdTokenL=0;
-	int msgLen = strlen(message);
-	if (strncmp(message, authCmd, strlen(authCmd)) == 0)
-		cmdTokenL=strlen(authCmd);
-
+	char authCmd[] = "//auth ";
+	char msgUsefulData[255];
+	memset(msgUsefulData, 0, 1);
+	// Trim //auth part
+	int mlen = strlen(message);
+	int alen = strlen(authCmd);
+	int start = 0;
+	if (strncmp(message, authCmd, alen) == 0)
+	{
+		start += alen;
+		mlen -= start;
+	}
+	if (mlen < 0) 
+		mlen = 0;
+	strncpy(msgUsefulData, &message[start], mlen);
+	
 	if (playerIdx!=0x1F && authorisedState[playerIdx]>=0 && authorisedState[playerIdx]<4)
 	{
 		switch(authorisedState[playerIdx])
@@ -810,29 +822,26 @@ bool processSpecialAuth(byte playerIdx, char* message)
 				break;
 			case 1:
 				// “ут только логин сейвим
-				{
-					char *login = new char[msgLen-cmdTokenL];
-					strncpy(login, &message[msgLen+cmdTokenL], msgLen-cmdTokenL);
-					authorisedLogins[playerIdx]=login;
-					authorisedState[playerIdx]++;
-					authSendWelcomeMsg[playerIdx]=-1;
+				{	
+					char* tmp = new char[255];
+					strcpy_s(tmp, 255, msgUsefulData);
+					// Copy string to heap allocated ptr; it will be freed later in updateAuthDBProcess() -> authentificate()
 
-					delete[] login;
+					authorisedLogins[playerIdx] = tmp;
+					authorisedState[playerIdx]++;
+					authSendWelcomeMsg[playerIdx] = -1;
+
 					return true;
 				}
 				break;
 			case 2:
 				{
-					char* pass = new char[msgLen-cmdTokenL];
-					strncpy(pass, &message[msgLen+cmdTokenL], msgLen-cmdTokenL);
-
 					// —юда добавить логику запуска аутентификации по http
 
 					authorisedState[playerIdx]++;
-					authSendWelcomeMsg[playerIdx]=-1;
-					authCheckDelayed(playerIdx, pass);
+					authSendWelcomeMsg[playerIdx] = -1;
+					authCheckDelayed(playerIdx, msgUsefulData);
 
-					delete[] pass;
 					return true;
 				}
 				break;
