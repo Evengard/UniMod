@@ -8,7 +8,7 @@
 extern void *(__cdecl *serverGetGameDataBySel)();
 
 /*
-Здесь начисление/получение фрагов и т.п.
+Р—РґРµСЃСЊ РЅР°С‡РёСЃР»РµРЅРёРµ/РїРѕР»СѓС‡РµРЅРёРµ С„СЂР°РіРѕРІ Рё С‚.Рї.
 */
 extern DWORD *GameFlags;
 extern int playersListL(lua_State *L);
@@ -18,7 +18,7 @@ bool restrictTeams=false;
 int (__cdecl *netReportScore)(void *Player);
 void (__cdecl *playerAddFragDeathmatch)(void *Victim,void *Attacker,void *A,void *B);
 
-int (__cdecl *noxTeamCanPlayGame)(); // есть ли достаточно игроков в команде и т.п.
+int (__cdecl *noxTeamCanPlayGame)(); // РµСЃС‚СЊ Р»Рё РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РёРіСЂРѕРєРѕРІ РІ РєРѕРјР°РЅРґРµ Рё С‚.Рї.
 
 void *(__cdecl *netCommonByCode)(int NetCode);
 
@@ -81,7 +81,7 @@ namespace
 	};
 
 
-	int teamCanPlayGameImpl() // чтобы можно было 
+	int teamCanPlayGameImpl() // С‡С‚РѕР±С‹ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ 
 	{
 		int Top=lua_gettop(L);
 		getServerVar("teamCanStart");
@@ -148,7 +148,7 @@ l1:
 			lua_setfield(L,-2,"membersCount");
 			lua_pushinteger(L,Team->teamFrags);
 			lua_setfield(L,-2,"score");
-			if ( lua_toboolean(L,2)==1) /// если хотят юзердат
+			if ( lua_toboolean(L,2)==1) /// РµСЃР»Рё С…РѕС‚СЏС‚ СЋР·РµСЂРґР°С‚
 			{
 				lua_pushlightuserdata(L,Team);
 				lua_setfield(L,-2,"teamPtr");
@@ -186,7 +186,7 @@ l1:
 			lua_setfield(L,-2,"membersCount");
 			lua_pushinteger(L,Team->teamFrags);
 			lua_setfield(L,-2,"score");
-			if ( lua_toboolean(L,2)==1) /// если хотят юзердат
+			if ( lua_toboolean(L,2)==1) /// РµСЃР»Рё С…РѕС‚СЏС‚ СЋР·РµСЂРґР°С‚
 			{
 				lua_pushlightuserdata(L,Team);
 				lua_setfield(L,-2,"teamPtr");
@@ -198,7 +198,7 @@ l1:
 			}
 			lua_pushinteger(L,i);
 			lua_pushvalue(L,-2);
-			lua_settable(L,3);/// это таблица
+			lua_settable(L,3);/// СЌС‚Рѕ С‚Р°Р±Р»РёС†Р°
 			lua_settop(L,3);//2 + 1 
 		}
 		return 1;
@@ -427,7 +427,7 @@ l1:
 		}
 		void *Test=noxGetTeamFirst();
 		if (Test==NULL)
-			serverFlagsClear(4);/// выключаем тимы
+			serverFlagsClear(4);/// РІС‹РєР»СЋС‡Р°РµРј С‚РёРјС‹
 
 		return 0;
 	}
@@ -484,9 +484,9 @@ l1:
 			lua_pushnil(L);
 			return 1;
 		}
-		serverFlagsSet(4);/// включаем тимы
+		serverFlagsSet(4);/// РІРєР»СЋС‡Р°РµРј С‚РёРјС‹
 		wchar_t* RR=NULL;
-		bool RRR=false;//Флаг посылать ли на КЛИЕНТ имя тимы
+		bool RRR=false;//Р¤Р»Р°Рі РїРѕСЃС‹Р»Р°С‚СЊ Р»Рё РЅР° РљР›РР•РќРў РёРјСЏ С‚РёРјС‹
 		if (lua_type(L,1)==LUA_TTABLE)
 		{
 			lua_getfield(L,1,"color");
@@ -505,20 +505,20 @@ l1:
 			}
 			else if(newTeam==true)
 			{
-				RR=noxTeamDefaultName(((byte*)R)[0x38]);//Получаем дефолтное название тимы - то что записано в CSF-ке, на основании цвета тимы
+				RR=noxTeamDefaultName(((byte*)R)[0x38]);//РџРѕР»СѓС‡Р°РµРј РґРµС„РѕР»С‚РЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РёРјС‹ - С‚Рѕ С‡С‚Рѕ Р·Р°РїРёСЃР°РЅРѕ РІ CSF-РєРµ, РЅР° РѕСЃРЅРѕРІР°РЅРёРё С†РІРµС‚Р° С‚РёРјС‹
 				memcpy(R, RR, 0x28);
 				((byte*)R)[0x44]=1;
 			}
 		}
 		else if(newTeam==true)
 		{
-			RR=noxTeamDefaultName(((byte*)R)[0x38]);//Получаем дефолтное название тимы - то что записано в CSF-ке, на основании цвета тимы
+			RR=noxTeamDefaultName(((byte*)R)[0x38]);//РџРѕР»СѓС‡Р°РµРј РґРµС„РѕР»С‚РЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РёРјС‹ - С‚Рѕ С‡С‚Рѕ Р·Р°РїРёСЃР°РЅРѕ РІ CSF-РєРµ, РЅР° РѕСЃРЅРѕРІР°РЅРёРё С†РІРµС‚Р° С‚РёРјС‹
 			memcpy(R, RR, 0x28);
 			((byte*)R)[0x44]=1;
 		}
-		teamSendTeam(R); //Тут записывается информация о наличии тимы вообще - однако НАЗВАНИЕ тимы не посылается на клиент - клиент юзает СВОЁ ДЕФОЛТНОЕ название (!)
+		teamSendTeam(R); //РўСѓС‚ Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РЅР°Р»РёС‡РёРё С‚РёРјС‹ РІРѕРѕР±С‰Рµ - РѕРґРЅР°РєРѕ РќРђР—Р’РђРќРР• С‚РёРјС‹ РЅРµ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РєР»РёРµРЅС‚ - РєР»РёРµРЅС‚ СЋР·Р°РµС‚ РЎР’РћРЃ Р”Р•Р¤РћР›РўРќРћР• РЅР°Р·РІР°РЅРёРµ (!)
 		if(RRR==true)
-			noxTeamUpdate(RR, R); //Обновление ИМЕНИ тимы на клиентах - после чего имя тимы у клиентов уже не дефолтное, а именно то, что пришло с сервера
+			noxTeamUpdate(RR, R); //РћР±РЅРѕРІР»РµРЅРёРµ РРњР•РќР С‚РёРјС‹ РЅР° РєР»РёРµРЅС‚Р°С… - РїРѕСЃР»Рµ С‡РµРіРѕ РёРјСЏ С‚РёРјС‹ Сѓ РєР»РёРµРЅС‚РѕРІ СѓР¶Рµ РЅРµ РґРµС„РѕР»С‚РЅРѕРµ, Р° РёРјРµРЅРЅРѕ С‚Рѕ, С‡С‚Рѕ РїСЂРёС€Р»Рѕ СЃ СЃРµСЂРІРµСЂР°
 		lua_pushlightuserdata(L,R);
 		return 1;
 	}
@@ -736,7 +736,7 @@ int teamAutoAssign(lua_State *L)
 				void **PP=(void **)(((char*)players.front())+0x2EC);
 				PP=(void**)(((char*)*PP)+0x114);
 				byte *P=(byte*)(*PP);
-				if(((*((short*)(P+0xE60)))&0x1)==0) //Проверка на обсерв
+				if(((*((short*)(P+0xE60)))&0x1)==0) //РџСЂРѕРІРµСЂРєР° РЅР° РѕР±СЃРµСЂРІ
 				{
 					int NetCode=*((short*)(P+0x80C));
 					byte *Common=(byte *)netCommonByCode(NetCode);
@@ -835,9 +835,9 @@ void teamCreateDefault(int minTeamsParam=0, bool doNotSetRestriction=false)
 		{
 			void *R=NULL;
 			R=noxTeamCreate(0);
-			serverFlagsSet(4);/// включаем тимы
+			serverFlagsSet(4);/// РІРєР»СЋС‡Р°РµРј С‚РёРјС‹
 			wchar_t* RR=NULL;
-			RR=noxTeamDefaultName(((byte*)R)[0x38]);//Получаем дефолтное название тимы - то что записано в CSF-ке, на основании цвета тимы
+			RR=noxTeamDefaultName(((byte*)R)[0x38]);//РџРѕР»СѓС‡Р°РµРј РґРµС„РѕР»С‚РЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РёРјС‹ - С‚Рѕ С‡С‚Рѕ Р·Р°РїРёСЃР°РЅРѕ РІ CSF-РєРµ, РЅР° РѕСЃРЅРѕРІР°РЅРёРё С†РІРµС‚Р° С‚РёРјС‹
 			memcpy(R, RR, 0x28);
 			((byte*)R)[0x44]=1;
 			teamSendTeam(R);
@@ -860,9 +860,9 @@ void teamCreateDefault(int minTeamsParam=0, bool doNotSetRestriction=false)
 	{
 		void *R=NULL;
 		R=noxTeamCreate(0);
-		serverFlagsSet(4);/// включаем тимы
+		serverFlagsSet(4);/// РІРєР»СЋС‡Р°РµРј С‚РёРјС‹
 		wchar_t* RR=NULL;
-		RR=noxTeamDefaultName(((byte*)R)[0x38]);//Получаем дефолтное название тимы - то что записано в CSF-ке, на основании цвета тимы
+		RR=noxTeamDefaultName(((byte*)R)[0x38]);//РџРѕР»СѓС‡Р°РµРј РґРµС„РѕР»С‚РЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РёРјС‹ - С‚Рѕ С‡С‚Рѕ Р·Р°РїРёСЃР°РЅРѕ РІ CSF-РєРµ, РЅР° РѕСЃРЅРѕРІР°РЅРёРё С†РІРµС‚Р° С‚РёРјС‹
 		memcpy(R, RR, 0x28);
 		((byte*)R)[0x44]=1;
 		teamSendTeam(R);

@@ -22,7 +22,7 @@ int lastEntrySize=0;
 
 
 
-// èìïîðòû èç Íîêñà
+// Ð¸Ð¼Ð¿Ð¾Ñ€Ñ‚Ñ‹ Ð¸Ð· ÐÐ¾ÐºÑÐ°
 bool (__cdecl *noxReplayStartSave)(const char* filename);
 void (__cdecl *noxReplayStopSave)();
 bool (__cdecl *noxReplayStartView)(const char* filename);
@@ -42,8 +42,8 @@ extern byte *serverTimeLimitArr;
 extern int *serverInfoChanged;
 extern int (__cdecl *noxCheckGameFlags) (int);
 extern void (__cdecl *playerGoObserver)(void* playerPtr, byte unk1, byte unk2);
-extern bigUnitStruct* (__cdecl *playerFirstUnit)(); ///âîçâðàùàåò ïåðâûé þíèò ñåòåâîãî èãðîêà
-extern bigUnitStruct* (__cdecl *playerNextUnit)(void* Prev); /// Âîçâðàùàåò ñëåäóþùåãî ñåòåâîãî èãðîêà
+extern bigUnitStruct* (__cdecl *playerFirstUnit)(); ///Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ Ð¿ÐµÑ€Ð²Ñ‹Ð¹ ÑŽÐ½Ð¸Ñ‚ ÑÐµÑ‚ÐµÐ²Ð¾Ð³Ð¾ Ð¸Ð³Ñ€Ð¾ÐºÐ°
+extern bigUnitStruct* (__cdecl *playerNextUnit)(void* Prev); /// Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ ÑÐ»ÐµÐ´ÑƒÑŽÑ‰ÐµÐ³Ð¾ ÑÐµÑ‚ÐµÐ²Ð¾Ð³Ð¾ Ð¸Ð³Ñ€Ð¾ÐºÐ°
 void* (__cdecl *playerInfoFirst)();
 void* (__cdecl *playerInfoNext)(void* Prev);
 int (__cdecl *initGame)();
@@ -152,7 +152,7 @@ namespace
 				replayViewHosterData = new byte[REPLAY_PLAYERSTART_SIZE];
 				netCreatePlayerStartPacket(replayViewHosterData, P);
 			}
-			//REPLAY_PLAYERSTART_SIZE - ðàçìåð ïàêåòà
+			//REPLAY_PLAYERSTART_SIZE - Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð¿Ð°ÐºÐµÑ‚Ð°
 		}
 		if(replayViewHosterData==NULL)
 		{
@@ -574,7 +574,7 @@ namespace
 			sprintf(timeZone, "%c%02u.%02u", symbol, tzHours, tzMinutes);
 		}
 		char timeStamp[30];
-		// Ïî÷òè ISO 8601 (ê ñîæàëåíèþ äâîåòî÷èÿ â èìåíè ôàéëîâ íå äîïóñòèìû)
+		// ÐŸÐ¾Ñ‡Ñ‚Ð¸ ISO 8601 (Ðº ÑÐ¾Ð¶Ð°Ð»ÐµÐ½Ð¸ÑŽ Ð´Ð²Ð¾ÐµÑ‚Ð¾Ñ‡Ð¸Ñ Ð² Ð¸Ð¼ÐµÐ½Ð¸ Ñ„Ð°Ð¹Ð»Ð¾Ð² Ð½Ðµ Ð´Ð¾Ð¿ÑƒÑÑ‚Ð¸Ð¼Ñ‹)
 		sprintf(timeStamp, "%04i-%02i-%02iT%02i.%02i.%02i.%03i%s", time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, timeZone);
 		if(strlen(replaySaveFileName)>0)
 		{
@@ -591,7 +591,7 @@ namespace
 			replaySaveStop();
 			return false;
 		}
-		replaySave.write("bnru", 4); // Ñòàâèì ìåòêó ôîðìàòà, çàîäíî òåñòèðóåì, ðàáîòàåò ëè çàïèñü
+		replaySave.write("bnru", 4); // Ð¡Ñ‚Ð°Ð²Ð¸Ð¼ Ð¼ÐµÑ‚ÐºÑƒ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ð°, Ð·Ð°Ð¾Ð´Ð½Ð¾ Ñ‚ÐµÑÑ‚Ð¸Ñ€ÑƒÐµÐ¼, Ñ€Ð°Ð±Ð¾Ñ‚Ð°ÐµÑ‚ Ð»Ð¸ Ð·Ð°Ð¿Ð¸ÑÑŒ
 		if(!replaySave.is_open())
 		{
 			replaySaveStop();
@@ -628,7 +628,7 @@ namespace
 		{
 		case REPLAY_HEADER:
 			{
-				// Ãîòîâèì äàííûå. Äëÿ îïðåäåëåíèÿ ðàçìåðîâ
+				// Ð“Ð¾Ñ‚Ð¾Ð²Ð¸Ð¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ. Ð”Ð»Ñ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð¸Ñ Ñ€Ð°Ð·Ð¼ÐµÑ€Ð¾Ð²
 				if(replaySaveHeader==NULL)
 				{
 					byte* playersList=NULL;
@@ -638,10 +638,10 @@ namespace
 						playersListQuantity+=1;
 						playersList=(byte*)realloc(playersList, playersListQuantity*REPLAY_PLAYERSTART_SIZE);
 						netCreatePlayerStartPacket(&playersList[(playersListQuantity-1)*REPLAY_PLAYERSTART_SIZE], P);
-						//REPLAY_PLAYERSTART_SIZE - ðàçìåð ïàêåòà
+						//REPLAY_PLAYERSTART_SIZE - Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð¿Ð°ÐºÐµÑ‚Ð°
 					}
 
-					// Ôîðìèðóåì çàãîëîâîê ïàêåòà
+					// Ð¤Ð¾Ñ€Ð¼Ð¸Ñ€ÑƒÐµÐ¼ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº Ð¿Ð°ÐºÐµÑ‚Ð°
 					replayFileHeader* packetHelper = new replayFileHeader;
 					memset(packetHelper, 0, sizeof(packetHelper));
 					packetHelper->entryType=REPLAY_HEADER;
@@ -657,7 +657,7 @@ namespace
 					replaySaveHeader = new byte[replaySaveHeaderSize];
 					memcpy(replaySaveHeader, packetHelper, sizeof(replayFileHeader));
 					memcpy(&replaySaveHeader[sizeof(replayFileHeader)], playersList, playersListQuantity*REPLAY_PLAYERSTART_SIZE);
-					// Çà÷èñòêà âðåìåííûõ äàííûõ
+					// Ð—Ð°Ñ‡Ð¸ÑÑ‚ÐºÐ° Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ… Ð´Ð°Ð½Ð½Ñ‹Ñ…
 					realloc(playersList, 0);
 					delete [] packetHelper;
 				}
@@ -667,32 +667,32 @@ namespace
 					packetHelper->fileFramesCount=replaySaveFrameCount;
 				}
 
-				// Ïîäãîòîâêà äàííûõ çàâåðøåíà. Ôîðìèðóåì ñàì ïàêåò
+				// ÐŸÐ¾Ð´Ð³Ð¾Ñ‚Ð¾Ð²ÐºÐ° Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð°. Ð¤Ð¾Ñ€Ð¼Ð¸Ñ€ÑƒÐµÐ¼ ÑÐ°Ð¼ Ð¿Ð°ÐºÐµÑ‚
 				packet=new byte[replaySaveHeaderSize];
 				memset(packet, 0, replaySaveHeaderSize);
 				memcpy(packet, replaySaveHeader, replaySaveHeaderSize);
-				totalLength+=replaySaveHeaderSize; // ôèíàëüíûé ðàçìåð ïàêåòà
+				totalLength+=replaySaveHeaderSize; // Ñ„Ð¸Ð½Ð°Ð»ÑŒÐ½Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð¿Ð°ÐºÐµÑ‚Ð°
 
 				
 			}
 			break;
 		case REPLAY_FRAME:
 			{
-				// Ôîðìèðóåì çàãîëîâîê ïàêåòà
+				// Ð¤Ð¾Ñ€Ð¼Ð¸Ñ€ÑƒÐµÐ¼ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº Ð¿Ð°ÐºÐµÑ‚Ð°
 				replayFileFrame* packetHelper = new replayFileFrame;
 				memset(packetHelper, 0, sizeof(packetHelper));
 				packetHelper->entryType=REPLAY_FRAME;
 				packetHelper->frameId=replaySaveFrameCount;
 				packetHelper->frameSize = size;
 
-				// Ïîäãîòîâêà äàííûõ çàâåðøåíà. Ôîðìèðóåì ñàì ïàêåò
+				// ÐŸÐ¾Ð´Ð³Ð¾Ñ‚Ð¾Ð²ÐºÐ° Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð°. Ð¤Ð¾Ñ€Ð¼Ð¸Ñ€ÑƒÐµÐ¼ ÑÐ°Ð¼ Ð¿Ð°ÐºÐµÑ‚
 				packet=new byte[sizeof(replayFileFrame)+size];
 				memset(packet, 0, sizeof(replayFileFrame)+size);
 				memcpy(packet, packetHelper, sizeof(replayFileFrame));
 				memcpy(&packet[sizeof(replayFileFrame)], payload, size);
 				totalLength+=sizeof(replayFileFrame)+size;
 
-				// Çà÷èñòêà âðåìåííûõ äàííûõ
+				// Ð—Ð°Ñ‡Ð¸ÑÑ‚ÐºÐ° Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ… Ð´Ð°Ð½Ð½Ñ‹Ñ…
 				delete [] packetHelper;
 			}
 			break;
@@ -735,7 +735,7 @@ namespace
 	{
 		if(replaySaveEnabled)
 		{
-			// Ñîõðàíÿåì âåñü ôðåéì â áóôôåð, ïîòîì îò íåãî áóäåì îòðåçàòü ïîïàêåòíî. Çàîäíî ñåéâèì â ôàéë èíôó î íîâîì ôðåéìå. Íóæíî ÷òîá â ðåïëåé íå ïîïàëè "ëèøíèå" ïàêåòû.
+			// Ð¡Ð¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ð²ÐµÑÑŒ Ñ„Ñ€ÐµÐ¹Ð¼ Ð² Ð±ÑƒÑ„Ñ„ÐµÑ€, Ð¿Ð¾Ñ‚Ð¾Ð¼ Ð¾Ñ‚ Ð½ÐµÐ³Ð¾ Ð±ÑƒÐ´ÐµÐ¼ Ð¾Ñ‚Ñ€ÐµÐ·Ð°Ñ‚ÑŒ Ð¿Ð¾Ð¿Ð°ÐºÐµÑ‚Ð½Ð¾. Ð—Ð°Ð¾Ð´Ð½Ð¾ ÑÐµÐ¹Ð²Ð¸Ð¼ Ð² Ñ„Ð°Ð¹Ð» Ð¸Ð½Ñ„Ñƒ Ð¾ Ð½Ð¾Ð²Ð¾Ð¼ Ñ„Ñ€ÐµÐ¹Ð¼Ðµ. ÐÑƒÐ¶Ð½Ð¾ Ñ‡Ñ‚Ð¾Ð± Ð² Ñ€ÐµÐ¿Ð»ÐµÐ¹ Ð½Ðµ Ð¿Ð¾Ð¿Ð°Ð»Ð¸ "Ð»Ð¸ÑˆÐ½Ð¸Ðµ" Ð¿Ð°ÐºÐµÑ‚Ñ‹.
 			if(size>0)
 			{
 				replaySaveFramePackets = new byte[size];
@@ -753,16 +753,16 @@ namespace
 
 	bool replaySavePacketChecker(byte* packet, int size)
 	{
-		// Çäåñü ìû ïðîñòî ïðîâåðèì, ïèõàòü ëè ýòîò ïàêåò â ðåïëåé èëè íó åãî íàôèã.
+		// Ð—Ð´ÐµÑÑŒ Ð¼Ñ‹ Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ð¼, Ð¿Ð¸Ñ…Ð°Ñ‚ÑŒ Ð»Ð¸ ÑÑ‚Ð¾Ñ‚ Ð¿Ð°ÐºÐµÑ‚ Ð² Ñ€ÐµÐ¿Ð»ÐµÐ¹ Ð¸Ð»Ð¸ Ð½Ñƒ ÐµÐ³Ð¾ Ð½Ð°Ñ„Ð¸Ð³.
 		byte *P = packet;
-		bool allowed=true; //Åñëè ïàêåò ïðîâåðêó íå ïðîõîäèò - false
-		// Òóò îñóùåñòâëÿòü ïðîâåðêó ïàêåòà íà âíîñèìîñòü â ðåïëåé. Íà êîäû ïàêåòîâ.
+		bool allowed=true; //Ð•ÑÐ»Ð¸ Ð¿Ð°ÐºÐµÑ‚ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ Ð½Ðµ Ð¿Ñ€Ð¾Ñ…Ð¾Ð´Ð¸Ñ‚ - false
+		// Ð¢ÑƒÑ‚ Ð¾ÑÑƒÑ‰ÐµÑÑ‚Ð²Ð»ÑÑ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ Ð¿Ð°ÐºÐµÑ‚Ð° Ð½Ð° Ð²Ð½Ð¾ÑÐ¸Ð¼Ð¾ÑÑ‚ÑŒ Ð² Ñ€ÐµÐ¿Ð»ÐµÐ¹. ÐÐ° ÐºÐ¾Ð´Ñ‹ Ð¿Ð°ÐºÐµÑ‚Ð¾Ð².
 		if(*P==0x2B)
 		{
-			// Îáðàáîòêà ñìåíû ìàïû
+			// ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° ÑÐ¼ÐµÐ½Ñ‹ Ð¼Ð°Ð¿Ñ‹
 			allowed=false;
-			replaySaveDropFrame=5; // Äðîïàåì ôðåéìû, ÷òî íà ñòûêå äâóõ ôàéëîâ
-			replaySaveStart(); //Ðåñòàðò ïðîöåññà ïðîèñõîäèò (äëÿ çàïèñè â íîâûé ôàéë). Çàìåòüòå - áåç ñòîïà. Ñòîï îáðàáàòûâàåòñÿ â ñàìîì íà÷àëå replaySaveStart. Ýêñïëèñèòíûé ñòîï íóæå äëÿ ôèíàëèçàöèè âñåãî ïðîöåññà.
+			replaySaveDropFrame=5; // Ð”Ñ€Ð¾Ð¿Ð°ÐµÐ¼ Ñ„Ñ€ÐµÐ¹Ð¼Ñ‹, Ñ‡Ñ‚Ð¾ Ð½Ð° ÑÑ‚Ñ‹ÐºÐµ Ð´Ð²ÑƒÑ… Ñ„Ð°Ð¹Ð»Ð¾Ð²
+			replaySaveStart(); //Ð ÐµÑÑ‚Ð°Ñ€Ñ‚ Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ° Ð¿Ñ€Ð¾Ð¸ÑÑ…Ð¾Ð´Ð¸Ñ‚ (Ð´Ð»Ñ Ð·Ð°Ð¿Ð¸ÑÐ¸ Ð² Ð½Ð¾Ð²Ñ‹Ð¹ Ñ„Ð°Ð¹Ð»). Ð—Ð°Ð¼ÐµÑ‚ÑŒÑ‚Ðµ - Ð±ÐµÐ· ÑÑ‚Ð¾Ð¿Ð°. Ð¡Ñ‚Ð¾Ð¿ Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÑ‚ÑÑ Ð² ÑÐ°Ð¼Ð¾Ð¼ Ð½Ð°Ñ‡Ð°Ð»Ðµ replaySaveStart. Ð­ÐºÑÐ¿Ð»Ð¸ÑÐ¸Ñ‚Ð½Ñ‹Ð¹ ÑÑ‚Ð¾Ð¿ Ð½ÑƒÐ¶Ðµ Ð´Ð»Ñ Ñ„Ð¸Ð½Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ð¸ Ð²ÑÐµÐ³Ð¾ Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ°.
 		}
 		if(*P==0x6C)
 		{
@@ -783,7 +783,7 @@ namespace
 	{
 		if(replaySaveEnabled)
 		{
-			// Àíàëèç ïàêåòîâ - îòðåçàåì ïî-ïàêåòíî îò îáùåãî áóôåðà ôðåéìà. BufStart ïîñëå àíàëèçà ïàêåòà ñàìèì îáðàáîò÷èêîì ñäâèãàåòñÿ âïåð¸ä, ÷òî ïîçâîëÿåò íàì çàñå÷ü ïàêåò.
+			// ÐÐ½Ð°Ð»Ð¸Ð· Ð¿Ð°ÐºÐµÑ‚Ð¾Ð² - Ð¾Ñ‚Ñ€ÐµÐ·Ð°ÐµÐ¼ Ð¿Ð¾-Ð¿Ð°ÐºÐµÑ‚Ð½Ð¾ Ð¾Ñ‚ Ð¾Ð±Ñ‰ÐµÐ³Ð¾ Ð±ÑƒÑ„ÐµÑ€Ð° Ñ„Ñ€ÐµÐ¹Ð¼Ð°. BufStart Ð¿Ð¾ÑÐ»Ðµ Ð°Ð½Ð°Ð»Ð¸Ð·Ð° Ð¿Ð°ÐºÐµÑ‚Ð° ÑÐ°Ð¼Ð¸Ð¼ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ñ‡Ð¸ÐºÐ¾Ð¼ ÑÐ´Ð²Ð¸Ð³Ð°ÐµÑ‚ÑÑ Ð²Ð¿ÐµÑ€Ñ‘Ð´, Ñ‡Ñ‚Ð¾ Ð¿Ð¾Ð·Ð²Ð¾Ð»ÑÐµÑ‚ Ð½Ð°Ð¼ Ð·Ð°ÑÐµÑ‡ÑŒ Ð¿Ð°ÐºÐµÑ‚.
 			u_int size=BufStart-replaySaveFrameBaseAddress;
 			if(size>0 && (replaySaveFramePacketsSeeker+size)<=replaySaveFramePacketsEnd)
 			{
@@ -803,7 +803,7 @@ namespace
 	{
 		if(replaySaveEnabled)
 		{
-			// Àíàëèç ïîñëåäíåãî ïàêåòà - îòðåçàåì ïî-ïàêåòíî. Âûçîâ â ñàìì êîíöå îáðàáîò÷èêà ïàêåòîâ.
+			// ÐÐ½Ð°Ð»Ð¸Ð· Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ³Ð¾ Ð¿Ð°ÐºÐµÑ‚Ð° - Ð¾Ñ‚Ñ€ÐµÐ·Ð°ÐµÐ¼ Ð¿Ð¾-Ð¿Ð°ÐºÐµÑ‚Ð½Ð¾. Ð’Ñ‹Ð·Ð¾Ð² Ð² ÑÐ°Ð¼Ð¼ ÐºÐ¾Ð½Ñ†Ðµ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ñ‡Ð¸ÐºÐ° Ð¿Ð°ÐºÐµÑ‚Ð¾Ð².
 			if(replaySaveFramePacketsSeeker<=replaySaveFramePacketsEnd)
 			{
 				u_int size=replaySaveFramePacketsEnd-replaySaveFramePacketsSeeker;
@@ -815,13 +815,13 @@ namespace
 					replaySaveFramePacketsSeeker=replaySaveFramePacketsEnd;
 					replaySavePacketChecker(packet, size);
 				}
-				// Ôèíàëèçèðóåì ôðåéì (ïèøåì â ôàéë) - åñëè íå íàäî äðîïàòü ôðåéì. Ôðåéì äðîïàåòñÿ íà ñòûêå ìåæäó äâóìÿ ôàéëàìè.
+				// Ð¤Ð¸Ð½Ð°Ð»Ð¸Ð·Ð¸Ñ€ÑƒÐµÐ¼ Ñ„Ñ€ÐµÐ¹Ð¼ (Ð¿Ð¸ÑˆÐµÐ¼ Ð² Ñ„Ð°Ð¹Ð») - ÐµÑÐ»Ð¸ Ð½Ðµ Ð½Ð°Ð´Ð¾ Ð´Ñ€Ð¾Ð¿Ð°Ñ‚ÑŒ Ñ„Ñ€ÐµÐ¹Ð¼. Ð¤Ñ€ÐµÐ¹Ð¼ Ð´Ñ€Ð¾Ð¿Ð°ÐµÑ‚ÑÑ Ð½Ð° ÑÑ‚Ñ‹ÐºÐµ Ð¼ÐµÐ¶Ð´Ñƒ Ð´Ð²ÑƒÐ¼Ñ Ñ„Ð°Ð¹Ð»Ð°Ð¼Ð¸.
 				if(replaySaveDropFrame==0)
 					replaySaveWriteData(REPLAY_FRAME, replaySaveFramePayload, replaySaveFramePayloadSize);
 				else
 					replaySaveDropFrame--;
 				replaySaveFrameSaved = true;
-				// Çà÷èùàåì
+				// Ð—Ð°Ñ‡Ð¸Ñ‰Ð°ÐµÐ¼
 				replaySaveFramePayloadSize=0;
 				if(replaySaveFramePayload!=NULL)
 				{
@@ -856,13 +856,13 @@ namespace
 		}
 	}
 
-	int replaySaveStopL(lua_State* L) //îá¸ðòêà äëÿ ËÓÀ
+	int replaySaveStopL(lua_State* L) //Ð¾Ð±Ñ‘Ñ€Ñ‚ÐºÐ° Ð´Ð»Ñ Ð›Ð£Ð
 	{
 		replaySaveStop();
 		return 0;
 	}
 
-	int replaySaveStartL(lua_State* L) //îá¸ðòêà äëÿ ËÓÀ
+	int replaySaveStartL(lua_State* L) //Ð¾Ð±Ñ‘Ñ€Ñ‚ÐºÐ° Ð´Ð»Ñ Ð›Ð£Ð
 	{
 		if(lua_type(L, -1)==LUA_TSTRING)
 		{
@@ -890,7 +890,7 @@ namespace
 
 	//common replay block
 
-	//Ñàìûé êîíåö netOnPacketRecvCli. 
+	//Ð¡Ð°Ð¼Ñ‹Ð¹ ÐºÐ¾Ð½ÐµÑ† netOnPacketRecvCli. 
 	void clientPacketHandlerEnd(void* BufStart, int size, int edx, int ecx, int eax, void* returnFunction)
 	{
 		returnFunction = origClientPacketHandlerEnd;
@@ -900,7 +900,7 @@ namespace
 		replayViewFinalizeFrame();
 	}
 
-	//internal - ÷òî-òî èç îáëàñòè ÷¸ðíîé ìàãèè. Ñàì óæå íå ïîìíþ ÷òî.
+	//internal - Ñ‡Ñ‚Ð¾-Ñ‚Ð¾ Ð¸Ð· Ð¾Ð±Ð»Ð°ÑÑ‚Ð¸ Ñ‡Ñ‘Ñ€Ð½Ð¾Ð¹ Ð¼Ð°Ð³Ð¸Ð¸. Ð¡Ð°Ð¼ ÑƒÐ¶Ðµ Ð½Ðµ Ð¿Ð¾Ð¼Ð½ÑŽ Ñ‡Ñ‚Ð¾.
 	void __declspec(naked) clientPacketHandlerEndTrap()
 	{
 		__asm
@@ -923,15 +923,15 @@ namespace
 		}
 	}
 
-	// Ñàìîå íà÷àëî netOnPacketRecvCli. Àäðåñ âîçâðàòà, íà÷àëî îáðàáàòûâàåìîãî áóôåðà è ðàçìåð
-	void* __cdecl replayInterceptClientPackets(void* noxOrigClientPacketHandlerEnd, BYTE *BufStart, int size) //Âíèìàíèå! Ìîäèôèêàöèÿ ïåðåìåííûõ ôóíêöèè ïðèâåä¸ò ê èçìåíåíèþ îíûõ â onPacketRecvCli!
+	// Ð¡Ð°Ð¼Ð¾Ðµ Ð½Ð°Ñ‡Ð°Ð»Ð¾ netOnPacketRecvCli. ÐÐ´Ñ€ÐµÑ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‚Ð°, Ð½Ð°Ñ‡Ð°Ð»Ð¾ Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÐ¼Ð¾Ð³Ð¾ Ð±ÑƒÑ„ÐµÑ€Ð° Ð¸ Ñ€Ð°Ð·Ð¼ÐµÑ€
+	void* __cdecl replayInterceptClientPackets(void* noxOrigClientPacketHandlerEnd, BYTE *BufStart, int size) //Ð’Ð½Ð¸Ð¼Ð°Ð½Ð¸Ðµ! ÐœÐ¾Ð´Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ… Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ Ð¿Ñ€Ð¸Ð²ÐµÐ´Ñ‘Ñ‚ Ðº Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸ÑŽ Ð¾Ð½Ñ‹Ñ… Ð² onPacketRecvCli!
 	{
-		origClientPacketHandlerEnd=noxOrigClientPacketHandlerEnd; // Çäåñü àäðåñ ñòàðîãî return-à.
+		origClientPacketHandlerEnd=noxOrigClientPacketHandlerEnd; // Ð—Ð´ÐµÑÑŒ Ð°Ð´Ñ€ÐµÑ ÑÑ‚Ð°Ñ€Ð¾Ð³Ð¾ return-Ð°.
 		origClientPacketHandlerPointer=BufStart;
 		origClientPacketHandlerSize=size;
 		replaySaveFullFrame(BufStart, size);
 		replayViewLoadFrame(&BufStart, &size);
-		return &clientPacketHandlerEndTrap; // Ïîäìåíà return-à èç onNetPacketCli.
+		return &clientPacketHandlerEndTrap; // ÐŸÐ¾Ð´Ð¼ÐµÐ½Ð° return-Ð° Ð¸Ð· onNetPacketCli.
 	}
 
 	//internal
@@ -941,24 +941,24 @@ namespace
 		sub_470A80();
 	}
 
-	//internal - òîæ ÷¸ðíàÿ ìàãèÿ.
+	//internal - Ñ‚Ð¾Ð¶ Ñ‡Ñ‘Ñ€Ð½Ð°Ñ Ð¼Ð°Ð³Ð¸Ñ.
 	void __declspec(naked) clientPacketHandlerBeginTrap()
 	{
 		__asm
 		{
 			push eax
 			push ebp
-			mov eax, [esp+0x1748+4+8] // Âûòàñêèâàåì àäðåñ ñòàíäàðòíîãî return-à
+			mov eax, [esp+0x1748+4+8] // Ð’Ñ‹Ñ‚Ð°ÑÐºÐ¸Ð²Ð°ÐµÐ¼ Ð°Ð´Ñ€ÐµÑ ÑÑ‚Ð°Ð½Ð´Ð°Ñ€Ñ‚Ð½Ð¾Ð³Ð¾ return-Ð°
 			push eax
 			call replayInterceptClientPackets
-			mov [esp+0x1748+4+8+4], eax // Ïîäìåíà return-à èç onNetPacketCli.
+			mov [esp+0x1748+4+8+4], eax // ÐŸÐ¾Ð´Ð¼ÐµÐ½Ð° return-Ð° Ð¸Ð· onNetPacketCli.
 			pop eax
 			pop ebp
 			pop eax
 			lea ebx, [eax+ebp]
-			mov [esp+0x1748+4-0x1704], ebx //Ïîñëåäíÿÿ ïîçèöèÿ â ñòåêå ïåðåä call - 1748h. Ïîçèöèÿ â ñòåêå ïåðåìåííîé - -1704h. Ñîîòâ. +4 (àäðåñ âîçâðàòà ïî ret)
-			mov [esp+0x1748+4+0x8], ebp //Àíàëîãè÷íî ïðåäûäóùåìó
-			mov [esp+0x1748+4+0xC], eax	//Àíàëîãè÷íî ïðåäûäóùåìó
+			mov [esp+0x1748+4-0x1704], ebx //ÐŸÐ¾ÑÐ»ÐµÐ´Ð½ÑÑ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð² ÑÑ‚ÐµÐºÐµ Ð¿ÐµÑ€ÐµÐ´ call - 1748h. ÐŸÐ¾Ð·Ð¸Ñ†Ð¸Ñ Ð² ÑÑ‚ÐµÐºÐµ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð¾Ð¹ - -1704h. Ð¡Ð¾Ð¾Ñ‚Ð². +4 (Ð°Ð´Ñ€ÐµÑ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‚Ð° Ð¿Ð¾ ret)
+			mov [esp+0x1748+4+0x8], ebp //ÐÐ½Ð°Ð»Ð¾Ð³Ð¸Ñ‡Ð½Ð¾ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰ÐµÐ¼Ñƒ
+			mov [esp+0x1748+4+0xC], eax	//ÐÐ½Ð°Ð»Ð¾Ð³Ð¸Ñ‡Ð½Ð¾ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰ÐµÐ¼Ñƒ
 			call packetHandlerBegin
 			ret
 		}
@@ -970,7 +970,7 @@ void replayGuiUpdate()
 	replayViewFormGame();
 }
 
-//onNetPacket äëÿ ðåïëååâ.
+//onNetPacket Ð´Ð»Ñ Ñ€ÐµÐ¿Ð»ÐµÐµÐ².
 bool replayPacketHandler(BYTE *&BufStart, BYTE *&E, bool &found)
 {
 	replaySavePacketHandler(BufStart, E, found);

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "unit.h"
 
-extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
+extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - РєР»РёРµРЅС‚Сѓ
 								void *Buf,int BufSize);
 
 extern void (__cdecl *wndShowHide)(void *Wnd,int Hide);
@@ -33,7 +33,7 @@ creatureWhatDo myCreatureList;
 
 namespace
 {
-	void __declspec(naked) asmDeathBallBugGs() // для GreatSword
+	void __declspec(naked) asmDeathBallBugGs() // РґР»СЏ GreatSword
 	{
 		__asm
 		{
@@ -41,26 +41,26 @@ namespace
 			add esp,0Ch
 			cmp [ebx+4],02C2h
 			jnz exitL
-			mov eax,[ebx+2DCh] // теперь это время последнего коллайда
+			mov eax,[ebx+2DCh] // С‚РµРїРµСЂСЊ СЌС‚Рѕ РІСЂРµРјСЏ РїРѕСЃР»РµРґРЅРµРіРѕ РєРѕР»Р»Р°Р№РґР°
 			mov ecx,frameCounter
 			mov ecx,[ecx+0]
-			test eax,eax // если у нас там 0, то пишем время и выходим
+			test eax,eax // РµСЃР»Рё Сѓ РЅР°СЃ С‚Р°Рј 0, С‚Рѕ РїРёС€РµРј РІСЂРµРјСЏ Рё РІС‹С…РѕРґРёРј
 			jnz l1
 			obnul:
 			mov [ebx+2DCh],ecx
 			mov [ebx+2E0h],0
 			jmp exitL
-			l1: // если не ноль то смотрим что и действуем
+			l1: // РµСЃР»Рё РЅРµ РЅРѕР»СЊ С‚Рѕ СЃРјРѕС‚СЂРёРј С‡С‚Рѕ Рё РґРµР№СЃС‚РІСѓРµРј
 			sub ecx,eax
 			cmp ecx,4
-			ja obnul // если прошло больше 4 кадров
+			ja obnul // РµСЃР»Рё РїСЂРѕС€Р»Рѕ Р±РѕР»СЊС€Рµ 4 РєР°РґСЂРѕРІ
 			mov ecx,[ebx+2E0h]
 			inc ecx
 			mov [ebx+2E0h],ecx
 			cmp ecx,3
 			jna exitL
 			push ebx
-			call noxDeleteObject //удаляем наконец
+			call noxDeleteObject //СѓРґР°Р»СЏРµРј РЅР°РєРѕРЅРµС†
 			add esp,4
 
 			exitL:
@@ -69,7 +69,7 @@ namespace
 		}
 	}
 
-	void __declspec(naked) asmDeathBallBugSh() // для Shield
+	void __declspec(naked) asmDeathBallBugSh() // РґР»СЏ Shield
 	{
 		__asm
 		{
@@ -77,26 +77,26 @@ namespace
 			add esp,0Ch
 			cmp [ebx+4],02C2h
 			jnz exitL
-			mov eax,[ebx+2DCh] // теперь это время последнего коллайда
+			mov eax,[ebx+2DCh] // С‚РµРїРµСЂСЊ СЌС‚Рѕ РІСЂРµРјСЏ РїРѕСЃР»РµРґРЅРµРіРѕ РєРѕР»Р»Р°Р№РґР°
 			mov ecx,frameCounter
 			mov ecx,[ecx+0]
-			test eax,eax // если у нас там 0, то пишем время и выходим
+			test eax,eax // РµСЃР»Рё Сѓ РЅР°СЃ С‚Р°Рј 0, С‚Рѕ РїРёС€РµРј РІСЂРµРјСЏ Рё РІС‹С…РѕРґРёРј
 			jnz l1
 			obnul:
 			mov [ebx+2DCh],ecx
 			mov [ebx+2E0h],0
 			jmp exitL
-			l1: // если не ноль то смотрим что и действуем
+			l1: // РµСЃР»Рё РЅРµ РЅРѕР»СЊ С‚Рѕ СЃРјРѕС‚СЂРёРј С‡С‚Рѕ Рё РґРµР№СЃС‚РІСѓРµРј
 			sub ecx,eax
 			cmp ecx,4
-			ja obnul // если прошло больше 4 кадров
+			ja obnul // РµСЃР»Рё РїСЂРѕС€Р»Рѕ Р±РѕР»СЊС€Рµ 4 РєР°РґСЂРѕРІ
 			mov ecx,[ebx+2E0h]
 			inc ecx
 			mov [ebx+2E0h],ecx
 			cmp ecx,3
 			jna exitL
 			push ebx
-			call noxDeleteObject //удаляем наконец
+			call noxDeleteObject //СѓРґР°Р»СЏРµРј РЅР°РєРѕРЅРµС†
 			add esp,4
 
 			exitL:
@@ -107,7 +107,7 @@ namespace
 
 
 
-	void __declspec(naked) asmConjSummonEnotherCmp() // добавляем ПКМ
+	void __declspec(naked) asmConjSummonEnotherCmp() // РґРѕР±Р°РІР»СЏРµРј РџРљРњ
 	{
 		__asm
 		{
@@ -149,7 +149,7 @@ namespace
 		P.netCodeMob=(short)*((BYTE**)M);
 		int command=0;
 		if (A==1)
-			P.whatDo=0; // испариться
+			P.whatDo=0; // РёСЃРїР°СЂРёС‚СЊСЃСЏ
 		else
 		{
 			for (int i=0;i<4;i++)
@@ -171,7 +171,7 @@ namespace
 		lua_settop(L,Top);
 	}
 		
-	void __declspec(naked) asmConjSummonDo() // когда нажали на моба
+	void __declspec(naked) asmConjSummonDo() // РєРѕРіРґР° РЅР°Р¶Р°Р»Рё РЅР° РјРѕР±Р°
 	{
 		__asm
 		{
@@ -183,11 +183,11 @@ namespace
 			push 0
 			call conjSummonDo
 			jmp lex
-			l1: // если ПКМ то убиваем моба
+			l1: // РµСЃР»Рё РџРљРњ С‚Рѕ СѓР±РёРІР°РµРј РјРѕР±Р°
 			push 1
 			call conjSummonDo
 
-			lex: // выходим из сабы
+			lex: // РІС‹С…РѕРґРёРј РёР· СЃР°Р±С‹
 			add esp,8
 			push 004C2BBEh
 			ret
@@ -206,7 +206,7 @@ namespace
 			}
 		}
 	}
-	void __declspec(naked) asmConjSummonCreate() // когда создали моба прогоняем его
+	void __declspec(naked) asmConjSummonCreate() // РєРѕРіРґР° СЃРѕР·РґР°Р»Рё РјРѕР±Р° РїСЂРѕРіРѕРЅСЏРµРј РµРіРѕ
 	{
 		__asm
 		{
@@ -227,7 +227,7 @@ namespace
 		if (c==0) 
 			myCreatureList.commandAll=4;
 	}
-	void __declspec(naked) asmConjSummonDoAll() // когда отпровляем команду всем
+	void __declspec(naked) asmConjSummonDoAll() // РєРѕРіРґР° РѕС‚РїСЂРѕРІР»СЏРµРј РєРѕРјР°РЅРґСѓ РІСЃРµРј
 	{
 		__asm
 		{
@@ -250,7 +250,7 @@ namespace
 			myCreatureList.mobNetCode[i]=0;
 		}
 	}
-	void __declspec(naked) asmConjSummonLoadWnd() // когда заргружается окна все к черту обнуляем
+	void __declspec(naked) asmConjSummonLoadWnd() // РєРѕРіРґР° Р·Р°СЂРіСЂСѓР¶Р°РµС‚СЃСЏ РѕРєРЅР° РІСЃРµ Рє С‡РµСЂС‚Сѓ РѕР±РЅСѓР»СЏРµРј
 	{
 		__asm
 		{
@@ -269,7 +269,7 @@ namespace
 				myCreatureList.mobNetCode[i]=0;
 		}
 	}
-	void __declspec(naked) asmConjSummonDieOrBanish() // когда моб сдыхает
+	void __declspec(naked) asmConjSummonDieOrBanish() // РєРѕРіРґР° РјРѕР± СЃРґС‹С…Р°РµС‚
 	{
 		__asm
 		{
@@ -299,7 +299,7 @@ namespace
 		__asm
 		{
 			// edi - unit
-			test byte ptr [edi+8],4 // игрок ли? Мало-ли что, мб у меня параноя
+			test byte ptr [edi+8],4 // РёРіСЂРѕРє Р»Рё? РњР°Р»Рѕ-Р»Рё С‡С‚Рѕ, РјР± Сѓ РјРµРЅСЏ РїР°СЂР°РЅРѕСЏ
 			jz l1
 		/*	mov edx,edi
 			add edx,0x38
@@ -340,7 +340,7 @@ namespace
 			mov ecx,[esp]
 			add esp,4 
 			
-l1: // exit, как то блин так и назвал, удивлялся почему нокс закрывается
+l1: // exit, РєР°Рє С‚Рѕ Р±Р»РёРЅ С‚Р°Рє Рё РЅР°Р·РІР°Р», СѓРґРёРІР»СЏР»СЃСЏ РїРѕС‡РµРјСѓ РЅРѕРєСЃ Р·Р°РєСЂС‹РІР°РµС‚СЃСЏ
 			push 0052C7D9h
 			ret
 		}
@@ -373,8 +373,8 @@ void bugsInit()
 	InjectJumpTo(0x004E1C8A,&asmDeathBallBugGs);
 	InjectJumpTo(0x004E1BD6,&asmDeathBallBugSh);
 
-	InjectJumpTo(0x004C2BC7,&asmConjSummonEnotherCmp); // делаем возможность ПКМ
-	InjectJumpTo(0x004C2BB6,&asmConjSummonDo); // ставим вместо списка наши 2 прикольные штуки
+	InjectJumpTo(0x004C2BC7,&asmConjSummonEnotherCmp); // РґРµР»Р°РµРј РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РџРљРњ
+	InjectJumpTo(0x004C2BB6,&asmConjSummonDo); // СЃС‚Р°РІРёРј РІРјРµСЃС‚Рѕ СЃРїРёСЃРєР° РЅР°С€Рё 2 РїСЂРёРєРѕР»СЊРЅС‹Рµ С€С‚СѓРєРё
 	InjectJumpTo(0x0049179A,&asmConjSummonCreate);
 	InjectJumpTo(0x004C2ACC,&asmConjSummonDoAll);
 	InjectJumpTo(0x004C3147,&asmConjSummonDieOrBanish);

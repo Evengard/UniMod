@@ -4,23 +4,23 @@
 #include <map>
 #include <iostream>
 /*
-Исследовать:
-+) Появление обелисков
-) Респавны юнитов
-+.) Свойства стен
-+) Баффы оружия/брони (исследовал но не могу применять)
+РСЃСЃР»РµРґРѕРІР°С‚СЊ:
++) РџРѕСЏРІР»РµРЅРёРµ РѕР±РµР»РёСЃРєРѕРІ
+) Р РµСЃРїР°РІРЅС‹ СЋРЅРёС‚РѕРІ
++.) РЎРІРѕР№СЃС‚РІР° СЃС‚РµРЅ
++) Р‘Р°С„С„С‹ РѕСЂСѓР¶РёСЏ/Р±СЂРѕРЅРё (РёСЃСЃР»РµРґРѕРІР°Р» РЅРѕ РЅРµ РјРѕРіСѓ РїСЂРёРјРµРЅСЏС‚СЊ)
 
-Eще поправки
-+1) Чтобы юнит можно было двигать
-+2) Чтбы юнит можно было пнуть в сторону
-) определение типа и сабтипа
-+3) добавить функцию для карты, ведущую в юнимод
-4) чтобы она могла читать/писать переменные по именам
-+5) сетевой пакет
+EС‰Рµ РїРѕРїСЂР°РІРєРё
++1) Р§С‚РѕР±С‹ СЋРЅРёС‚ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РґРІРёРіР°С‚СЊ
++2) Р§С‚Р±С‹ СЋРЅРёС‚ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РїРЅСѓС‚СЊ РІ СЃС‚РѕСЂРѕРЅСѓ
+) РѕРїСЂРµРґРµР»РµРЅРёРµ С‚РёРїР° Рё СЃР°Р±С‚РёРїР°
++3) РґРѕР±Р°РІРёС‚СЊ С„СѓРЅРєС†РёСЋ РґР»СЏ РєР°СЂС‚С‹, РІРµРґСѓС‰СѓСЋ РІ СЋРЅРёРјРѕРґ
+4) С‡С‚РѕР±С‹ РѕРЅР° РјРѕРіР»Р° С‡РёС‚Р°С‚СЊ/РїРёСЃР°С‚СЊ РїРµСЂРµРјРµРЅРЅС‹Рµ РїРѕ РёРјРµРЅР°Рј
++5) СЃРµС‚РµРІРѕР№ РїР°РєРµС‚
 
--) сделать в консоли больше место для инфы, а то после скана все и не найдешь, потеряеться
--) сделать так что бы при написании теста в консоли были копипаст хотя бы)
-+) что бы по этому тексту можно было пермещаться стрелосками, а то удалялять 300 симболов что бы исправить 1 ошибку не удобно...
+-) СЃРґРµР»Р°С‚СЊ РІ РєРѕРЅСЃРѕР»Рё Р±РѕР»СЊС€Рµ РјРµСЃС‚Рѕ РґР»СЏ РёРЅС„С‹, Р° С‚Рѕ РїРѕСЃР»Рµ СЃРєР°РЅР° РІСЃРµ Рё РЅРµ РЅР°Р№РґРµС€СЊ, РїРѕС‚РµСЂСЏРµС‚СЊСЃСЏ
+-) СЃРґРµР»Р°С‚СЊ С‚Р°Рє С‡С‚Рѕ Р±С‹ РїСЂРё РЅР°РїРёСЃР°РЅРёРё С‚РµСЃС‚Р° РІ РєРѕРЅСЃРѕР»Рё Р±С‹Р»Рё РєРѕРїРёРїР°СЃС‚ С…РѕС‚СЏ Р±С‹)
++) С‡С‚Рѕ Р±С‹ РїРѕ СЌС‚РѕРјСѓ С‚РµРєСЃС‚Сѓ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РїРµСЂРјРµС‰Р°С‚СЊСЃСЏ СЃС‚СЂРµР»РѕСЃРєР°РјРё, Р° С‚Рѕ СѓРґР°Р»СЏР»СЏС‚СЊ 300 СЃРёРјР±РѕР»РѕРІ С‡С‚Рѕ Р±С‹ РёСЃРїСЂР°РІРёС‚СЊ 1 РѕС€РёР±РєСѓ РЅРµ СѓРґРѕР±РЅРѕ...
 
 */
 
@@ -36,7 +36,7 @@ extern bool serverUpdate();
 extern char authSendWelcomeMsg[0x20];
 extern void netSendChatMessage(char *sendChat, int sendTo, short sendFrom=0, bool fakeSystemMessage=false);
 extern byte authorisedState[0x20];
-extern bool specialAuthorisation; //Отключение альтернативной авторизации
+extern bool specialAuthorisation; //РћС‚РєР»СЋС‡РµРЅРёРµ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕР№ Р°РІС‚РѕСЂРёР·Р°С†РёРё
 
 u_int hostIdx = 0x1F;
 
@@ -339,7 +339,7 @@ int printL(lua_State *L)
 		//Rz
 	}
 	lua_Debug ar;
-	if (0==lua_getstack (L, 1, &ar))  /// Достаем прошлую переменную окружения, чтобы читать данные оттуда
+	if (0==lua_getstack (L, 1, &ar))  /// Р”РѕСЃС‚Р°РµРј РїСЂРѕС€Р»СѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ РѕРєСЂСѓР¶РµРЅРёСЏ, С‡С‚РѕР±С‹ С‡РёС‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РѕС‚С‚СѓРґР°
 		lua_pushnil(L);
 	else
 		lua_getinfo(L, "f", &ar);
@@ -376,7 +376,7 @@ int printL(lua_State *L)
 	}
 	return 0;
 }
-void InjectJumpTo(DWORD Addr,void *Fn)// Пишем по данному адресу переход на нашу функцию
+void InjectJumpTo(DWORD Addr,void *Fn)// РџРёС€РµРј РїРѕ РґР°РЅРЅРѕРјСѓ Р°РґСЂРµСЃСѓ РїРµСЂРµС…РѕРґ РЅР° РЅР°С€Сѓ С„СѓРЅРєС†РёСЋ
 {
 	BYTE *To=(BYTE *)Addr; 
 	DWORD *Dw=(DWORD*)(To+1);
@@ -388,7 +388,7 @@ void InjectJumpTo(DWORD Addr,void *Fn)// Пишем по данному адресу переход на нашу
 	*(To++)=0xE9;
 	VirtualProtect(To,5,OldProtect,&OldProtect);
 };
-void InjectOffs(DWORD Addr,void *Fn)// Пишем по данному адресу - адрес нашей функции c вычислением
+void InjectOffs(DWORD Addr,void *Fn)// РџРёС€РµРј РїРѕ РґР°РЅРЅРѕРјСѓ Р°РґСЂРµСЃСѓ - Р°РґСЂРµСЃ РЅР°С€РµР№ С„СѓРЅРєС†РёРё c РІС‹С‡РёСЃР»РµРЅРёРµРј
 {
 	DWORD *Dw=(DWORD*)(Addr);
 	DWORD Delta=(DWORD)Fn;
@@ -398,7 +398,7 @@ void InjectOffs(DWORD Addr,void *Fn)// Пишем по данному адресу - адрес нашей фун
 	*Dw=Delta;
 	VirtualProtect(Dw,4,OldProtect,&OldProtect);
 }
-void InjectAddr(DWORD Addr,void *Fn)// Пишем по данному адресу - адрес нашей функции
+void InjectAddr(DWORD Addr,void *Fn)// РџРёС€РµРј РїРѕ РґР°РЅРЅРѕРјСѓ Р°РґСЂРµСЃСѓ - Р°РґСЂРµСЃ РЅР°С€РµР№ С„СѓРЅРєС†РёРё
 {
 	DWORD *Dw=(DWORD*)(Addr);
 	DWORD Delta=(DWORD)Fn;
@@ -445,7 +445,7 @@ namespace
 			mov eax,[eax]
 			jmp oldCreateAtPart
 	l1:
-			add esp,16 // 4-е параметра
+			add esp,16 // 4-Рµ РїР°СЂР°РјРµС‚СЂР°
 		}
 		lua_getglobal(L,"noxOnCreateAt");
 		if(lua_type(L,-1)!=LUA_TFUNCTION)
@@ -855,9 +855,9 @@ namespace
 		ExceptionMode=lua_tointeger(L,3);
 		return 1;
 	}
-		// 0 - ничего не делать(как обычно)
-		// 1 - записать в log и закрытся
-		// 2 - записать в log и рестартовать нокс
+		// 0 - РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ(РєР°Рє РѕР±С‹С‡РЅРѕ)
+		// 1 - Р·Р°РїРёСЃР°С‚СЊ РІ log Рё Р·Р°РєСЂС‹С‚СЃСЏ
+		// 2 - Р·Р°РїРёСЃР°С‚СЊ РІ log Рё СЂРµСЃС‚Р°СЂС‚РѕРІР°С‚СЊ РЅРѕРєСЃ
 		// 
 	LONG WINAPI ExceptionFilter(
 	    _EXCEPTION_POINTERS *EI
@@ -932,7 +932,7 @@ namespace
 		{}
 	};
 	std::list<TimeoutListRec> timeoutList;
-	int setTimeoutL(lua_State *L) /// теперь получает 3-й аргумент - таблицу и 4-ый - следует ли сохранять при смене карты
+	int setTimeoutL(lua_State *L) /// С‚РµРїРµСЂСЊ РїРѕР»СѓС‡Р°РµС‚ 3-Р№ Р°СЂРіСѓРјРµРЅС‚ - С‚Р°Р±Р»РёС†Сѓ Рё 4-С‹Р№ - СЃР»РµРґСѓРµС‚ Р»Рё СЃРѕС…СЂР°РЅСЏС‚СЊ РїСЂРё СЃРјРµРЅРµ РєР°СЂС‚С‹
 	{
 		lua_settop(L,4);
 		if ((lua_type(L,1)!=LUA_TFUNCTION) ||(lua_type(L,2)!=LUA_TNUMBER) 
@@ -943,12 +943,12 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		lua_pushlightuserdata(L,setTimeoutL);/// функции
+		lua_pushlightuserdata(L,setTimeoutL);/// С„СѓРЅРєС†РёРё
 		lua_gettable(L,LUA_REGISTRYINDEX);
 			lua_pushinteger(L,timeoutNextId);
 			lua_pushvalue(L,1);
 			lua_settable(L,-3);
-		lua_pushlightuserdata(L,&timeoutNextId);/// сюда положим таблицу
+		lua_pushlightuserdata(L,&timeoutNextId);/// СЃСЋРґР° РїРѕР»РѕР¶РёРј С‚Р°Р±Р»РёС†Сѓ
 		lua_gettable(L,LUA_REGISTRYINDEX);
 			lua_pushinteger(L,timeoutNextId);
 			lua_pushvalue(L,3);
@@ -968,7 +968,7 @@ namespace
 		timeoutList.insert(I, TimeoutListRec(timeoutNextId++, Time, ispersistant));
 		return 1;
 	}
-	void (__cdecl *sub51ADF0)();/// событие проверки скриптов карты по таймауту
+	void (__cdecl *sub51ADF0)();/// СЃРѕР±С‹С‚РёРµ РїСЂРѕРІРµСЂРєРё СЃРєСЂРёРїС‚РѕРІ РєР°СЂС‚С‹ РїРѕ С‚Р°Р№РјР°СѓС‚Сѓ
 	int getFrameCounterL(lua_State *L)
 	{
 		lua_pushinteger(L,(int)*frameCounter);
@@ -1005,9 +1005,9 @@ namespace
 		serverUpdate();
 		DWORD Time = *frameCounter;
 		int Top = lua_gettop(L);
-		lua_pushlightuserdata(L, &timeoutNextId);/// таблица аргументов
+		lua_pushlightuserdata(L, &timeoutNextId);/// С‚Р°Р±Р»РёС†Р° Р°СЂРіСѓРјРµРЅС‚РѕРІ
 		lua_gettable(L, LUA_REGISTRYINDEX);
-		lua_pushlightuserdata(L, setTimeoutL);/// таблица функций
+		lua_pushlightuserdata(L, setTimeoutL);/// С‚Р°Р±Р»РёС†Р° С„СѓРЅРєС†РёР№
 		lua_gettable(L, LUA_REGISTRYINDEX);
 
 		for (std::list<TimeoutListRec>::iterator I = timeoutList.begin(); I != timeoutList.end();)
@@ -1024,14 +1024,14 @@ namespace
 				{
 					lua_getfenv(L, -1);
 					lua_pushvalue(L, -2);
-					lua_getfield(L, -2, "conOutput");// conOutput функция енв функция
-					lua_insert(L, -2);// функция conOutput енв функция
+					lua_getfield(L, -2, "conOutput");// conOutput С„СѓРЅРєС†РёСЏ РµРЅРІ С„СѓРЅРєС†РёСЏ
+					lua_insert(L, -2);// С„СѓРЅРєС†РёСЏ conOutput РµРЅРІ С„СѓРЅРєС†РёСЏ
 					lua_pushnil(L);
 					lua_setfield(L, -4, "conOutput");
 
 					lua_pushinteger(L, Time);
 					lua_pushinteger(L, I->Id);
-					// таблица с аргументом
+					// С‚Р°Р±Р»РёС†Р° СЃ Р°СЂРіСѓРјРµРЅС‚РѕРј
 					lua_gettable(L, -8); // id,Time,Fn, conOutput, env, fn, {Fns},{Args}
 					if (0 != lua_pcall(L, 2, 0, 0))
 					{
@@ -1043,8 +1043,8 @@ namespace
 						lua_pop(L, 1);
 					}
 					///conOutput,env, fn, {Fns},{Args}
-					lua_getfield(L, -2, "conOutput");// conOutput функция енв функция
-					if (lua_type(L, -1) == LUA_TNIL) // если задали другую функцию - то так и оставим, но как ее обнулить?
+					lua_getfield(L, -2, "conOutput");// conOutput С„СѓРЅРєС†РёСЏ РµРЅРІ С„СѓРЅРєС†РёСЏ
+					if (lua_type(L, -1) == LUA_TNIL) // РµСЃР»Рё Р·Р°РґР°Р»Рё РґСЂСѓРіСѓСЋ С„СѓРЅРєС†РёСЋ - С‚Рѕ С‚Р°Рє Рё РѕСЃС‚Р°РІРёРј, РЅРѕ РєР°Рє РµРµ РѕР±РЅСѓР»РёС‚СЊ?
 					{
 						lua_pop(L, 1);
 						lua_setfield(L, -2, "conOutput");
@@ -1053,16 +1053,16 @@ namespace
 					else
 						lua_pop(L, 3);
 
-					lua_pushinteger(L, I->Id); // чтобы было чего удалять
+					lua_pushinteger(L, I->Id); // С‡С‚РѕР±С‹ Р±С‹Р»Рѕ С‡РµРіРѕ СѓРґР°Р»СЏС‚СЊ
 				}
 				else
 					lua_pop(L, 1);
 
 				lua_pushnil(L);
-				lua_settable(L, -3); // удаляем функцию
+				lua_settable(L, -3); // СѓРґР°Р»СЏРµРј С„СѓРЅРєС†РёСЋ
 				lua_pushinteger(L, I->Id);
 				lua_pushnil(L);
-				lua_settable(L, -4);// удаляем аргумент
+				lua_settable(L, -4);// СѓРґР°Р»СЏРµРј Р°СЂРіСѓРјРµРЅС‚
 
 				I = timeoutList.erase(I);
 			}
@@ -1192,7 +1192,7 @@ void injectCon()
 	ASSIGN(printCentered,0x00445490);
 	ASSIGN(sub51ADF0,0x0051ADF0);
 	ASSIGN(noxGetUnitsInRect,0x00517C10);
-	ASSIGN(oldCreateAtPart,0x004DAA55);// Возврат
+	ASSIGN(oldCreateAtPart,0x004DAA55);// Р’РѕР·РІСЂР°С‚
 	ASSIGN(noxAlloc,0x00403560);
 	ASSIGN(noxCAlloc,0x004041D0);
 	ASSIGN(noxFree,0x0040425D);
@@ -1223,22 +1223,22 @@ void injectCon()
 		lua_newtable(L);
 			lua_pushvalue(L,LUA_GLOBALSINDEX);
 			lua_setfield(L,-2,"__index");
-		lua_setmetatable(L,-2);/// теперь клиент пронаследован от _G
+		lua_setmetatable(L,-2);/// С‚РµРїРµСЂСЊ РєР»РёРµРЅС‚ РїСЂРѕРЅР°СЃР»РµРґРѕРІР°РЅ РѕС‚ _G
 		lua_pushvalue(L,-1);
 		lua_setfield(L,LUA_REGISTRYINDEX,"client");
 
-	lua_newtable(L); /// таблица meta2
+	lua_newtable(L); /// С‚Р°Р±Р»РёС†Р° meta2
 		lua_pushvalue(L,-2);
 		lua_setfield(L,-2,"__index");
 	// meta2,client		
 	lua_createtable(L,0,40);/// Server enviroment
 		lua_pushvalue(L,-2);
-		lua_setmetatable(L,-2);/// теперь сервер пронаследован от клиента
+		lua_setmetatable(L,-2);/// С‚РµРїРµСЂСЊ СЃРµСЂРІРµСЂ РїСЂРѕРЅР°СЃР»РµРґРѕРІР°РЅ РѕС‚ РєР»РёРµРЅС‚Р°
 	lua_setfield(L,LUA_REGISTRYINDEX,"server");
 
 	lua_pushcfunction(L,&setTimeoutL); 
-	// очень важная функция, ее надо в реестр луа класть 
-	// чтобы нельзя было удалить случайно
+	// РѕС‡РµРЅСЊ РІР°Р¶РЅР°СЏ С„СѓРЅРєС†РёСЏ, РµРµ РЅР°РґРѕ РІ СЂРµРµСЃС‚СЂ Р»СѓР° РєР»Р°СЃС‚СЊ 
+	// С‡С‚РѕР±С‹ РЅРµР»СЊР·СЏ Р±С‹Р»Рѕ СѓРґР°Р»РёС‚СЊ СЃР»СѓС‡Р°Р№РЅРѕ
 	lua_pushvalue(L,-1); 
 	lua_setfield(L,LUA_REGISTRYINDEX,"setTimeout");
 	registerServerVar("setTimeout");
@@ -1330,7 +1330,7 @@ void injectCon()
 	bugsInit();
 	autoServer();
 
-	InjectJumpTo(0x00443C80,&onConCmd);// Функция реакции на консольную команду
+	InjectJumpTo(0x00443C80,&onConCmd);// Р¤СѓРЅРєС†РёСЏ СЂРµР°РєС†РёРё РЅР° РєРѕРЅСЃРѕР»СЊРЅСѓСЋ РєРѕРјР°РЅРґСѓ
 	InjectOffs(0x4D2AB5,&onEachFrame);
 
 	InjectOffs(0x00443A81+1, &tokenParseFixup);
@@ -1361,7 +1361,7 @@ void injectCon()
 	lua_settop(L,Top);
 
 	//lua_pushnil(L);
-	//lua_setglobal(L,"os");/// выкинуть вон небезопасную таблицу
+	//lua_setglobal(L,"os");/// РІС‹РєРёРЅСѓС‚СЊ РІРѕРЅ РЅРµР±РµР·РѕРїР°СЃРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ
 
 
 	int topLoad = lua_gettop(L);
@@ -1404,19 +1404,19 @@ void injectCon()
 	byte *bt4=(byte*)(0x0043E82B);
 	DWORD OldProtect;
 	VirtualProtect(bt,1,PAGE_EXECUTE_READWRITE,&OldProtect);
-	memcpy((byte*)bt,&OperatorJmps,1); // это убираем серийник
+	memcpy((byte*)bt,&OperatorJmps,1); // СЌС‚Рѕ СѓР±РёСЂР°РµРј СЃРµСЂРёР№РЅРёРє
 	VirtualProtect(bt,1,OldProtect,&OldProtect);
 	VirtualProtect(bt2,1,PAGE_EXECUTE_READWRITE,&OldProtect);
-	memcpy((byte*)bt2,&OperatorJmps,1); // это на запуск 2 -ух ноксов
+	memcpy((byte*)bt2,&OperatorJmps,1); // СЌС‚Рѕ РЅР° Р·Р°РїСѓСЃРє 2 -СѓС… РЅРѕРєСЃРѕРІ
 	VirtualProtect(bt2,1,OldProtect,&OldProtect);
 	VirtualProtect(bt3,5,PAGE_EXECUTE_READWRITE,&OldProtect);
-	memcpy((byte*)bt3,&OperatorMovEax1,5); // убиваем мутекс
+	memcpy((byte*)bt3,&OperatorMovEax1,5); // СѓР±РёРІР°РµРј РјСѓС‚РµРєСЃ
 	VirtualProtect(bt3,5,OldProtect,&OldProtect);
 	VirtualProtect(bt4,2,PAGE_EXECUTE_READWRITE,&OldProtect);
-	memcpy((byte*)bt4,&OperatorNop,2); // чиним прожорливость Нокса и архитектурный изъян.
+	memcpy((byte*)bt4,&OperatorNop,2); // С‡РёРЅРёРј РїСЂРѕР¶РѕСЂР»РёРІРѕСЃС‚СЊ РќРѕРєСЃР° Рё Р°СЂС…РёС‚РµРєС‚СѓСЂРЅС‹Р№ РёР·СЉСЏРЅ.
 	VirtualProtect(bt4,2,OldProtect,&OldProtect);
 
-	// Убиваем (или чиним?...) сисоп-закладку:
+	// РЈР±РёРІР°РµРј (РёР»Рё С‡РёРЅРёРј?...) СЃРёСЃРѕРї-Р·Р°РєР»Р°РґРєСѓ:
 	InjectAddr(0x444158 + 1, &hostIdx);
 
 	registerclient("getGameDirectory", &getGameDirectoryL);

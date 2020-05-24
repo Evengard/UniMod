@@ -16,8 +16,8 @@ tileDef_s *tileDefs;
 TilePair ***tileRowData;
 int *tileForceRedrawMB;
 
-void (__cdecl *tileFreeSubtiles)(void *tileOne);// получает точно tileOne
-TileOne* (__cdecl *tileListAddNew)(int A,int B,int C,int D);/// возможно Subtile
+void (__cdecl *tileFreeSubtiles)(void *tileOne);// РїРѕР»СѓС‡Р°РµС‚ С‚РѕС‡РЅРѕ tileOne
+TileOne* (__cdecl *tileListAddNew)(int A,int B,int C,int D);/// РІРѕР·РјРѕР¶РЅРѕ Subtile
 
 bool (__cdecl *tileCheckImageVari)(int Vari);
 
@@ -48,8 +48,8 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		// ПОКА НЕ ЗНАЮ КАК ВЫЯСНИТЬ,
-		// надо ботать 0051D570 tileCheckImageVari
+		// РџРћРљРђ РќР• Р—РќРђР® РљРђРљ Р’Р«РЇРЎРќРРўР¬,
+		// РЅР°РґРѕ Р±РѕС‚Р°С‚СЊ 0051D570 tileCheckImageVari
 		lua_pushinteger(L,tileDefs[T].tileSizeX*tileDefs[T].tileSizeY);
 		return 1;
 	}
@@ -114,7 +114,7 @@ namespace
 			lua_error_(L);
 		}
 		int N=luaL_getn(L,3);
-		if (0!=(N&3))/// должно быть кратное четырем количество полей
+		if (0!=(N&3))/// РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РєСЂР°С‚РЅРѕРµ С‡РµС‚С‹СЂРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»РµР№
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
@@ -153,7 +153,7 @@ namespace
 				One=tileListAddNew(0,0,0,0);
 				Prev->subTilePtr=One;
 			}
-			if (One==NULL) break; // вдруг при добавлении облом вышел
+			if (One==NULL) break; // РІРґСЂСѓРі РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё РѕР±Р»РѕРј РІС‹С€РµР»
 			lua_rawgeti(L,3,i++);
 			One->image=lua_tointeger(L,-1);
 			lua_rawgeti(L,3,i++);
@@ -171,7 +171,7 @@ namespace
 		{
 			tileFreeSubtiles(Prev);
 		}
-		*tileForceRedrawMB=1;		/// Тут надо послать на перерисовку экрана
+		*tileForceRedrawMB=1;		/// РўСѓС‚ РЅР°РґРѕ РїРѕСЃР»Р°С‚СЊ РЅР° РїРµСЂРµСЂРёСЃРѕРІРєСѓ СЌРєСЂР°РЅР°
 		return 0;
 	}
 	int tileSet(lua_State*L)
@@ -185,7 +185,7 @@ namespace
 			lua_error_(L);
 		}
 		int N=luaL_getn(L,3);
-		if (0!=(N&3))/// должно быть кратное четырем количество полей
+		if (0!=(N&3))/// РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РєСЂР°С‚РЅРѕРµ С‡РµС‚С‹СЂРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»РµР№
 		{
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
@@ -203,7 +203,7 @@ namespace
 		*((short*)P+1)=y;
 		P+=4;
 		*(P++)=0;
-		*(P++)=0;/// туда мы еще чего-нить запишем
+		*(P++)=0;/// С‚СѓРґР° РјС‹ РµС‰Рµ С‡РµРіРѕ-РЅРёС‚СЊ Р·Р°РїРёС€РµРј
 		*(P++)=N;
 		short *S=(short*)P;
 		for (int i=1;i<=N;i++,S++)
@@ -238,7 +238,7 @@ void netOnTileChanged(BYTE *Buf,BYTE *End)
 		One=&tp->left;
 		tp->flags|=1;
 	}
-	if (One==NULL) return;// какая-то аццкая ошибка
+	if (One==NULL) return;// РєР°РєР°СЏ-С‚Рѕ Р°С†С†РєР°СЏ РѕС€РёР±РєР°
 	BYTE *P=Buf;
 	P+=6;
 	N=*(P++);
@@ -251,7 +251,7 @@ void netOnTileChanged(BYTE *Buf,BYTE *End)
 			One=tileListAddNew(0,0,0,0);
 			Prev->subTilePtr=One;
 		}
-		if (One==NULL) break; // вдруг при добавлении облом вышел
+		if (One==NULL) break; // РІРґСЂСѓРі РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё РѕР±Р»РѕРј РІС‹С€РµР»
 		One->image=*(S++);
 		One->vari=*(S++);
 		One->a=*(S++);
@@ -263,7 +263,7 @@ void netOnTileChanged(BYTE *Buf,BYTE *End)
 	{
 		tileFreeSubtiles(Prev);
 	}
-	*tileForceRedrawMB=1;		/// Тут надо послать на перерисовку экрана
+	*tileForceRedrawMB=1;		/// РўСѓС‚ РЅР°РґРѕ РїРѕСЃР»Р°С‚СЊ РЅР° РїРµСЂРµСЂРёСЃРѕРІРєСѓ СЌРєСЂР°РЅР°
 }
 
 void tilesInit()

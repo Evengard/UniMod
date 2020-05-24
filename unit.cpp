@@ -17,7 +17,7 @@ int (__cdecl *noxUnitTestBuff) (bigUnitStruct *Unit,int buffN);
 
 void (__cdecl *inventoryPut)(bigUnitStruct *Who,bigUnitStruct *What,int A);
 
-/// список созданных в текущем кадре на сервере
+/// СЃРїРёСЃРѕРє СЃРѕР·РґР°РЅРЅС‹С… РІ С‚РµРєСѓС‰РµРј РєР°РґСЂРµ РЅР° СЃРµСЂРІРµСЂРµ
 bigUnitStruct **unitCreatedList;
 
 extern const char *(__cdecl *noxThingNameByType)(int Type);
@@ -33,7 +33,7 @@ int (__cdecl *noxUnknown535250)(UnitAndEye_s *Ptr,int Unk1,int Unk2,int Unk3);//
 void (__cdecl *unitSetDecayTime)(void *Unit,int Time);//bool
 void (__cdecl *noxDeleteUnit)(void *Unit);
 
-void* (__cdecl *noxUnitDefByName)(const char *Name);//Возвращает юнитдеф
+void* (__cdecl *noxUnitDefByName)(const char *Name);//Р’РѕР·РІСЂР°С‰Р°РµС‚ СЋРЅРёС‚РґРµС„
 
 void (__cdecl* noxCreateAt)(unitBigStructPtr Obj,unitBigStructPtr ParentUnit, float X,float Y);
 
@@ -176,7 +176,7 @@ namespace
 		P1=(bigUnitStruct*)lua_touserdata(L,1);P2=(bigUnitStruct*)lua_touserdata(L,2);
 		if(P1==0 || P2==0)
 			return 0;
-		unitBecomePet(P2,P1);/// Вызывается наоборот
+		unitBecomePet(P2,P1);/// Р’С‹Р·С‹РІР°РµС‚СЃСЏ РЅР°РѕР±РѕСЂРѕС‚
 		return 0;
 	}
 
@@ -217,7 +217,7 @@ namespace
 		return 1;
 	}
 	int unitDecayL(lua_State*L)
-	{	/// добавить в список распада
+	{	/// РґРѕР±Р°РІРёС‚СЊ РІ СЃРїРёСЃРѕРє СЂР°СЃРїР°РґР°
 		if ( (lua_type(L,1)!=LUA_TLIGHTUSERDATA) ||
 			 (lua_type(L,2)!=LUA_TNUMBER) )
 		{
@@ -228,7 +228,7 @@ namespace
 		return 0;
 	}
 	int unitMoveL(lua_State*L)
-	{	/// добавить в список распада
+	{	/// РґРѕР±Р°РІРёС‚СЊ РІ СЃРїРёСЃРѕРє СЂР°СЃРїР°РґР°
 		if ( (lua_type(L,1)!=LUA_TLIGHTUSERDATA) ||
 			 (lua_type(L,2)!=LUA_TNUMBER) ||
 			 (lua_type(L,3)!=LUA_TNUMBER) ) 

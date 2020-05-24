@@ -4,9 +4,9 @@
 int (__cdecl *spellAccept)(int SpellType,void *Caster,void *CasterMB2,void *Carrier,
 								SpellTargetBlock *Block,int Power);
 int (__cdecl *spellGetPower)(int Spell,void *Caster);
-// выключает спелл постоянного действия
+// РІС‹РєР»СЋС‡Р°РµС‚ СЃРїРµР»Р» РїРѕСЃС‚РѕСЏРЅРЅРѕРіРѕ РґРµР№СЃС‚РІРёСЏ
 void (__cdecl *spellCancelDurSpell)(int Spell,void *Caster);
-// снимает какой-либо бафф
+// СЃРЅРёРјР°РµС‚ РєР°РєРѕР№-Р»РёР±Рѕ Р±Р°С„С„
 void (__cdecl *spellBuffOff)(void *Target,int BuffN);
 int (__cdecl *spellDefHasFlags)(int Spell,DWORD Flags);
 void (__cdecl *createSpellFly)(void *Caster,void *Target,int Spell);
@@ -35,12 +35,12 @@ namespace
 		applyToTarget(lua_touserdata(L,1),Buff,delay,5);
 		return 0;
 	}
-	/// колдует спелл кем-то (списано с нокса)
-	/// когда моб чего-нить колдует - мы об этом узнаем
+	/// РєРѕР»РґСѓРµС‚ СЃРїРµР»Р» РєРµРј-С‚Рѕ (СЃРїРёСЃР°РЅРѕ СЃ РЅРѕРєСЃР°)
+	/// РєРѕРіРґР° РјРѕР± С‡РµРіРѕ-РЅРёС‚СЊ РєРѕР»РґСѓРµС‚ - РјС‹ РѕР± СЌС‚РѕРј СѓР·РЅР°РµРј
 	int myCastSpellByUserPlayer(int Spell, void *Caster, SpellTargetBlock *TargetBlock)
 	{
 		bool check=true;
-		if (*GameFlags & 0x1000!=0)  // если ноксквест то нафги проверку
+		if (*GameFlags & 0x1000!=0)  // РµСЃР»Рё РЅРѕРєСЃРєРІРµСЃС‚ С‚Рѕ РЅР°С„РіРё РїСЂРѕРІРµСЂРєСѓ
 			return myCastSpellByUser(Spell, Caster, TargetBlock);
 		if(spellDefHasFlags(Spell,0x200400)==1 && Spell!=34 && (Spell<75 || Spell>114))
 		{
@@ -53,7 +53,7 @@ namespace
 			return myCastSpellByUser(Spell, Caster, TargetBlock);
 		else
 		{
-			// Здесь можно будет заодно кикать или банить нарушителя
+			// Р—РґРµСЃСЊ РјРѕР¶РЅРѕ Р±СѓРґРµС‚ Р·Р°РѕРґРЅРѕ РєРёРєР°С‚СЊ РёР»Рё Р±Р°РЅРёС‚СЊ РЅР°СЂСѓС€РёС‚РµР»СЏ
 			return 1;
 		}
 	}
@@ -70,28 +70,28 @@ namespace
 		{
 			spellBuffOff(Caster,0x00);
 			spellBuffOff(Caster,0x17);
-			spellCancelDurSpell(0x43,Caster);//выключаем щит
+			spellCancelDurSpell(0x43,Caster);//РІС‹РєР»СЋС‡Р°РµРј С‰РёС‚
 		}
 		if (
-			spellDefHasFlags(Spell,0x04) &&// нужно делать муху
-			TargetBlock->target!=Caster // мы не в себя колдуем
+			spellDefHasFlags(Spell,0x04) &&// РЅСѓР¶РЅРѕ РґРµР»Р°С‚СЊ РјСѓС…Сѓ
+			TargetBlock->target!=Caster // РјС‹ РЅРµ РІ СЃРµР±СЏ РєРѕР»РґСѓРµРј
 			) 
 		{
 			createSpellFly(Caster,TargetBlock->target,Spell);
 
-//Ща мы найдем эту муху пока она не улетела
+//Р©Р° РјС‹ РЅР°Р№РґРµРј СЌС‚Сѓ РјСѓС…Сѓ РїРѕРєР° РѕРЅР° РЅРµ СѓР»РµС‚РµР»Р°
 			if (lua_type(L,-1)==LUA_TFUNCTION)
 			{
 				bigUnitStruct *B=*unitCreatedList;
 				for (;B!=NULL;B=(bigUnitStruct *)B->nextUnit)
 				{
 					if (B->parentUnit!=Caster)
-						continue; // не наша
+						continue; // РЅРµ РЅР°С€Р°
 					if (B->thingType!=0x3BB)
-						continue; // не муха
-					break;/// 99% что она вообще первая в списке, т.к. ее только что создали
+						continue; // РЅРµ РјСѓС…Р°
+					break;/// 99% С‡С‚Рѕ РѕРЅР° РІРѕРѕР±С‰Рµ РїРµСЂРІР°СЏ РІ СЃРїРёСЃРєРµ, С‚.Рє. РµРµ С‚РѕР»СЊРєРѕ С‡С‚Рѕ СЃРѕР·РґР°Р»Рё
 				}
-				if (B) // если муху не нашли - так считаем что не сколдовалось
+				if (B) // РµСЃР»Рё РјСѓС…Сѓ РЅРµ РЅР°С€Р»Рё - С‚Р°Рє СЃС‡РёС‚Р°РµРј С‡С‚Рѕ РЅРµ СЃРєРѕР»РґРѕРІР°Р»РѕСЃСЊ
 				{
 					lua_pushinteger(L,Spell);
 					lua_pushlightuserdata(L,Caster);
@@ -126,7 +126,7 @@ namespace
 	}
 	int spellApplyL(lua_State *L)
 	{
-		/// Кому,Чего,Чем, [ОтКого,ГдеX,ГдеY,[SpellPower=3], Промежуточный]
+		/// РљРѕРјСѓ,Р§РµРіРѕ,Р§РµРј, [РћС‚РљРѕРіРѕ,Р“РґРµX,Р“РґРµY,[SpellPower=3], РџСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹Р№]
 		if (
 			(lua_type(L,1)!=LUA_TLIGHTUSERDATA)||
 			(lua_type(L,2)!=LUA_TNUMBER)||
@@ -164,8 +164,8 @@ namespace
 			{
 				if (( 0!=(0x4 & B[8]) ))
 				{
-					B+=0x2EC;//контроллер
-					B=*((BYTE**)B);B+=0x114;//плэеринфо
+					B+=0x2EC;//РєРѕРЅС‚СЂРѕР»Р»РµСЂ
+					B=*((BYTE**)B);B+=0x114;//РїР»СЌРµСЂРёРЅС„Рѕ
 					B=*((BYTE**)B);B+=0x8EC;
 					Bk.targX=*((int*)B);B+=4;
 					Bk.targY=*((int*)B);
@@ -226,7 +226,7 @@ namespace
 			{
 			}
 			netUniPacket(upSpellSync,P,Size);
-			netSendNotOne(Buf,P-Buf,NULL); /// посылает всем клиентам  кроме одного
+			netSendNotOne(Buf,P-Buf,NULL); /// РїРѕСЃС‹Р»Р°РµС‚ РІСЃРµРј РєР»РёРµРЅС‚Р°Рј  РєСЂРѕРјРµ РѕРґРЅРѕРіРѕ
 		}
 		lua_settop(L,Top);
 		return 0;
@@ -235,8 +235,8 @@ namespace
 extern void InjectOffs(DWORD Addr,void *Fn);
 extern void (__cdecl *netPriMsg)(void *PlayerUnit,char *String,int Flag);
 extern DWORD *GameFlags;
-/// для кастомной ловушки надо будет просто юзать другой спелл
-/// Еще надо разослать netReportSpellStat всем вокруг
+/// РґР»СЏ РєР°СЃС‚РѕРјРЅРѕР№ Р»РѕРІСѓС€РєРё РЅР°РґРѕ Р±СѓРґРµС‚ РїСЂРѕСЃС‚Рѕ СЋР·Р°С‚СЊ РґСЂСѓРіРѕР№ СЃРїРµР»Р»
+/// Р•С‰Рµ РЅР°РґРѕ СЂР°Р·РѕСЃР»Р°С‚СЊ netReportSpellStat РІСЃРµРј РІРѕРєСЂСѓРі
 void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *MyUc)
 {
 	int Top=lua_gettop(L);
@@ -280,7 +280,7 @@ void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *MyUc)
 			}
 		}
 		BYTE *Target=*((BYTE**)(MyUc+0x120));
-		lua_newtable(L); /// внутренние данные спела - для продолжительных и т.п.
+		lua_newtable(L); /// РІРЅСѓС‚СЂРµРЅРЅРёРµ РґР°РЅРЅС‹Рµ СЃРїРµР»Р° - РґР»СЏ РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅС‹С… Рё С‚.Рї.
 		lua_getfield(L,Top+2,"flags");
 		lua_getfield(L,Top+2,"servOnStart");
 		int X=lua_type(L,-1);
@@ -292,11 +292,11 @@ void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *MyUc)
 		}
 		lua_getfield(L,LUA_REGISTRYINDEX,"server");
 		lua_setfenv(L,-2);
-		if (lua_tointeger(L,-2) & 0x20) /// Наш спелл имеет цель - надо делать муху
+		if (lua_tointeger(L,-2) & 0x20) /// РќР°С€ СЃРїРµР»Р» РёРјРµРµС‚ С†РµР»СЊ - РЅР°РґРѕ РґРµР»Р°С‚СЊ РјСѓС…Сѓ
 		{
 			if (Target!=NULL)
 			{
-				if ( 0x10000000  & (*(DWORD*)(Target+0x154)) ) /// цель защищена от магии - ничего не делаем
+				if ( 0x10000000  & (*(DWORD*)(Target+0x154)) ) /// С†РµР»СЊ Р·Р°С‰РёС‰РµРЅР° РѕС‚ РјР°РіРёРё - РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј
 				{
 					break;
 				}
@@ -314,14 +314,14 @@ void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *MyUc)
 			{
 				conPrintI(lua_tostring(L,-1));
 			}
-			if (0!=lua_toboolean(L,-1)) //спелл удался
+			if (0!=lua_toboolean(L,-1)) //СЃРїРµР»Р» СѓРґР°Р»СЃСЏ
 			{
-				/// надо сохранить данные, отнять ману и т.п.
+				/// РЅР°РґРѕ СЃРѕС…СЂР°РЅРёС‚СЊ РґР°РЅРЅС‹Рµ, РѕС‚РЅСЏС‚СЊ РјР°РЅСѓ Рё С‚.Рї.
 				
 				byte Buf[10],*P=Buf;
 				netUniPacket(upSpellStart,P,sizeof(DWORD));
 				*((DWORD*)P)=SpellArr[0];
-				netSendNotOne(Buf,P-Buf,MyUc); /// посылает всем клиентам  кроме одного
+				netSendNotOne(Buf,P-Buf,MyUc); /// РїРѕСЃС‹Р»Р°РµС‚ РІСЃРµРј РєР»РёРµРЅС‚Р°Рј  РєСЂРѕРјРµ РѕРґРЅРѕРіРѕ
 			}
 		}
 	} while(0);
@@ -350,6 +350,6 @@ void spellsInit()
 	registerserver("spellBuff",&spellBuff);
 	registerserver("buffApply",&buffApplyL);
 
-	lua_newtable(L);// в таблицу будем класть  интересных нам мобов
+	lua_newtable(L);// РІ С‚Р°Р±Р»РёС†Сѓ Р±СѓРґРµРј РєР»Р°СЃС‚СЊ  РёРЅС‚РµСЂРµСЃРЅС‹С… РЅР°Рј РјРѕР±РѕРІ
 	registerServerVar("unitOnCastList");
 }

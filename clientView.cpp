@@ -12,8 +12,8 @@ namespace
 	int (__cdecl *client_4984B0)(void *sprite);
 
 	void __cdecl onClientUse(void *sprite)
-	{// сюда мы попадаем когда клиент нажал кнопку
-		//не будем вызывать коллайд, пошлем свой пакет, а сервер пусть разбирается
+	{// СЃСЋРґР° РјС‹ РїРѕРїР°РґР°РµРј РєРѕРіРґР° РєР»РёРµРЅС‚ РЅР°Р¶Р°Р» РєРЅРѕРїРєСѓ
+		//РЅРµ Р±СѓРґРµРј РІС‹Р·С‹РІР°С‚СЊ РєРѕР»Р»Р°Р№Рґ, РїРѕС€Р»РµРј СЃРІРѕР№ РїР°РєРµС‚, Р° СЃРµСЂРІРµСЂ РїСѓСЃС‚СЊ СЂР°Р·Р±РёСЂР°РµС‚СЃСЏ
 		//clientCollideOrUse(sprite);
 		if (sprite==NULL)
 			return;
@@ -21,7 +21,7 @@ namespace
 		BYTE *Pt=Buf;
 		
 		netUniPacket(upTryUnitUse,Pt,3);
-//		*(Pt++) = (3 & (*clientPlayerInfoPtr)[0xE60]); // если обсервер или куда нить смотрит
+//		*(Pt++) = (3 & (*clientPlayerInfoPtr)[0xE60]); // РµСЃР»Рё РѕР±СЃРµСЂРІРµСЂ РёР»Рё РєСѓРґР° РЅРёС‚СЊ СЃРјРѕС‚СЂРёС‚
 		*((WORD*)Pt)=netGetUnitCodeCli(sprite);
 		Pt+=2;
 		netSendServ(Buf,Pt-Buf);
@@ -29,7 +29,7 @@ namespace
 
 #define or |
 	int __cdecl clientPick1(BYTE *sprite,
-		DWORD Class,DWORD SubClass,int TT,int NetCode) /// проверяет выделяемость цели
+		DWORD Class,DWORD SubClass,int TT,int NetCode) /// РїСЂРѕРІРµСЂСЏРµС‚ РІС‹РґРµР»СЏРµРјРѕСЃС‚СЊ С†РµР»Рё
 	{
 		int Top=lua_gettop(L);
 		lua_getglobal(L,"clientOnUnitHover");
@@ -84,7 +84,7 @@ namespace
 	}
 	int __cdecl clientPick2(BYTE *sprite,
 		DWORD Class,DWORD SubClass,int TT,int NetCode) 
-			/// определяет какой курсор цели рисовать
+			/// РѕРїСЂРµРґРµР»СЏРµС‚ РєР°РєРѕР№ РєСѓСЂСЃРѕСЂ С†РµР»Рё СЂРёСЃРѕРІР°С‚СЊ
 	{
 		int Top=lua_gettop(L);
 		lua_getglobal(L,"clientOnUnitHover");
@@ -138,7 +138,7 @@ namespace
 		test eax,eax
 		jnz l1 
 			mov eax,[edi+0x70]
-			test eax, 2|4|0x400000 //сlMonster | clPlayer | clImmobile
+			test eax, 2|4|0x400000 //СЃlMonster | clPlayer | clImmobile
 			jz l2
 				push 0x0046BE27
 				ret
@@ -147,13 +147,13 @@ namespace
 			ret
 		l1:
 			push eax
-			push 0x0046C0CA // устанавливаем иконку
+			push 0x0046C0CA // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РёРєРѕРЅРєСѓ
 			ret
 		}
 	}
 
 }
-void netOnClientTryUse(BYTE *Start,BYTE *End,BYTE *MyUc,void *Player) // к серверу пришел пакет
+void netOnClientTryUse(BYTE *Start,BYTE *End,BYTE *MyUc,void *Player) // Рє СЃРµСЂРІРµСЂСѓ РїСЂРёС€РµР» РїР°РєРµС‚
 {
 	BYTE *P=Start;
 	BYTE *PI=*((BYTE**)(MyUc+0x114));

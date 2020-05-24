@@ -3,7 +3,7 @@
 
 BYTE *spellDefPtr=0;
 extern void *(__cdecl *gLoadImg)(const char *Name);
-extern int mySelectedSpell;// спелл, выбранный в книге в данный момент
+extern int mySelectedSpell;// СЃРїРµР»Р», РІС‹Р±СЂР°РЅРЅС‹Р№ РІ РєРЅРёРіРµ РІ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚
 extern float (__cdecl *getFloatByName)(const char *Name);
 
 void *(__cdecl *spellAbilGetIcon)(int Spell,int Enabled);
@@ -120,7 +120,7 @@ const wchar_t* __cdecl mySpellLoadName(int Spell)
 		return L"(wrong)";
 	}
 	lua_getfield(L,-1,"name");
-	static wchar_t Buf[200]=L"";/// ох ненадежная идея эти статики....
+	static wchar_t Buf[200]=L"";/// РѕС… РЅРµРЅР°РґРµР¶РЅР°СЏ РёРґРµСЏ СЌС‚Рё СЃС‚Р°С‚РёРєРё....
 	size_t Len=0;
 	const char *S=lua_tolstring(L,-1,&Len);
 	if (Len>0)
@@ -174,7 +174,7 @@ namespace
 			return L"(wrong)";
 		}
 		lua_getfield(L,-1,"description");
-		static wchar_t Buf[200]=L"";/// ох ненадежная идея эти статики....
+		static wchar_t Buf[200]=L"";/// РѕС… РЅРµРЅР°РґРµР¶РЅР°СЏ РёРґРµСЏ СЌС‚Рё СЃС‚Р°С‚РёРєРё....
 		size_t Len=0;
 		const char *S=lua_tolstring(L,-1,&Len);
 		if (Len>0)
@@ -235,7 +235,7 @@ namespace
 		lua_getfield(L,-2,"mana");
 		if (Type==2)
 		{
-			lua_getfield(L,-2,"manaTrap"); // если спрашивали для ловушки
+			lua_getfield(L,-2,"manaTrap"); // РµСЃР»Рё СЃРїСЂР°С€РёРІР°Р»Рё РґР»СЏ Р»РѕРІСѓС€РєРё
 			if (lua_type(L,-1)==LUA_TNIL)
 				lua_pop(L,1);
 		}
@@ -300,7 +300,7 @@ namespace
 		return Ret;
 	}
 
-	BYTE *mySpellSyllList(int Spell) // возвращает последовательность для показа слогов
+	BYTE *mySpellSyllList(int Spell) // РІРѕР·РІСЂР°С‰Р°РµС‚ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РґР»СЏ РїРѕРєР°Р·Р° СЃР»РѕРіРѕРІ
 	{
 		int Top=lua_gettop(L);
 		BYTE Ret[10]={0};
@@ -465,7 +465,7 @@ namespace
 		lua_settop(L,Top);
 		return Ret;
 	}
-	// возвращает в луа инфу о спелле
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РІ Р»СѓР° РёРЅС„Сѓ Рѕ СЃРїРµР»Р»Рµ
 	int spellInfo(lua_State *L)
 	{
 		if (lua_type(L,1)!=LUA_TNUMBER && lua_type(L,1)!=LUA_TSTRING)
@@ -530,21 +530,21 @@ void spellGetInit()
 	//ASSIGN(spellDefPtr,0x00663EF0);
 	ASSIGN(spellAbilGetIcon,0x00425310);
 
-	/// абилки в просмотре отдельной книги за воина -- потом поправить
+	/// Р°Р±РёР»РєРё РІ РїСЂРѕСЃРјРѕС‚СЂРµ РѕС‚РґРµР»СЊРЅРѕР№ РєРЅРёРіРё Р·Р° РІРѕРёРЅР° -- РїРѕС‚РѕРј РїРѕРїСЂР°РІРёС‚СЊ
 	InjectOffs(0x0045CB5C+1,&myAbilLoadIcon); 
 
-	// проверка на наличие флагов в спелле
+	// РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ С„Р»Р°РіРѕРІ РІ СЃРїРµР»Р»Рµ
 	InjectJumpTo(0x00424A50,&mySpellHaveFlags);
 	InjectJumpTo(0x00424A70,&mySpellGetFlags);
-	InjectJumpTo(0x00424A90,&mySpellLoadIcon); // правим функцию обычной иконки
-	InjectJumpTo(0x00424AB0,&mySpellLoadIconH); // и подсвеченной иконки
-	InjectJumpTo(0x00424930,&mySpellLoadName); // правим функцию определения имени спелла
-	InjectJumpTo(0x00424A30,&mySpellLoadDesc); // и описания
-	InjectJumpTo(0x004249A0,&mySpellManaCost); // и цены в мане
-	InjectJumpTo(0x00424A20,&mySpellSyllList); // правим функцию показа слогов
-	InjectJumpTo(0x00424B70,&mySpellIsEnabled);// и разрешенности
+	InjectJumpTo(0x00424A90,&mySpellLoadIcon); // РїСЂР°РІРёРј С„СѓРЅРєС†РёСЋ РѕР±С‹С‡РЅРѕР№ РёРєРѕРЅРєРё
+	InjectJumpTo(0x00424AB0,&mySpellLoadIconH); // Рё РїРѕРґСЃРІРµС‡РµРЅРЅРѕР№ РёРєРѕРЅРєРё
+	InjectJumpTo(0x00424930,&mySpellLoadName); // РїСЂР°РІРёРј С„СѓРЅРєС†РёСЋ РѕРїСЂРµРґРµР»РµРЅРёСЏ РёРјРµРЅРё СЃРїРµР»Р»Р°
+	InjectJumpTo(0x00424A30,&mySpellLoadDesc); // Рё РѕРїРёСЃР°РЅРёСЏ
+	InjectJumpTo(0x004249A0,&mySpellManaCost); // Рё С†РµРЅС‹ РІ РјР°РЅРµ
+	InjectJumpTo(0x00424A20,&mySpellSyllList); // РїСЂР°РІРёРј С„СѓРЅРєС†РёСЋ РїРѕРєР°Р·Р° СЃР»РѕРіРѕРІ
+	InjectJumpTo(0x00424B70,&mySpellIsEnabled);// Рё СЂР°Р·СЂРµС€РµРЅРЅРѕСЃС‚Рё
 	
-	// правим произношение на длинные номера спелов
+	// РїСЂР°РІРёРј РїСЂРѕРёР·РЅРѕС€РµРЅРёРµ РЅР° РґР»РёРЅРЅС‹Рµ РЅРѕРјРµСЂР° СЃРїРµР»РѕРІ
 	InjectAddr(0x0049BBC0,(void*)0x2964A151);
 	InjectAddr(0x0049BBC4,(void*)0xC0850071);
 	InjectAddr(0x0049BBD4,(void*)0xFFFFFFFF);

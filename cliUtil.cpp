@@ -7,7 +7,7 @@ int (__cdecl *getTTByNameSpriteMB)(void *Key);
 int (__cdecl *createTextBubble)(void *BubbleStruct,wchar_t *Str);
 void (__cdecl *sub_4738E0) ();
 
-extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
+extern void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - РєР»РёРµРЅС‚Сѓ
 								void *Buf,int BufSize);
 extern DWORD (__cdecl *netGetUnitCodeServ)(void *Unit);
 extern void (__cdecl *noxGuiDrawCursor) ();
@@ -51,7 +51,7 @@ namespace
 		{}
 	};
 	std::list<cliTimeoutListRec> cliTimeoutList;
-	int cliSetTimeoutL(lua_State *L) /// теперь получает 3-й аргумент - таблицу
+	int cliSetTimeoutL(lua_State *L) /// С‚РµРїРµСЂСЊ РїРѕР»СѓС‡Р°РµС‚ 3-Р№ Р°СЂРіСѓРјРµРЅС‚ - С‚Р°Р±Р»РёС†Сѓ
 	{
 		lua_settop(L,3);
 		if ((lua_type(L,1)!=LUA_TFUNCTION) ||(lua_type(L,2)!=LUA_TNUMBER) 
@@ -61,12 +61,12 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
+		lua_pushlightuserdata(L,&cliSetTimeoutL);/// С„СѓРЅРєС†РёРё
 		lua_gettable(L,LUA_REGISTRYINDEX);
 			lua_pushinteger(L,cliTimeoutNextId);
 			lua_pushvalue(L,1);
 			lua_settable(L,-3);
-		lua_pushlightuserdata(L,&cliTimeoutNextId);/// сюда положим таблицу
+		lua_pushlightuserdata(L,&cliTimeoutNextId);/// СЃСЋРґР° РїРѕР»РѕР¶РёРј С‚Р°Р±Р»РёС†Сѓ
 		lua_gettable(L,LUA_REGISTRYINDEX);
 			lua_pushinteger(L,cliTimeoutNextId);
 			lua_pushvalue(L,3);
@@ -91,9 +91,9 @@ namespace
 	{
 		DWORD Time=*frameCounter;
 		int Top=lua_gettop(L);
-		lua_pushlightuserdata(L,&cliTimeoutNextId);/// таблица аргументов
+		lua_pushlightuserdata(L,&cliTimeoutNextId);/// С‚Р°Р±Р»РёС†Р° Р°СЂРіСѓРјРµРЅС‚РѕРІ
 		lua_gettable(L,LUA_REGISTRYINDEX);
-		lua_pushlightuserdata(L,&cliSetTimeoutL);/// таблица функций
+		lua_pushlightuserdata(L,&cliSetTimeoutL);/// С‚Р°Р±Р»РёС†Р° С„СѓРЅРєС†РёР№
 		lua_gettable(L,LUA_REGISTRYINDEX);
 
 		for (std::list<cliTimeoutListRec>::iterator I=cliTimeoutList.begin();I!=cliTimeoutList.end();)
@@ -110,7 +110,7 @@ namespace
 
 					lua_pushinteger(L,Time);
 					lua_pushinteger(L,I->Id);
-					// таблица с аргументом
+					// С‚Р°Р±Р»РёС†Р° СЃ Р°СЂРіСѓРјРµРЅС‚РѕРј
 					lua_gettable(L,-5); // id,Time,Fn, {Fns},{Args}
 					if (0!=lua_pcall(L,2,0,0))
 					{
@@ -122,8 +122,8 @@ namespace
 						lua_pop(L, 1);
 					}
 					///conOutput,env, fn, {Fns},{Args}
-				/*	lua_getfield(L,-2,"conOutput");// conOutput функция енв функция
-					if (lua_type(L,-1)==LUA_TNIL) // если задали другую функцию - то так и оставим, но как ее обнулить?
+				/*	lua_getfield(L,-2,"conOutput");// conOutput С„СѓРЅРєС†РёСЏ РµРЅРІ С„СѓРЅРєС†РёСЏ
+					if (lua_type(L,-1)==LUA_TNIL) // РµСЃР»Рё Р·Р°РґР°Р»Рё РґСЂСѓРіСѓСЋ С„СѓРЅРєС†РёСЋ - С‚Рѕ С‚Р°Рє Рё РѕСЃС‚Р°РІРёРј, РЅРѕ РєР°Рє РµРµ РѕР±РЅСѓР»РёС‚СЊ?
 					{
 						lua_pop(L,1);
 						lua_setfield(L,-2,"conOutput");
@@ -132,17 +132,17 @@ namespace
 					else
 						lua_pop(L,3); */
 
-					lua_pushinteger(L,I->Id); // чтобы было чего удалять
+					lua_pushinteger(L,I->Id); // С‡С‚РѕР±С‹ Р±С‹Р»Рѕ С‡РµРіРѕ СѓРґР°Р»СЏС‚СЊ
 				}
 				else
 					lua_pop(L,1);
 
 			}
 			lua_pushnil(L);
-			lua_settable(L,-3); // удаляем функцию
+			lua_settable(L,-3); // СѓРґР°Р»СЏРµРј С„СѓРЅРєС†РёСЋ
 			lua_pushinteger(L,I->Id);
 			lua_pushnil(L);
-			lua_settable(L,-4);// удаляем аргумент
+			lua_settable(L,-4);// СѓРґР°Р»СЏРµРј Р°СЂРіСѓРјРµРЅС‚
 
 			I=cliTimeoutList.erase(I);
 		}
@@ -154,7 +154,7 @@ namespace
 
 
 
-	void __declspec(naked) asmToCliTimer() // вызываем тик 
+	void __declspec(naked) asmToCliTimer() // РІС‹Р·С‹РІР°РµРј С‚РёРє 
 	{
 		__asm
 		{
@@ -171,10 +171,10 @@ namespace
 		byte Dummy;// +3
 		short PosX,PosY;//+4
 		byte TimeoutSecMB;//+8
-		short TimeoutFrames;//+9 если 0 - использвоать в секундах
+		short TimeoutFrames;//+9 РµСЃР»Рё 0 - РёСЃРїРѕР»СЊР·РІРѕР°С‚СЊ РІ СЃРµРєСѓРЅРґР°С…
 		
 	};
-	int cliShowBubble(lua_State *L) /// теперь получает 3-й аргумент - таблицу
+	int cliShowBubble(lua_State *L) /// С‚РµРїРµСЂСЊ РїРѕР»СѓС‡Р°РµС‚ 3-Р№ Р°СЂРіСѓРјРµРЅС‚ - С‚Р°Р±Р»РёС†Сѓ
 	{
 		lua_settop(L,3);
 		if ( (!lua_isnumber(L,1))
@@ -196,8 +196,8 @@ namespace
 		createTextBubble(&P,WBuf);
 		return 0;
 	}
-	//юнит, строка, [таблица кому == всем],[таймаут==2]
-	int createBubble(lua_State *L) /// теперь получает 3-й аргумент - таблицу
+	//СЋРЅРёС‚, СЃС‚СЂРѕРєР°, [С‚Р°Р±Р»РёС†Р° РєРѕРјСѓ == РІСЃРµРј],[С‚Р°Р№РјР°СѓС‚==2]
+	int createBubble(lua_State *L) /// С‚РµРїРµСЂСЊ РїРѕР»СѓС‡Р°РµС‚ 3-Р№ Р°СЂРіСѓРјРµРЅС‚ - С‚Р°Р±Р»РёС†Сѓ
 	{
 		lua_settop(L,5);
 
@@ -309,7 +309,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		BYTE *P=(BYTE*)noxSpriteLast; // непотяно все ли спрайты попадут или нет
+		BYTE *P=(BYTE*)noxSpriteLast; // РЅРµРїРѕС‚СЏРЅРѕ РІСЃРµ Р»Рё СЃРїСЂР°Р№С‚С‹ РїРѕРїР°РґСѓС‚ РёР»Рё РЅРµС‚
 		P=*(BYTE**)(P);
 		if (P==0)
 			return 0;
@@ -389,17 +389,17 @@ void cliUntilInit()
 
 	
 
-	lua_pushlightuserdata(L,&cliSetTimeoutL);/// функции
+	lua_pushlightuserdata(L,&cliSetTimeoutL);/// С„СѓРЅРєС†РёРё
 	lua_newtable(L);
 	lua_settable(L,LUA_REGISTRYINDEX);
-	lua_pushlightuserdata(L,&cliTimeoutNextId);/// значения
+	lua_pushlightuserdata(L,&cliTimeoutNextId);/// Р·РЅР°С‡РµРЅРёСЏ
 	lua_newtable(L);
 	lua_settable(L,LUA_REGISTRYINDEX);
 	
 
 	lua_pushcfunction(L,&cliSetTimeoutL); 
-	// очень важная функция, ее надо в реестр луа класть 
-	// чтобы нельзя было удалить случайно
+	// РѕС‡РµРЅСЊ РІР°Р¶РЅР°СЏ С„СѓРЅРєС†РёСЏ, РµРµ РЅР°РґРѕ РІ СЂРµРµСЃС‚СЂ Р»СѓР° РєР»Р°СЃС‚СЊ 
+	// С‡С‚РѕР±С‹ РЅРµР»СЊР·СЏ Р±С‹Р»Рѕ СѓРґР°Р»РёС‚СЊ СЃР»СѓС‡Р°Р№РЅРѕ
 	lua_pushvalue(L,-1); 
 	lua_setfield(L,LUA_REGISTRYINDEX,"cliSetTimeout");
 	registerClientVar("cliSetTimeout");

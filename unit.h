@@ -285,7 +285,7 @@ enum unitFlags
 };
 
 extern bigUnitStruct *(__cdecl* objectCreateByName)(char const *ObjName);
-extern bigUnitStruct *(__cdecl *unitDamageFindParent) (bigUnitStruct *Unit); // кто источник урона
+extern bigUnitStruct *(__cdecl *unitDamageFindParent) (bigUnitStruct *Unit); // РєС‚Рѕ РёСЃС‚РѕС‡РЅРёРє СѓСЂРѕРЅР°
 extern void (__cdecl *noxUnitSetOwner) (bigUnitStruct *NewOwner,bigUnitStruct *Owner);
 extern void (__cdecl *noxUnitDelete) (bigUnitStruct *Unit);
 extern void (__cdecl *noxDeleteObject)(bigUnitStruct *Unit);

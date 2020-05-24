@@ -2,7 +2,7 @@
 #include "unit.h"
 
 bigUnitStruct*	(__cdecl* objectCreateByName)(char const *ObjName);
-bigUnitStruct *(__cdecl *unitDamageFindParent) (bigUnitStruct *Unit); // кто источник урона
+bigUnitStruct *(__cdecl *unitDamageFindParent) (bigUnitStruct *Unit); // РєС‚Рѕ РёСЃС‚РѕС‡РЅРёРє СѓСЂРѕРЅР°
 void (__cdecl *noxUnitSetOwner) (bigUnitStruct *NewOwner,bigUnitStruct *Owner);
 void (__cdecl *noxUnitDelete) (bigUnitStruct *Unit);
 void (__cdecl *noxDeleteObject)(bigUnitStruct *Unit);

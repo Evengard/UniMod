@@ -41,18 +41,18 @@ enum uniPacket_e
 	upNewStatic,
 	upDelStatic,
 	upMoveStatic,
-	upUpdateDef,	/// сервер хочет изменить свойства unitDef
-	upTryUnitUse,	/// клиент хочет ИСПОЛЬЗОВАТЬ предмет
-	upNotifyUnitUse,/// сервер сообщает, что кто-то использует предмет
-	upSendArchive,  /// сервер сообщает, что вместе с картой придет еще и архив
-	upChangeTile, /// сервер меняет тайл
-	upSpellStart,/// сервер сообщает старт спелла
-	upSpellSync, /// сервер сообщаем всем свежий список спелов
-	upSendBubble,/// сервер хочет создать чат
-	upSendPrintToCli,// сервер присылает консоли строку
-	upVersionServerRq, //сервер запрашивает клиентскую версию юнимода
+	upUpdateDef,	/// СЃРµСЂРІРµСЂ С…РѕС‡РµС‚ РёР·РјРµРЅРёС‚СЊ СЃРІРѕР№СЃС‚РІР° unitDef
+	upTryUnitUse,	/// РєР»РёРµРЅС‚ С…РѕС‡РµС‚ РРЎРџРћР›Р¬Р—РћР’РђРўР¬ РїСЂРµРґРјРµС‚
+	upNotifyUnitUse,/// СЃРµСЂРІРµСЂ СЃРѕРѕР±С‰Р°РµС‚, С‡С‚Рѕ РєС‚Рѕ-С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµС‚ РїСЂРµРґРјРµС‚
+	upSendArchive,  /// СЃРµСЂРІРµСЂ СЃРѕРѕР±С‰Р°РµС‚, С‡С‚Рѕ РІРјРµСЃС‚Рµ СЃ РєР°СЂС‚РѕР№ РїСЂРёРґРµС‚ РµС‰Рµ Рё Р°СЂС…РёРІ
+	upChangeTile, /// СЃРµСЂРІРµСЂ РјРµРЅСЏРµС‚ С‚Р°Р№Р»
+	upSpellStart,/// СЃРµСЂРІРµСЂ СЃРѕРѕР±С‰Р°РµС‚ СЃС‚Р°СЂС‚ СЃРїРµР»Р»Р°
+	upSpellSync, /// СЃРµСЂРІРµСЂ СЃРѕРѕР±С‰Р°РµРј РІСЃРµРј СЃРІРµР¶РёР№ СЃРїРёСЃРѕРє СЃРїРµР»РѕРІ
+	upSendBubble,/// СЃРµСЂРІРµСЂ С…РѕС‡РµС‚ СЃРѕР·РґР°С‚СЊ С‡Р°С‚
+	upSendPrintToCli,// СЃРµСЂРІРµСЂ РїСЂРёСЃС‹Р»Р°РµС‚ РєРѕРЅСЃРѕР»Рё СЃС‚СЂРѕРєСѓ
+	upVersionServerRq, //СЃРµСЂРІРµСЂ Р·Р°РїСЂР°С€РёРІР°РµС‚ РєР»РёРµРЅС‚СЃРєСѓСЋ РІРµСЂСЃРёСЋ СЋРЅРёРјРѕРґР°
 };
-// приписать к буферу наш заголовок для отправки
+// РїСЂРёРїРёСЃР°С‚СЊ Рє Р±СѓС„РµСЂСѓ РЅР°С€ Р·Р°РіРѕР»РѕРІРѕРє РґР»СЏ РѕС‚РїСЂР°РІРєРё
 void netUniPacket(uniPacket_e Code,BYTE *&Data,int Size);
 #define UNIPACKET_HEAD (3)
 
@@ -96,10 +96,10 @@ struct wallRec
   BYTE gap_9[1];/// ?
   USHORT wallId;
   BYTE gap_c[4]; /// ?
-  int wallMapPtr; /// указатель на сегмент карты - НЕ ТРОГАТЬ
-  int nextWall; /// указатель на след стену - НЕ ТРОГАТЬ
-  int mapYPtr; /// указатель на следующую вертикальную стену - НЕ ТРОГАТЬ
-  int doorPtr; /// ? кажется здесь указатель на прилепленую дверь
+  int wallMapPtr; /// СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃРµРіРјРµРЅС‚ РєР°СЂС‚С‹ - РќР• РўР РћР“РђРўР¬
+  int nextWall; /// СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃР»РµРґ СЃС‚РµРЅСѓ - РќР• РўР РћР“РђРўР¬
+  int mapYPtr; /// СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ РІРµСЂС‚РёРєР°Р»СЊРЅСѓСЋ СЃС‚РµРЅСѓ - РќР• РўР РћР“РђРўР¬
+  int doorPtr; /// ? РєР°Р¶РµС‚СЃСЏ Р·РґРµСЃСЊ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїСЂРёР»РµРїР»РµРЅСѓСЋ РґРІРµСЂСЊ
   int field_20;
 };
 
@@ -155,13 +155,13 @@ DWORD uniCalcJump(DWORD From,void *To);
 
 extern void printI(const char *S);
 
-extern void conSetNextColor(int C); // устанавливает цвет след. сообщения консоли
+extern void conSetNextColor(int C); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С†РІРµС‚ СЃР»РµРґ. СЃРѕРѕР±С‰РµРЅРёСЏ РєРѕРЅСЃРѕР»Рё
 extern void conPrintI(const char *S);
 extern DWORD *GameFlags;
 
-void netSendAll(void *Buf,int BufSize); /// посылает всем клиентам
-void netSendNotOne(void *Buf,int BufSize,void *One); /// посылает всем клиентам  кроме одного
-void netSendServ(void *Buf,int BufSize);/// посылает серверу
+void netSendAll(void *Buf,int BufSize); /// РїРѕСЃС‹Р»Р°РµС‚ РІСЃРµРј РєР»РёРµРЅС‚Р°Рј
+void netSendNotOne(void *Buf,int BufSize,void *One); /// РїРѕСЃС‹Р»Р°РµС‚ РІСЃРµРј РєР»РёРµРЅС‚Р°Рј  РєСЂРѕРјРµ РѕРґРЅРѕРіРѕ
+void netSendServ(void *Buf,int BufSize);/// РїРѕСЃС‹Р»Р°РµС‚ СЃРµСЂРІРµСЂСѓ
 
 USHORT inline toShort(BYTE *X){return *((USHORT*)X);}
 void inline fromShort(BYTE *&P,USHORT X){*((USHORT *)P)=X;P+=2;}
@@ -170,7 +170,7 @@ struct spellPacket
 {
 	byte Pckt;
 	DWORD Spells[5];
-	byte Dir;// 0= обычный 1= на себя
+	byte Dir;// 0= РѕР±С‹С‡РЅС‹Р№ 1= РЅР° СЃРµР±СЏ
 };
 struct FloatRect
 {
@@ -180,14 +180,14 @@ struct FloatRect
 void lua_error_(lua_State *L);
 
 struct ParseAttrib;
-/// функция для доступа к данным архивов - в последствии через нее надо провести все
+/// С„СѓРЅРєС†РёСЏ РґР»СЏ РґРѕСЃС‚СѓРїР° Рє РґР°РЅРЅС‹Рј Р°СЂС…РёРІРѕРІ - РІ РїРѕСЃР»РµРґСЃС‚РІРёРё С‡РµСЂРµР· РЅРµРµ РЅР°РґРѕ РїСЂРѕРІРµСЃС‚Рё РІСЃРµ
 extern bool fsRead(const char *File,void *&Data, size_t &Size);
 
-/// Функции выделения ноксо-памяти
+/// Р¤СѓРЅРєС†РёРё РІС‹РґРµР»РµРЅРёСЏ РЅРѕРєСЃРѕ-РїР°РјСЏС‚Рё
 extern void *(__cdecl *noxAlloc)(int Size);
 extern void (__cdecl *noxFree)(void *Ptr);
 
-/// Функция для регистрации пакетов клиенту и серверу
+/// Р¤СѓРЅРєС†РёСЏ РґР»СЏ СЂРµРіРёСЃС‚СЂР°С†РёРё РїР°РєРµС‚РѕРІ РєР»РёРµРЅС‚Сѓ Рё СЃРµСЂРІРµСЂСѓ
 typedef void (*netClientFn_s) (BYTE *Packet);
 typedef void (*netServFn_s) (BYTE *Packet,BYTE *MyPlayer,BYTE *MyUc);
 extern void netRegClientPacket(uniPacket_e Event,netClientFn_s Fn);
@@ -200,7 +200,7 @@ inline void registerclient(const char *FnName,lua_CFunction Fn,int UpSize=0)
 	lua_getfield(L,LUA_REGISTRYINDEX,"client");
 	lua_pushvalue(L,-2);
 	lua_setfield(L,-2,FnName);
-	lua_pop(L,2);// копию замыкания и таблицу
+	lua_pop(L,2);// РєРѕРїРёСЋ Р·Р°РјС‹РєР°РЅРёСЏ Рё С‚Р°Р±Р»РёС†Сѓ
 }
 inline void registerserver(const char *FnName,lua_CFunction Fn,int UpSize=0)
 {
@@ -208,21 +208,21 @@ inline void registerserver(const char *FnName,lua_CFunction Fn,int UpSize=0)
 	lua_getfield(L,LUA_REGISTRYINDEX,"server");
 	lua_pushvalue(L,-2);
 	lua_setfield(L,-2,FnName);
-	lua_pop(L,2);// копию замыкания и таблицу
+	lua_pop(L,2);// РєРѕРїРёСЋ Р·Р°РјС‹РєР°РЅРёСЏ Рё С‚Р°Р±Р»РёС†Сѓ
 }
 inline void registerServerVar(const char *VarName)
 {
 	lua_getfield(L,LUA_REGISTRYINDEX,"server");
 	lua_pushvalue(L,-2);
 	lua_setfield(L,-2,VarName);
-	lua_pop(L,2);// копию переменной и таблицу
+	lua_pop(L,2);// РєРѕРїРёСЋ РїРµСЂРµРјРµРЅРЅРѕР№ Рё С‚Р°Р±Р»РёС†Сѓ
 }
 inline void registerClientVar(const char *VarName)
 {
 	lua_getfield(L,LUA_REGISTRYINDEX,"client");
 	lua_pushvalue(L,-2);
 	lua_setfield(L,-2,VarName);
-	lua_pop(L,2);// копию переменной и таблицу
+	lua_pop(L,2);// РєРѕРїРёСЋ РїРµСЂРµРјРµРЅРЅРѕР№ Рё С‚Р°Р±Р»РёС†Сѓ
 }
 inline void getServerVar(const char *VarName)
 {
@@ -309,17 +309,17 @@ struct polygon_s
 	int field_88;
 };
 
-class SendBuffer /// Предназначен для передачи по сети больших кусков
+class SendBuffer /// РџСЂРµРґРЅР°Р·РЅР°С‡РµРЅ РґР»СЏ РїРµСЂРµРґР°С‡Рё РїРѕ СЃРµС‚Рё Р±РѕР»СЊС€РёС… РєСѓСЃРєРѕРІ
 {
 public:
 	SendBuffer();
 	
-	byte *RecvComplete(size_t &Len);// Вернет не NULL если приехали данные
+	byte *RecvComplete(size_t &Len);// Р’РµСЂРЅРµС‚ РЅРµ NULL РµСЃР»Рё РїСЂРёРµС…Р°Р»Рё РґР°РЅРЅС‹Рµ
 	
-	void Write(byte *Data,size_t &Len); // отправит буфер по кускам
+	void Write(byte *Data,size_t &Len); // РѕС‚РїСЂР°РІРёС‚ Р±СѓС„РµСЂ РїРѕ РєСѓСЃРєР°Рј
 	void WriteLuaVar(lua_State *L,bool Float=false);
 };
-struct ParseAttrib /// для всяких парсеров всяких структур
+struct ParseAttrib /// РґР»СЏ РІСЃСЏРєРёС… РїР°СЂСЃРµСЂРѕРІ РІСЃСЏРєРёС… СЃС‚СЂСѓРєС‚СѓСЂ
 {
 	const char *name;
 	int ofs;
@@ -343,12 +343,12 @@ struct FxBuffer_t
 	DWORD Data[];
 	FxBuffer_t(int Sz):Next(0),Size(Sz){}
 	~FxBuffer_t(){ if(Next) delete Next; }
-	void getValues(int First,int Len); /// для запроса по сети
+	void getValues(int First,int Len); /// РґР»СЏ Р·Р°РїСЂРѕСЃР° РїРѕ СЃРµС‚Рё
 	void addItem(int Val){((int*)Data)[SelIdx++]=Val;}
 	void addItemD(DWORD Val){Data[SelIdx++]=Val;}
 
-	static FxBuffer_t *addBlock(int Size,int *Id); //начинаем добавлять элементы, возвращаем айди
-	static bool delBlock(int Id); //удаляем блок
+	static FxBuffer_t *addBlock(int Size,int *Id); //РЅР°С‡РёРЅР°РµРј РґРѕР±Р°РІР»СЏС‚СЊ СЌР»РµРјРµРЅС‚С‹, РІРѕР·РІСЂР°С‰Р°РµРј Р°Р№РґРё
+	static bool delBlock(int Id); //СѓРґР°Р»СЏРµРј Р±Р»РѕРє
 	static void drawBuffers();
 };
 extern const int *noxScreenX;
@@ -359,4 +359,4 @@ typedef std::map <BYTE,netClientFn_s> ClientMap_s;
 typedef std::map <BYTE,netServFn_s> ServerMap_s;
 
 
-#define goto wtf юзать гоуту нельзя
+#define goto wtf СЋР·Р°С‚СЊ РіРѕСѓС‚Сѓ РЅРµР»СЊР·СЏ

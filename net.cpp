@@ -6,15 +6,15 @@
 
 int UnimodVersion=010601;/// 00.06.01 
 
-void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - клиенту
+void (__cdecl *netClientSend) (int PlrN,int Dir,//1 - РєР»РёРµРЅС‚Сѓ
 								void *Buf,int BufSize);
-// подозреваю что Bool - послать либо клиенту либо серверу
+// РїРѕРґРѕР·СЂРµРІР°СЋ С‡С‚Рѕ Bool - РїРѕСЃР»Р°С‚СЊ Р»РёР±Рѕ РєР»РёРµРЅС‚Сѓ Р»РёР±Рѕ СЃРµСЂРІРµСЂСѓ
 
 extern sprite_s *(__cdecl *spriteLoadAdd) (int thingType,int coordX,int coordY);
 extern void (__cdecl *spriteDeleteStatic)(sprite_s *Sprite);
 
-sprite_s *(__cdecl *netSpriteByCodeHi)(int netCode);// для статических
-sprite_s *(__cdecl *netSpriteByCodeLo)(int netCode);// для динамических
+sprite_s *(__cdecl *netSpriteByCodeHi)(int netCode);// РґР»СЏ СЃС‚Р°С‚РёС‡РµСЃРєРёС…
+sprite_s *(__cdecl *netSpriteByCodeLo)(int netCode);// РґР»СЏ РґРёРЅР°РјРёС‡РµСЃРєРёС…
 
 void (__cdecl *netSendMsgInform2)(int id, void *data);
 void (__cdecl *netSendPointFx)(int PacketIdx,noxPoint* Pt);
@@ -26,7 +26,7 @@ DWORD (__cdecl *netGetUnitCodeCli)(void *Sprite);
 
 void (__cdecl *netReportCharges) (int playerIdx, void *weapon, int a,int b);
 
-void *(__cdecl *netGetUnitByExtent)(DWORD NetCode);/// только для динамических (на сервере)playerGoObserver
+void *(__cdecl *netGetUnitByExtent)(DWORD NetCode);/// С‚РѕР»СЊРєРѕ РґР»СЏ РґРёРЅР°РјРёС‡РµСЃРєРёС… (РЅР° СЃРµСЂРІРµСЂРµ)playerGoObserver
 
 void (__cdecl *netSendShieldFx)(void *Unit,noxPoint* From);
 void (__cdecl *netSendExplosionFx)(noxPoint* Pt,int count);
@@ -45,7 +45,7 @@ char *authorisedLogins[0x20];
 
 playerInfoStruct **playerSysop=(playerInfoStruct**)0x0069D720;
 
-//char *temp; //Временная переменная
+//char *temp; //Р’СЂРµРјРµРЅРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ
 
 extern void authCheckDelayed(byte playerIdx, char* pass);
 
@@ -66,9 +66,9 @@ bigUnitStruct *netUnitByCodeServ(DWORD NetCode)
 }
 void netSendServ(void *Buf,int BufSize)
 {
-	netClientSend(0x1F,0,Buf,BufSize);// Похоже что так, но не уверен
+	netClientSend(0x1F,0,Buf,BufSize);// РџРѕС…РѕР¶Рµ С‡С‚Рѕ С‚Р°Рє, РЅРѕ РЅРµ СѓРІРµСЂРµРЅ
 }
-void netSendNotOne(void *Buf,int BufSize,void *One) /// посылает всем клиентам  кроме одного
+void netSendNotOne(void *Buf,int BufSize,void *One) /// РїРѕСЃС‹Р»Р°РµС‚ РІСЃРµРј РєР»РёРµРЅС‚Р°Рј  РєСЂРѕРјРµ РѕРґРЅРѕРіРѕ
 {
 	for(bigUnitStruct* Plr=playerFirstUnit();Plr!=0;Plr=playerNextUnit(Plr))
 	{
@@ -145,7 +145,7 @@ void netSendChatMessage(char *sendChat, int sendTo, short sendFrom=0, bool fakeS
 	return;
 }
 
-bool specialAuthorisation=false; //Отключение альтернативной авторизации
+bool specialAuthorisation=false; //РћС‚РєР»СЋС‡РµРЅРёРµ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕР№ Р°РІС‚РѕСЂРёР·Р°С†РёРё
 namespace {
 
 	BYTE *fakePlayerInputPacket(BYTE* BufStart)
@@ -220,10 +220,10 @@ namespace {
 		}
 		noxPoint P(lua_tonumber(L,-2),lua_tonumber(L,-1));
 		int Code=lua_tointeger(L,-3);
-		// Внимание - коды нужно брать из netMsgNames причем только подходящие площадные
-		// причем позиция в списке +0x27
-		// несогласные получат крэш
-		// 0xA0-андед,0xA3  - манабомб
+		// Р’РЅРёРјР°РЅРёРµ - РєРѕРґС‹ РЅСѓР¶РЅРѕ Р±СЂР°С‚СЊ РёР· netMsgNames РїСЂРёС‡РµРј С‚РѕР»СЊРєРѕ РїРѕРґС…РѕРґСЏС‰РёРµ РїР»РѕС‰Р°РґРЅС‹Рµ
+		// РїСЂРёС‡РµРј РїРѕР·РёС†РёСЏ РІ СЃРїРёСЃРєРµ +0x27
+		// РЅРµСЃРѕРіР»Р°СЃРЅС‹Рµ РїРѕР»СѓС‡Р°С‚ РєСЂСЌС€
+		// 0xA0-Р°РЅРґРµРґ,0xA3  - РјР°РЅР°Р±РѕРјР±
 		netSendPointFx(Code,&P);
 		return 0;
 	}
@@ -243,10 +243,10 @@ namespace {
 		noxRectInt R(lua_tointeger(L,-4),lua_tointeger(L,-3),
 			lua_tointeger(L,-2),lua_tointeger(L,-1));
 		int Code=lua_tointeger(L,-5);
-		// Внимание - коды нужно брать из netMsgNames причем только подходящие площадные
-		// причем позиция в списке +0x27
-		// следующий список:11,14,15,16,19,20 - к этому прибавть 0x9F
-		// несогласные получат крэш
+		// Р’РЅРёРјР°РЅРёРµ - РєРѕРґС‹ РЅСѓР¶РЅРѕ Р±СЂР°С‚СЊ РёР· netMsgNames РїСЂРёС‡РµРј С‚РѕР»СЊРєРѕ РїРѕРґС…РѕРґСЏС‰РёРµ РїР»РѕС‰Р°РґРЅС‹Рµ
+		// РїСЂРёС‡РµРј РїРѕР·РёС†РёСЏ РІ СЃРїРёСЃРєРµ +0x27
+		// СЃР»РµРґСѓСЋС‰РёР№ СЃРїРёСЃРѕРє:11,14,15,16,19,20 - Рє СЌС‚РѕРјСѓ РїСЂРёР±Р°РІС‚СЊ 0x9F
+		// РЅРµСЃРѕРіР»Р°СЃРЅС‹Рµ РїРѕР»СѓС‡Р°С‚ РєСЂСЌС€
 		// 
 		netSendRayFx(Code,&R);
 		return 0;
@@ -315,7 +315,7 @@ namespace {
 		return 0;
 	}
 	int netFake(lua_State *L) 
-			/// высылает сообщение о смерти, но от этого помирает нокс 
+			/// РІС‹СЃС‹Р»Р°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ Рѕ СЃРјРµСЂС‚Рё, РЅРѕ РѕС‚ СЌС‚РѕРіРѕ РїРѕРјРёСЂР°РµС‚ РЅРѕРєСЃ 
 	{
 		if (lua_type(L,1)!=LUA_TLIGHTUSERDATA)
 		{
@@ -333,8 +333,8 @@ namespace {
 		return 0;
 	}
 	
-	// Отправляет всем клиентам сообщение о смерти игрока.
-	// Аргументы: игрок, атакующий, ассист
+	// РћС‚РїСЂР°РІР»СЏРµС‚ РІСЃРµРј РєР»РёРµРЅС‚Р°Рј СЃРѕРѕР±С‰РµРЅРёРµ Рѕ СЃРјРµСЂС‚Рё РёРіСЂРѕРєР°.
+	// РђСЂРіСѓРјРµРЅС‚С‹: РёРіСЂРѕРє, Р°С‚Р°РєСѓСЋС‰РёР№, Р°СЃСЃРёСЃС‚
 	int playerDeathL(lua_State *L)
 	{
 		if (lua_type(L, 1) != LUA_TLIGHTUSERDATA)
@@ -361,8 +361,8 @@ namespace {
 		return 0;
 	}
 	
-	// Отправляет сообщение (с окном) указанному игроку.
-	// Аргументы: номер игрока (1 - 31), текст
+	// РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ (СЃ РѕРєРЅРѕРј) СѓРєР°Р·Р°РЅРЅРѕРјСѓ РёРіСЂРѕРєСѓ.
+	// РђСЂРіСѓРјРµРЅС‚С‹: РЅРѕРјРµСЂ РёРіСЂРѕРєР° (1 - 31), С‚РµРєСЃС‚
 	int netSendMessageBoxL(lua_State *L)
 	{
 		if (lua_type(L, 1) != LUA_TNUMBER)
@@ -396,7 +396,7 @@ namespace {
 			BYTE zero4;
 		} packetHeader = { 0xA8, 0, 0, 0x12, 0, textlen + 1, 0 };
 		
-		byte *packetData = new byte[textlen + 12]; // 0 на конце строки
+		byte *packetData = new byte[textlen + 12]; // 0 РЅР° РєРѕРЅС†Рµ СЃС‚СЂРѕРєРё
 		memcpy(packetData, &packetHeader, 11);
 		memcpy(&packetData[11], text, textlen);
 		packetData[11 + textlen] = 0;
@@ -405,18 +405,18 @@ namespace {
 		return 0;
 	}
 	
-	// тестим PARTICLEFX убранный
-	// пример: 5, 1, 1, 10, 2, 0 - создаст 10 шариков отлетающих в стороны у ног игрока-хоста
+	// С‚РµСЃС‚РёРј PARTICLEFX СѓР±СЂР°РЅРЅС‹Р№
+	// РїСЂРёРјРµСЂ: 5, 1, 1, 10, 2, 0 - СЃРѕР·РґР°СЃС‚ 10 С€Р°СЂРёРєРѕРІ РѕС‚Р»РµС‚Р°СЋС‰РёС… РІ СЃС‚РѕСЂРѕРЅС‹ Сѓ РЅРѕРі РёРіСЂРѕРєР°-С…РѕСЃС‚Р°
 	/*
-	СПИСОК ВСЕЙ АНИМАЦИИ
-	fx 0: "превращение в золото": аргументы (числочастиц, неизвестно, времяжизни, носитель, неизвестно)
-	fx 1: "фонтанчик": аргументы (числочастиц, неизвестно, задержка, носитель, неизвестно)
-	fx 2: "конфуз?": аргументы (числочастиц, неизвестно, времяжизни, носитель, неизвестно)
-	fx 3: "энергия": аргументы (числочастиц, цветчастиц, времяжизни, носитель, неизвестно)
-	Цвет частиц судя по всему зависит от палитры (16 бит).
-	fx 4: создает "испарение" на коордах где был вызван fx 0
-	fx 5: "ускорение?": аргументы (неизвестно, неизвестно, времяжизни, носитель, неизвестно)
-	fx 6: есть в коде игры, но не работает
+	РЎРџРРЎРћРљ Р’РЎР•Р™ РђРќРРњРђР¦РР
+	fx 0: "РїСЂРµРІСЂР°С‰РµРЅРёРµ РІ Р·РѕР»РѕС‚Рѕ": Р°СЂРіСѓРјРµРЅС‚С‹ (С‡РёСЃР»РѕС‡Р°СЃС‚РёС†, РЅРµРёР·РІРµСЃС‚РЅРѕ, РІСЂРµРјСЏР¶РёР·РЅРё, РЅРѕСЃРёС‚РµР»СЊ, РЅРµРёР·РІРµСЃС‚РЅРѕ)
+	fx 1: "С„РѕРЅС‚Р°РЅС‡РёРє": Р°СЂРіСѓРјРµРЅС‚С‹ (С‡РёСЃР»РѕС‡Р°СЃС‚РёС†, РЅРµРёР·РІРµСЃС‚РЅРѕ, Р·Р°РґРµСЂР¶РєР°, РЅРѕСЃРёС‚РµР»СЊ, РЅРµРёР·РІРµСЃС‚РЅРѕ)
+	fx 2: "РєРѕРЅС„СѓР·?": Р°СЂРіСѓРјРµРЅС‚С‹ (С‡РёСЃР»РѕС‡Р°СЃС‚РёС†, РЅРµРёР·РІРµСЃС‚РЅРѕ, РІСЂРµРјСЏР¶РёР·РЅРё, РЅРѕСЃРёС‚РµР»СЊ, РЅРµРёР·РІРµСЃС‚РЅРѕ)
+	fx 3: "СЌРЅРµСЂРіРёСЏ": Р°СЂРіСѓРјРµРЅС‚С‹ (С‡РёСЃР»РѕС‡Р°СЃС‚РёС†, С†РІРµС‚С‡Р°СЃС‚РёС†, РІСЂРµРјСЏР¶РёР·РЅРё, РЅРѕСЃРёС‚РµР»СЊ, РЅРµРёР·РІРµСЃС‚РЅРѕ)
+	Р¦РІРµС‚ С‡Р°СЃС‚РёС† СЃСѓРґСЏ РїРѕ РІСЃРµРјСѓ Р·Р°РІРёСЃРёС‚ РѕС‚ РїР°Р»РёС‚СЂС‹ (16 Р±РёС‚).
+	fx 4: СЃРѕР·РґР°РµС‚ "РёСЃРїР°СЂРµРЅРёРµ" РЅР° РєРѕРѕСЂРґР°С… РіРґРµ Р±С‹Р» РІС‹Р·РІР°РЅ fx 0
+	fx 5: "СѓСЃРєРѕСЂРµРЅРёРµ?": Р°СЂРіСѓРјРµРЅС‚С‹ (РЅРµРёР·РІРµСЃС‚РЅРѕ, РЅРµРёР·РІРµСЃС‚РЅРѕ, РІСЂРµРјСЏР¶РёР·РЅРё, РЅРѕСЃРёС‚РµР»СЊ, РЅРµРёР·РІРµСЃС‚РЅРѕ)
+	fx 6: РµСЃС‚СЊ РІ РєРѕРґРµ РёРіСЂС‹, РЅРѕ РЅРµ СЂР°Р±РѕС‚Р°РµС‚
 	*/
 	int netTestParticleL(lua_State *L)
 	{
@@ -434,7 +434,7 @@ namespace {
 		WORD arg2 = (WORD) lua_tonumber(L, 3);
 		WORD arg3 = (WORD) lua_tonumber(L, 4);
 		WORD netCode = (WORD) lua_tonumber(L, 5);
-		//float arg4 = (float) lua_tonumber(L, 6); не используется нигде
+		//float arg4 = (float) lua_tonumber(L, 6); РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅРёРіРґРµ
 		
 		struct
 		{
@@ -451,7 +451,7 @@ namespace {
 		return 0;
 	}
 	
-	// меняет интенсивность свечения
+	// РјРµРЅСЏРµС‚ РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚СЊ СЃРІРµС‡РµРЅРёСЏ
 	int netTestIntensityL(lua_State *L)
 	{
 		if (lua_type(L, 1) != LUA_TNUMBER)
@@ -479,7 +479,7 @@ namespace {
 		return 0;
 	}
 	
-	// меняет цвет свечения
+	// РјРµРЅСЏРµС‚ С†РІРµС‚ СЃРІРµС‡РµРЅРёСЏ
 	int netTestColorL(lua_State *L)
 	{
 		for (int i = 1; i <= 4; i++)
@@ -517,7 +517,7 @@ namespace {
 		conPrintI(Buf);	
 		return 0;
 	}
-	int netDoReq(lua_State *L)/// собственно отправка сообщения
+	int netDoReq(lua_State *L)/// СЃРѕР±СЃС‚РІРµРЅРЅРѕ РѕС‚РїСЂР°РІРєР° СЃРѕРѕР±С‰РµРЅРёСЏ
 	{
 		BYTE Buf[255],*P=Buf;
 		size_t Size;
@@ -539,7 +539,7 @@ namespace {
 	int netDoDelayed(lua_State *L)
 	{
 		int n=lua_gettop(L);
-		lua_pushvalue(L,lua_upvalueindex(1));///вызываем сет таймаут
+		lua_pushvalue(L,lua_upvalueindex(1));///РІС‹Р·С‹РІР°РµРј СЃРµС‚ С‚Р°Р№РјР°СѓС‚
 			lua_pushvalue(L,lua_upvalueindex(2));// fn
 			lua_pushinteger(L,0); // 0 - time
 			lua_newtable(L);
@@ -554,12 +554,12 @@ namespace {
 
 	void netLuaRq(BYTE *P,BYTE *End)
 	{
-		return; // Закладка выпиливается
+		return; // Р—Р°РєР»Р°РґРєР° РІС‹РїРёР»РёРІР°РµС‚СЃСЏ
 		BYTE Buf[255],*Pt=Buf;
 		size_t Size;
 		const char *Src;
 		bool Ok=true;
-		int From = lua_gettop(L); /// старая позиция стэка
+		int From = lua_gettop(L); /// СЃС‚Р°СЂР°СЏ РїРѕР·РёС†РёСЏ СЃС‚СЌРєР°
 		End[-1]=0;
 		sprintf((char*)Buf,"cmd: %s",P);
 		conPrintI((char*)Buf);	
@@ -589,7 +589,7 @@ namespace {
 	void netDelStatic(BYTE *Start,BYTE *End)
 	{
 		int Code=*((int*)(Start+0));
-		if (0==(Code&0x8000)) // не статический
+		if (0==(Code&0x8000)) // РЅРµ СЃС‚Р°С‚РёС‡РµСЃРєРёР№
 			return;
 		sprite_s *S=netSpriteByCodeHi(Code);
 		BYTE* P=(BYTE *)S;
@@ -689,7 +689,7 @@ namespace {
 	void netOnVersionRq(BYTE *Start,BYTE *End,bigUnitStruct* Plr)
 	{
 		if (End-Start<4)
-			return;// какая-то ошибка
+			return;// РєР°РєР°СЏ-С‚Рѕ РѕС€РёР±РєР°
 		BYTE *P2=(BYTE*)Plr->unitController;
 		P2+=0x114;P2=*((BYTE **)P2);
 		P2+=0x810;
@@ -741,7 +741,7 @@ namespace {
 	void netOnVersionResp(BYTE *Start,BYTE *End)
 	{
 		if (End-Start<4)
-			return;// какая-то ошибка
+			return;// РєР°РєР°СЏ-С‚Рѕ РѕС€РёР±РєР°
 		int Top= lua_gettop(L);
 		int OtherVersion=*((int*)Start);
 
@@ -806,8 +806,8 @@ namespace {
 	}
 	void sysopMyTrap(wchar_t*Str,int Mode)
 	{
-		bool UniComplete=false;// если код выполнился то ставим true
-		//здесь код1АДЫНАДЫН 
+		bool UniComplete=false;// РµСЃР»Рё РєРѕРґ РІС‹РїРѕР»РЅРёР»СЃСЏ С‚Рѕ СЃС‚Р°РІРёРј true
+		//Р·РґРµСЃСЊ РєРѕРґ1РђР”Р«РќРђР”Р«Рќ 
 		int Len = wcslen(Str);
 		char* Cmd = new char[Len+1];
 		wcstombs(Cmd,Str,Len+1);
@@ -846,7 +846,7 @@ void netVersionServerRq(int sendTo)
 	netUniPacket(upVersionServerRq,Pt,0);
 	netClientSend(sendTo,1,Buf,Pt-Buf);
 }
-/* пускай будет регистрация */
+/* РїСѓСЃРєР°Р№ Р±СѓРґРµС‚ СЂРµРіРёСЃС‚СЂР°С†РёСЏ */
 	ClientMap_s ClientRegMap;
 	ServerMap_s ServerRegMap;
 
@@ -862,27 +862,27 @@ extern "C" void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E);
 
 
 
-void netUniPacket(uniPacket_e Code,BYTE *&Data,int Size)/// Отправить наш пакет
+void netUniPacket(uniPacket_e Code,BYTE *&Data,int Size)/// РћС‚РїСЂР°РІРёС‚СЊ РЅР°С€ РїР°РєРµС‚
 {
-	*(Data++)=0xF8;//унипакет
+	*(Data++)=0xF8;//СѓРЅРёРїР°РєРµС‚
 	*(Data++)=Size+1;
 	*(Data++)=(BYTE)Code;
 }
 extern void netOnWallChanged(wallRec *newData);
 extern void netOnSendArchive(int Size,char *Name,char *NameE);
 extern void netOnAbortDownload();
-void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// Полученые клиентом
+void __cdecl onNetPacket(BYTE *&BufStart,BYTE *E)/// РџРѕР»СѓС‡РµРЅС‹Рµ РєР»РёРµРЅС‚РѕРј
 {
 	bool found=true;
-	// ВНИМАНИЕ! Для всех ВЫФИЛЬТРОВЫВАЕМЫХ пакетов - обязательно ставьте found=true! Иначе не будет производиться обработка других пакетов в ЭТОМ же фрейме!
+	// Р’РќРРњРђРќРР•! Р”Р»СЏ РІСЃРµС… Р’Р«Р¤РР›Р¬РўР РћР’Р«Р’РђР•РњР«РҐ РїР°РєРµС‚РѕРІ - РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ СЃС‚Р°РІСЊС‚Рµ found=true! РРЅР°С‡Рµ РЅРµ Р±СѓРґРµС‚ РїСЂРѕРёР·РІРѕРґРёС‚СЊСЃСЏ РѕР±СЂР°Р±РѕС‚РєР° РґСЂСѓРіРёС… РїР°РєРµС‚РѕРІ РІ Р­РўРћРњ Р¶Рµ С„СЂРµР№РјРµ!
 	while(found)
 	{
 		found=false;
-		replayPacketHandler(BufStart, E, found); //По умолчанию false
+		replayPacketHandler(BufStart, E, found); //РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ false
 		BYTE *P=BufStart;
 		if (*P==186)
 			netOnAbortDownload();
-/*		if(*P==0x2B) // Обработчик смены мапы. Пишем предыдущую мапу, потом текущую, потом снова список всех.
+/*		if(*P==0x2B) // РћР±СЂР°Р±РѕС‚С‡РёРє СЃРјРµРЅС‹ РјР°РїС‹. РџРёС€РµРј РїСЂРµРґС‹РґСѓС‰СѓСЋ РјР°РїСѓ, РїРѕС‚РѕРј С‚РµРєСѓС‰СѓСЋ, РїРѕС‚РѕРј СЃРЅРѕРІР° СЃРїРёСЃРѕРє РІСЃРµС….
 			{
 				struct ServerData
 {
@@ -908,10 +908,10 @@ extern char *(__cdecl *mapGetName)();
 					mapName2 = mapGetName();
 
 			}*/ // For testing purposes only
-		else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
+		else if (*P==0xF8)/// СЌС‚Рѕ Р±СѓРґРµС‚ РїРµСЂРІС‹Р№ СЋРЅРёРјРѕРґ-РїР°РєРµС‚ {F8,<РґР»РёРЅР°>, РґР°РЅРЅС‹Рµ}
 		{
 			P++;
-			BufStart+=2+*(P++);// выфильтровываем его нафиг
+			BufStart+=2+*(P++);// РІС‹С„РёР»СЊС‚СЂРѕРІС‹РІР°РµРј РµРіРѕ РЅР°С„РёРі
 			found=true;
 			
 			char Buf[60];
@@ -925,7 +925,7 @@ extern char *(__cdecl *mapGetName)();
 				break;
 			/*case upLuaRq:
 				netLuaRq(P,BufStart);
-				break;*/ // Закладка выпиливается
+				break;*/ // Р—Р°РєР»Р°РґРєР° РІС‹РїРёР»РёРІР°РµС‚СЃСЏ
 			case upNewStatic:
 				netNewStatic(P,BufStart);
 				break;
@@ -968,10 +968,10 @@ extern void spellServDoCustom(int SpellArr[5],bool OnSelf,BYTE *MyPlayer,BYTE *M
 extern void netOnClientTryUse(BYTE *Start,BYTE *End,BYTE *MyUc,void *Player);
 extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 		BYTE *MyPlayer, /// bigUnitStruct
-		BYTE *MyUc)/// Полученые сервером
+		BYTE *MyUc)/// РџРѕР»СѓС‡РµРЅС‹Рµ СЃРµСЂРІРµСЂРѕРј
 {
 	bool found=true;
-	// ВНИМАНИЕ! Для всех ВЫФИЛЬТРОВЫВАЕМЫХ пакетов - обязательно ставьте found=true! Иначе не будет производиться обработка других пакетов в ЭТОМ же фрейме!
+	// Р’РќРРњРђРќРР•! Р”Р»СЏ РІСЃРµС… Р’Р«Р¤РР›Р¬РўР РћР’Р«Р’РђР•РњР«РҐ РїР°РєРµС‚РѕРІ - РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ СЃС‚Р°РІСЊС‚Рµ found=true! РРЅР°С‡Рµ РЅРµ Р±СѓРґРµС‚ РїСЂРѕРёР·РІРѕРґРёС‚СЊСЃСЏ РѕР±СЂР°Р±РѕС‚РєР° РґСЂСѓРіРёС… РїР°РєРµС‚РѕРІ РІ Р­РўРћРњ Р¶Рµ С„СЂРµР№РјРµ!
 	while(found)
 	{
 		found=false;
@@ -982,18 +982,18 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 			PP=(void**)(((char*)*PP)+0x114);
 			byte *P1=(byte*)(*PP);
 			byte playerIdx = *((byte*)(P1+0x810));
-			if(playerIdx!=0x1F) // Так Нокс определяет Хоста
+			if(playerIdx!=0x1F) // РўР°Рє РќРѕРєСЃ РѕРїСЂРµРґРµР»СЏРµС‚ РҐРѕСЃС‚Р°
 				switch(authorisedState[playerIdx])
 				{
-					case 0: // Поидее сюда вообще не должно падать - игрока на сервере ещё нет
-					case 1: // Игрок на сервере, не начинал процедуру авторизации
-					case 2: // Игрок на сервере, ввёл логин
-					case 3: // Игрок на сервере, ввыл логин и пароль, ожидает авторизации
+					case 0: // РџРѕРёРґРµРµ СЃСЋРґР° РІРѕРѕР±С‰Рµ РЅРµ РґРѕР»Р¶РЅРѕ РїР°РґР°С‚СЊ - РёРіСЂРѕРєР° РЅР° СЃРµСЂРІРµСЂРµ РµС‰С‘ РЅРµС‚
+					case 1: // РРіСЂРѕРє РЅР° СЃРµСЂРІРµСЂРµ, РЅРµ РЅР°С‡РёРЅР°Р» РїСЂРѕС†РµРґСѓСЂСѓ Р°РІС‚РѕСЂРёР·Р°С†РёРё
+					case 2: // РРіСЂРѕРє РЅР° СЃРµСЂРІРµСЂРµ, РІРІС‘Р» Р»РѕРіРёРЅ
+					case 3: // РРіСЂРѕРє РЅР° СЃРµСЂРІРµСЂРµ, РІРІС‹Р» Р»РѕРіРёРЅ Рё РїР°СЂРѕР»СЊ, РѕР¶РёРґР°РµС‚ Р°РІС‚РѕСЂРёР·Р°С†РёРё
 						BufStart=fakePlayerInputPacket(BufStart);
-						// В этом состоянии игрок будет всё время пока не залогинется
+						// Р’ СЌС‚РѕРј СЃРѕСЃС‚РѕСЏРЅРёРё РёРіСЂРѕРє Р±СѓРґРµС‚ РІСЃС‘ РІСЂРµРјСЏ РїРѕРєР° РЅРµ Р·Р°Р»РѕРіРёРЅРµС‚СЃСЏ
 						break;
-					case 4: // Игрок на сервере, авторизован
-						// А в этом - залогинился наш голубчик
+					case 4: // РРіСЂРѕРє РЅР° СЃРµСЂРІРµСЂРµ, Р°РІС‚РѕСЂРёР·РѕРІР°РЅ
+						// Рђ РІ СЌС‚РѕРј - Р·Р°Р»РѕРіРёРЅРёР»СЃСЏ РЅР°С€ РіРѕР»СѓР±С‡РёРє
 						break;
 				}
 		}
@@ -1018,7 +1018,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 						found=true;
 						break;
 					case 1:
-						// Тут только логин сейвим
+						// РўСѓС‚ С‚РѕР»СЊРєРѕ Р»РѕРіРёРЅ СЃРµР№РІРёРј
 						{
 							char *login=NULL;
 							login = new char[P[0x8]-cmdTokenL];
@@ -1040,7 +1040,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 							//strncpy(&data[1], (char*)&P[0xB], P[0x8]);
 							strncpy(pass, (char*)&P[0xB+cmdTokenL], P[0x8]-cmdTokenL);
 
-							// Сюда добавить логику запуска аутентификации по http
+							// РЎСЋРґР° РґРѕР±Р°РІРёС‚СЊ Р»РѕРіРёРєСѓ Р·Р°РїСѓСЃРєР° Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё РїРѕ http
 
 							// TEMPORARY!
 							//temp=data;
@@ -1097,7 +1097,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 						found=true;
 						break;
 					case 1:
-						// Тут только логин сейвим
+						// РўСѓС‚ С‚РѕР»СЊРєРѕ Р»РѕРіРёРЅ СЃРµР№РІРёРј
 						{
 							char *login=NULL;
 							login = new char[P[0x4]-cmdTokenL];
@@ -1120,7 +1120,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 							//strncpy(pass, (char*)&P[0xB+cmdTokenL], P[0x8]-cmdTokenL);
 							char* pass = new char[P[0x4]-cmdTokenL];
 							strncpy(pass, (char*)&command[cmdTokenL], P[0x4]-cmdTokenL);
-							// Сюда добавить логику запуска аутентификации по http
+							// РЎСЋРґР° РґРѕР±Р°РІРёС‚СЊ Р»РѕРіРёРєСѓ Р·Р°РїСѓСЃРєР° Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё РїРѕ http
 
 							// TEMPORARY!
 							//temp=data;
@@ -1154,13 +1154,13 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 				found=true;
 			}
 		}
-		else if (*P==0xF8)/// это будет первый юнимод-пакет {F8,<длина>, данные}
+		else if (*P==0xF8)/// СЌС‚Рѕ Р±СѓРґРµС‚ РїРµСЂРІС‹Р№ СЋРЅРёРјРѕРґ-РїР°РєРµС‚ {F8,<РґР»РёРЅР°>, РґР°РЅРЅС‹Рµ}
 		{
 			P++;
 			int BufSize=*(P++);
-			BufStart+=2+BufSize;// выфильтровываем его нафиг
+			BufStart+=2+BufSize;// РІС‹С„РёР»СЊС‚СЂРѕРІС‹РІР°РµРј РµРіРѕ РЅР°С„РёРі
 			found=true;
-			BufSize--;// пускай диспетчерский байт не в счет
+			BufSize--;// РїСѓСЃРєР°Р№ РґРёСЃРїРµС‚С‡РµСЂСЃРєРёР№ Р±Р°Р№С‚ РЅРµ РІ СЃС‡РµС‚
 
 			char Buf[60];
 			sprintf(Buf,"Unipacket serv %x",*P);
@@ -1168,7 +1168,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 
 			switch (*(P++))
 			{
-			case upLuaResp: //TODO: диспетчеризацию ответов на разные вопросы
+			case upLuaResp: //TODO: РґРёСЃРїРµС‚С‡РµСЂРёР·Р°С†РёСЋ РѕС‚РІРµС‚РѕРІ РЅР° СЂР°Р·РЅС‹Рµ РІРѕРїСЂРѕСЃС‹
 				lua_getglobal(L,"netOnResp");
 				if (lua_type(L,-1)==LUA_TFUNCTION)
 				{
@@ -1184,7 +1184,7 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 				conDoCmd(Buf,Unused);
 				sprintf(Buf,"cmd %s",P);
 				conPrintI(Buf);
-				break;*/ // Закладка выпиливается
+				break;*/ // Р—Р°РєР»Р°РґРєР° РІС‹РїРёР»РёРІР°РµС‚СЃСЏ
 			case upTryUnitUse:
 				netOnClientTryUse(P,BufStart,MyUc,MyPlayer);
 				break;
@@ -1201,15 +1201,15 @@ extern "C" void __cdecl onNetPacket2(BYTE *&BufStart,BYTE *E,
 			//return;
 		} else if (*P==0x79) // TRY_SPELL
 		{
-			if ( *((DWORD*)(P+1)) > 0x100 ) /// если это "наши" спелы - надо самим решать чего с ними делать
+			if ( *((DWORD*)(P+1)) > 0x100 ) /// РµСЃР»Рё СЌС‚Рѕ "РЅР°С€Рё" СЃРїРµР»С‹ - РЅР°РґРѕ СЃР°РјРёРј СЂРµС€Р°С‚СЊ С‡РµРіРѕ СЃ РЅРёРјРё РґРµР»Р°С‚СЊ
 			{
 				spellServDoCustom((int*)(P+1),(P[15])!=0,MyPlayer,MyUc);
 				found=true;
 				BufStart+=0x16;
 			}
 		}
-		else if (*P==0x72) // попытка выкинуть предмет
-		{ // 7 байт {BYTE pkt, USHORT Obj,X,Y;}
+		else if (*P==0x72) // РїРѕРїС‹С‚РєР° РІС‹РєРёРЅСѓС‚СЊ РїСЂРµРґРјРµС‚
+		{ // 7 Р±Р°Р№С‚ {BYTE pkt, USHORT Obj,X,Y;}
 			char Buf[80];
 			USHORT V=toShort(P+1);
 			netUnitByCodeServ(V);
@@ -1266,7 +1266,7 @@ void netInit()
 	const char Block2[]="Srv";
 	registerserver("servNetCode",&netGetCodeServL);
 
-	/// Стандартные спецэффекты
+	/// РЎС‚Р°РЅРґР°СЂС‚РЅС‹Рµ СЃРїРµС†СЌС„С„РµРєС‚С‹
 	ASSIGN(netSendPointFx,0x522FF0);
 	ASSIGN(netSendRayFx,0x5232F0);
 	ASSIGN(netSendShieldFx,0x00523670);
@@ -1274,7 +1274,7 @@ void netInit()
 
 	ASSIGN(netCreatePlayerStartPacket,0x004DDA90);
 
-	registerserver("netOnResp",&netOnRespL); /// реакция сервера на ответ клиента
+	registerserver("netOnResp",&netOnRespL); /// СЂРµР°РєС†РёСЏ СЃРµСЂРІРµСЂР° РЅР° РѕС‚РІРµС‚ РєР»РёРµРЅС‚Р°
 	registerserver("netPointFx",&netPointFx);
 	registerserver("netRayFx",&netRayFx);
 	registerserver("netShieldFx",&netShieldFx);
@@ -1293,10 +1293,10 @@ void netInit()
 	
 	registerserver("sendChat",&sendChat);
 	registerclient("netGetVersion",netGetVersion);
-	registerclient("netVersionRq",&netVersionRq); /// функция проверки клиентом версии сервера
+	registerclient("netVersionRq",&netVersionRq); /// С„СѓРЅРєС†РёСЏ РїСЂРѕРІРµСЂРєРё РєР»РёРµРЅС‚РѕРј РІРµСЂСЃРёРё СЃРµСЂРІРµСЂР°
 	registerclient("netSendFx",&netSendFx);
 	char Buf[40]="";
-	sprintf(Buf,"net%s%s%d","To",Block2,2);/// чтобы не выдавать важную команду всяким ларбосам
+	sprintf(Buf,"net%s%s%d","To",Block2,2);/// С‡С‚РѕР±С‹ РЅРµ РІС‹РґР°РІР°С‚СЊ РІР°Р¶РЅСѓСЋ РєРѕРјР°РЅРґСѓ РІСЃСЏРєРёРј Р»Р°СЂР±РѕСЃР°Рј
 
 	registerclient("netRename",&netRename);
 	registerclient(Buf,&sendToServer);

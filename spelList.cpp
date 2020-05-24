@@ -13,14 +13,14 @@ void (__cdecl *drawUpdateMB)(int A,int B);
 void (__cdecl *wndSetTooltip)(void *Wnd, const wchar_t *Str);
 void (__cdecl *netSpellRewardCli)(int Spell, int newLevel,int ShowBook, int AddToBar);
 
-int (__cdecl *audSyllStartSpeak)(int SpellN);/// начинает говорить спелл
+int (__cdecl *audSyllStartSpeak)(int SpellN);/// РЅР°С‡РёРЅР°РµС‚ РіРѕРІРѕСЂРёС‚СЊ СЃРїРµР»Р»
 
 
 extern DWORD __cdecl mySpellGetFlags(int Spell);
 extern int __cdecl mySpellIsEnabled(int Spell);
 extern const wchar_t * __cdecl mySpellLoadName(int Spell);
 
-DWORD *guiSpellListedNumbers;// Массив спеллов - будем из него использовать только один элемент - 3й
+DWORD *guiSpellListedNumbers;// РњР°СЃСЃРёРІ СЃРїРµР»Р»РѕРІ - Р±СѓРґРµРј РёР· РЅРµРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ РѕРґРёРЅ СЌР»РµРјРµРЅС‚ - 3Р№
 
 DWORD *bookWndState;
 DWORD *bookIsMonster;
@@ -28,47 +28,47 @@ DWORD *bookColorNormal;
 DWORD *bookColorDisabled;
 DWORD *bookSpellSelected;
 
-DWORD *bookSpellDnDType;  /// если тащат какой-то спелл
-DWORD *bookSpellNumberDnD;/// какой сейчас спелл тащат
+DWORD *bookSpellDnDType;  /// РµСЃР»Рё С‚Р°С‰Р°С‚ РєР°РєРѕР№-С‚Рѕ СЃРїРµР»Р»
+DWORD *bookSpellNumberDnD;/// РєР°РєРѕР№ СЃРµР№С‡Р°СЃ СЃРїРµР»Р» С‚Р°С‰Р°С‚
 
-int *bookSelSpell;/// Текущий открытй спелл
+int *bookSelSpell;/// РўРµРєСѓС‰РёР№ РѕС‚РєСЂС‹С‚Р№ СЃРїРµР»Р»
 
-int *bookPagesList;/// сколько страниц занимает список спеллов
+int *bookPagesList;/// СЃРєРѕР»СЊРєРѕ СЃС‚СЂР°РЅРёС† Р·Р°РЅРёРјР°РµС‚ СЃРїРёСЃРѕРє СЃРїРµР»Р»РѕРІ
 int *bookLineHeight;
-int *bookListHidden;/// странный счетчик спеллов - похоже сколько не показывать
-int *bookListTotalCount;/// сколько всего спелов
+int *bookListHidden;/// СЃС‚СЂР°РЅРЅС‹Р№ СЃС‡РµС‚С‡РёРє СЃРїРµР»Р»РѕРІ - РїРѕС…РѕР¶Рµ СЃРєРѕР»СЊРєРѕ РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ
+int *bookListTotalCount;/// СЃРєРѕР»СЊРєРѕ РІСЃРµРіРѕ СЃРїРµР»РѕРІ
 
-int mySelectedSpell;/// теперь эта переменная будет листатся при нажатии стрелок
+int mySelectedSpell;/// С‚РµРїРµСЂСЊ СЌС‚Р° РїРµСЂРµРјРµРЅРЅР°СЏ Р±СѓРґРµС‚ Р»РёСЃС‚Р°С‚СЃСЏ РїСЂРё РЅР°Р¶Р°С‚РёРё СЃС‚СЂРµР»РѕРє
 
 /*
-0100 0000  - спелл общий
-0200 0000  - спелл мага (1)
-0400 0000  - спелл конжа(2)
+0100 0000  - СЃРїРµР»Р» РѕР±С‰РёР№
+0200 0000  - СЃРїРµР»Р» РјР°РіР° (1)
+0400 0000  - СЃРїРµР»Р» РєРѕРЅР¶Р°(2)
 
 */
 /*
-bookSpellList - список спелов, ИЗВЕСТНЫХ этому игроку, в порядке сортировки
-spellData - список всех спелов, на данном клиенте, здесь же хранится, какие из них известны ДАННОМУ игроку
+bookSpellList - СЃРїРёСЃРѕРє СЃРїРµР»РѕРІ, РР—Р’Р•РЎРўРќР«РҐ СЌС‚РѕРјСѓ РёРіСЂРѕРєСѓ, РІ РїРѕСЂСЏРґРєРµ СЃРѕСЂС‚РёСЂРѕРІРєРё
+spellData - СЃРїРёСЃРѕРє РІСЃРµС… СЃРїРµР»РѕРІ, РЅР° РґР°РЅРЅРѕРј РєР»РёРµРЅС‚Рµ, Р·РґРµСЃСЊ Р¶Рµ С…СЂР°РЅРёС‚СЃСЏ, РєР°РєРёРµ РёР· РЅРёС… РёР·РІРµСЃС‚РЅС‹ Р”РђРќРќРћРњРЈ РёРіСЂРѕРєСѓ
 
-для упрощения кода - когда листают книжку в массив кладем специальный номер 0x100 
-а гет-функции возвращают данные по ТЕКУЩЕМУ спеллу из mySelectedSpell
+РґР»СЏ СѓРїСЂРѕС‰РµРЅРёСЏ РєРѕРґР° - РєРѕРіРґР° Р»РёСЃС‚Р°СЋС‚ РєРЅРёР¶РєСѓ РІ РјР°СЃСЃРёРІ РєР»Р°РґРµРј СЃРїРµС†РёР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ 0x100 
+Р° РіРµС‚-С„СѓРЅРєС†РёРё РІРѕР·РІСЂР°С‰Р°СЋС‚ РґР°РЅРЅС‹Рµ РїРѕ РўР•РљРЈР©Р•РњРЈ СЃРїРµР»Р»Сѓ РёР· mySelectedSpell
 
-еще работа по отображению спелов:
-- поправить DnD из открытого ОДНОГО спелла
-- в случае клиента инициализировать спеллы
-- синхронизацию
-- проверить саммоны
-- проверить описалво кричей 
-- сделать абилки воина
-- проверить расход маны в описании
+РµС‰Рµ СЂР°Р±РѕС‚Р° РїРѕ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЋ СЃРїРµР»РѕРІ:
+- РїРѕРїСЂР°РІРёС‚СЊ DnD РёР· РѕС‚РєСЂС‹С‚РѕРіРѕ РћР”РќРћР“Рћ СЃРїРµР»Р»Р°
+- РІ СЃР»СѓС‡Р°Рµ РєР»РёРµРЅС‚Р° РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ СЃРїРµР»Р»С‹
+- СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЋ
+- РїСЂРѕРІРµСЂРёС‚СЊ СЃР°РјРјРѕРЅС‹
+- РїСЂРѕРІРµСЂРёС‚СЊ РѕРїРёСЃР°Р»РІРѕ РєСЂРёС‡РµР№ 
+- СЃРґРµР»Р°С‚СЊ Р°Р±РёР»РєРё РІРѕРёРЅР°
+- РїСЂРѕРІРµСЂРёС‚СЊ СЂР°СЃС…РѕРґ РјР°РЅС‹ РІ РѕРїРёСЃР°РЅРёРё
 
 
 */
 
 namespace
 {
-	void *myDragIcon=NULL;///иконку для переноски
-	int nextSpellIndex=0x101; /// номер следующего спелла
+	void *myDragIcon=NULL;///РёРєРѕРЅРєСѓ РґР»СЏ РїРµСЂРµРЅРѕСЃРєРё
+	int nextSpellIndex=0x101; /// РЅРѕРјРµСЂ СЃР»РµРґСѓСЋС‰РµРіРѕ СЃРїРµР»Р»Р°
 	
 	bool spellIsSummon(int Spell)
 	{
@@ -79,12 +79,12 @@ namespace
 		return (Spell >=75) && (Spell<114);
 	}
 	int __cdecl mySpellReward(int Spell,BYTE *PlayerInfo,int PlayerClass)
-		/// надлежит вернуть 1 если спелл добавляется
-		/// 0 - если не добавляется (например уже был)
+		/// РЅР°РґР»РµР¶РёС‚ РІРµСЂРЅСѓС‚СЊ 1 РµСЃР»Рё СЃРїРµР»Р» РґРѕР±Р°РІР»СЏРµС‚СЃСЏ
+		/// 0 - РµСЃР»Рё РЅРµ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ (РЅР°РїСЂРёРјРµСЂ СѓР¶Рµ Р±С‹Р»)
 	{
 		int Top=lua_gettop(L);
 		getClientVar("bookSpellList");
-		if (PlayerClass==0) // конверсия абилок в спеллы
+		if (PlayerClass==0) // РєРѕРЅРІРµСЂСЃРёСЏ Р°Р±РёР»РѕРє РІ СЃРїРµР»Р»С‹
 			Spell+=ABIL_TO_SPELL;
 		int i,n=lua_objlen(L,-1);
 		for (i=1;i<=n+1;i++)
@@ -96,15 +96,15 @@ namespace
 		}
 		if (i==n+1)
 		{
-			lua_rawseti(L,-2,i); // спелла небыло - добавляем
+			lua_rawseti(L,-2,i); // СЃРїРµР»Р»Р° РЅРµР±С‹Р»Рѕ - РґРѕР±Р°РІР»СЏРµРј
 			lua_pushinteger(L,Spell);
 		}
 		getClientVar("spellData");
 		lua_pushinteger(L,Spell);
 		lua_gettable(L,-2);
-		if (lua_type(L,-1)==LUA_TNUMBER)/// Либо тут число - левел спелла
+		if (lua_type(L,-1)==LUA_TNUMBER)/// Р›РёР±Рѕ С‚СѓС‚ С‡РёСЃР»Рѕ - Р»РµРІРµР» СЃРїРµР»Р»Р°
 		{
-			/// todo - повысить уровень
+			/// todo - РїРѕРІС‹СЃРёС‚СЊ СѓСЂРѕРІРµРЅСЊ
 		}
 		else
 		{
@@ -116,31 +116,31 @@ namespace
 		return 1;
 	}
 	void __declspec(naked) mySpellRewardPre()
-		// вызывается когда клиент получает новый СТАНДАРТНЫЙ спелл
-		// Здесь может быть интересным только возможность НЕ ДАТЬ спелл игроку
-		// если мы уже его давали
+		// РІС‹Р·С‹РІР°РµС‚СЃСЏ РєРѕРіРґР° РєР»РёРµРЅС‚ РїРѕР»СѓС‡Р°РµС‚ РЅРѕРІС‹Р№ РЎРўРђРќР”РђР РўРќР«Р™ СЃРїРµР»Р»
+		// Р—РґРµСЃСЊ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёРЅС‚РµСЂРµСЃРЅС‹Рј С‚РѕР»СЊРєРѕ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РќР• Р”РђРўР¬ СЃРїРµР»Р» РёРіСЂРѕРєСѓ
+		// РµСЃР»Рё РјС‹ СѓР¶Рµ РµРіРѕ РґР°РІР°Р»Рё
 	{
 		__asm
 		{
-			pop eax // достаем адрес возврата
-			push ebx // кладем игрока
-			push ebp // кладем спелл
+			pop eax // РґРѕСЃС‚Р°РµРј Р°РґСЂРµСЃ РІРѕР·РІСЂР°С‚Р°
+			push ebx // РєР»Р°РґРµРј РёРіСЂРѕРєР°
+			push ebp // РєР»Р°РґРµРј СЃРїРµР»Р»
 			call mySpellReward
 			add esp,0xC
 			cmp ebp,0x22
 			jnz l1
-			mov ecx,eax /// добавляем трап
+			mov ecx,eax /// РґРѕР±Р°РІР»СЏРµРј С‚СЂР°Рї
 			push 0x0045D0D4
 			ret
 l1:
 			test eax,eax
 			jz l2
-			cmp [esp+0x1C],edi // параметр - открыть книгу или нет
+			cmp [esp+0x1C],edi // РїР°СЂР°РјРµС‚СЂ - РѕС‚РєСЂС‹С‚СЊ РєРЅРёРіСѓ РёР»Рё РЅРµС‚
 			jz l2
-			push 0x0045D117 // показываем книгу
+			push 0x0045D117 // РїРѕРєР°Р·С‹РІР°РµРј РєРЅРёРіСѓ
 			ret
 l2:
-			push 0x0045D139 // ничего не показываем
+			push 0x0045D139 // РЅРёС‡РµРіРѕ РЅРµ РїРѕРєР°Р·С‹РІР°РµРј
 			ret
 		};
 	}
@@ -151,7 +151,7 @@ l2:
 	void drawDefCreature(int Spell,int plrClass,int X,int Y)
 	{
 		drawSetTextColor(
-			((2==plrClass) && !mySpellIsEnabled(Spell))? // если конж
+			((2==plrClass) && !mySpellIsEnabled(Spell))? // РµСЃР»Рё РєРѕРЅР¶
 				*bookColorDisabled:
 				*bookColorNormal
 			);
@@ -208,7 +208,7 @@ l2:
 		drawString(NULL,Name,X-W/2,Y);
 	}
 	void drawSpellList(int PageN,int LinesPerPage,int X,int Y)
-	{ /// В этой функции может быть существенная потеря быстродействия
+	{ /// Р’ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃСѓС‰РµСЃС‚РІРµРЅРЅР°СЏ РїРѕС‚РµСЂСЏ Р±С‹СЃС‚СЂРѕРґРµР№СЃС‚РІРёСЏ
 		int Top=lua_gettop(L);
 		getClientVar("bookSpellList");
 		if (lua_type(L,-1)!=LUA_TTABLE)
@@ -218,7 +218,7 @@ l2:
 		}
 		bool isCreatures=(1==*bookWndState);
 
-		int Count=lua_objlen(L,-1);// сколько спеллов нам известно
+		int Count=lua_objlen(L,-1);// СЃРєРѕР»СЊРєРѕ СЃРїРµР»Р»РѕРІ РЅР°Рј РёР·РІРµСЃС‚РЅРѕ
 		*bookListTotalCount=Count;
 		*bookPagesList=1 + (Count+LinesPerPage)/LinesPerPage;
 		*bookListHidden=0;
@@ -235,7 +235,7 @@ l2:
 
 		for (;i<=Count;i++)
 		{
-			if (i==right)// переходим на правую половину
+			if (i==right)// РїРµСЂРµС…РѕРґРёРј РЅР° РїСЂР°РІСѓСЋ РїРѕР»РѕРІРёРЅСѓ
 			{
 				X+=199-78;
 				Y=Y0;
@@ -246,7 +246,7 @@ l2:
 			int V=0;
 			V=lua_tointeger(L,-1);
 			lua_gettable(L,-2);
-			if (lua_type(L,-1)==LUA_TNUMBER) // стандартный спелл
+			if (lua_type(L,-1)==LUA_TNUMBER) // СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ СЃРїРµР»Р»
 			{
 				int Spell=lua_tointeger(L,-1);
 				if (spellIsSummon(Spell) ^ isCreatures)
@@ -280,8 +280,8 @@ l2:
 		guiSpellListedNumbers[3]=1;
 		int plrClass=(*clientPlayerInfoPtr)[0x8CB];
 		if (plrClass==0)
-			return; //TODO: для ВОЕНА пока не знаем чего делать
-		guiSpellListedNumbers[3]=0x100; // для остальных - подсовываем ВИРТУАЛЬНЫЙ спелл
+			return; //TODO: РґР»СЏ Р’РћР•РќРђ РїРѕРєР° РЅРµ Р·РЅР°РµРј С‡РµРіРѕ РґРµР»Р°С‚СЊ
+		guiSpellListedNumbers[3]=0x100; // РґР»СЏ РѕСЃС‚Р°Р»СЊРЅС‹С… - РїРѕРґСЃРѕРІС‹РІР°РµРј Р’РР РўРЈРђР›Р¬РќР«Р™ СЃРїРµР»Р»
 
 	}
 
@@ -344,9 +344,9 @@ l1:
 		return myDragIcon;
 	}
 */
-		/// =1 - спелл
-		/// =2 - абилки
-		/// =3 - крича для саммона
+		/// =1 - СЃРїРµР»Р»
+		/// =2 - Р°Р±РёР»РєРё
+		/// =3 - РєСЂРёС‡Р° РґР»СЏ СЃР°РјРјРѕРЅР°
 	void getSpellForDnD(int SelectedId,int Type)
 	{
 		int Top=lua_gettop(L);
@@ -374,31 +374,31 @@ l1:
 		int X=0;
 		X=lua_tonumber(L,-1);
 		lua_gettable(L,-2);
-		if (lua_type(L,-1)==LUA_TNUMBER) // стандартный спелл
+		if (lua_type(L,-1)==LUA_TNUMBER) // СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ СЃРїРµР»Р»
 		{
 			lua_pushlightuserdata(L,&getSpellForDnD);
 			lua_pushnil(L);
-			lua_settable(L,LUA_REGISTRYINDEX);/// запишем выбранный спелл
+			lua_settable(L,LUA_REGISTRYINDEX);/// Р·Р°РїРёС€РµРј РІС‹Р±СЂР°РЅРЅС‹Р№ СЃРїРµР»Р»
 
 			Spell=lua_tointeger(L,-1)+((Type==3)?0x4A:0);
-			/// Здесь надо проверить может там номер слишком большой
+			/// Р—РґРµСЃСЊ РЅР°РґРѕ РїСЂРѕРІРµСЂРёС‚СЊ РјРѕР¶РµС‚ С‚Р°Рј РЅРѕРјРµСЂ СЃР»РёС€РєРѕРј Р±РѕР»СЊС€РѕР№
 		}
 		else
 		{
 			lua_pushlightuserdata(L,&getSpellForDnD);
 			lua_pushvalue(L,-2);
-			lua_settable(L,LUA_REGISTRYINDEX);/// запишем выбранный спелл
+			lua_settable(L,LUA_REGISTRYINDEX);/// Р·Р°РїРёС€РµРј РІС‹Р±СЂР°РЅРЅС‹Р№ СЃРїРµР»Р»
 
 			lua_getfield(L,-2,"index");
 			Spell=lua_tointeger(L,-1);
-			if (Spell<0x101)// Запишем новый спелл
+			if (Spell<0x101)// Р—Р°РїРёС€РµРј РЅРѕРІС‹Р№ СЃРїРµР»Р»
 			{
 				lua_pushinteger(L,nextSpellIndex);
 				lua_setfield(L,-4,"index");
 
 				getClientVar("spellData");
 				lua_pushinteger(L,nextSpellIndex);
-				lua_pushvalue(L,-5);// индекс, таблица,пустой индекс,иконка, главная таблица
+				lua_pushvalue(L,-5);// РёРЅРґРµРєСЃ, С‚Р°Р±Р»РёС†Р°,РїСѓСЃС‚РѕР№ РёРЅРґРµРєСЃ,РёРєРѕРЅРєР°, РіР»Р°РІРЅР°СЏ С‚Р°Р±Р»РёС†Р°
 				lua_settable(L,-3);
 				Spell=nextSpellIndex++;
 			}
@@ -410,7 +410,7 @@ l1:
 		*bookSpellNumberDnD=Spell;
 
 		lua_settop(L,Top);
-		drawUpdateMB(793,100);/// магические числа, не знаю почему такие
+		drawUpdateMB(793,100);/// РјР°РіРёС‡РµСЃРєРёРµ С‡РёСЃР»Р°, РЅРµ Р·РЅР°СЋ РїРѕС‡РµРјСѓ С‚Р°РєРёРµ
 		return;
 	}
 /*	void __cdecl mySpellKeyPackSetSpell(keyPack *KeyPack,int NewSpell,int KeyN)
@@ -422,14 +422,14 @@ l1:
 			if (P!=NULL)
 				wndSetTooltip(P+24,spellLoadName(NewSpell));
 			if (clientPlayerInfoPtr!=0)
-				drawUpdateMB(794,100);/// магические числа, не знаю почему такие
+				drawUpdateMB(794,100);/// РјР°РіРёС‡РµСЃРєРёРµ С‡РёСЃР»Р°, РЅРµ Р·РЅР°СЋ РїРѕС‡РµРјСѓ С‚Р°РєРёРµ
 			return;
 		}
-		//особый случай
+		//РѕСЃРѕР±С‹Р№ СЃР»СѓС‡Р°Р№
 		int Top=lua_gettop(L);
 		lua_pushlightuserdata(L,&getSpellForDnD);
 		
-		lua_gettable(L,LUA_REGISTRYINDEX);/// запишем выбранный спелл
+		lua_gettable(L,LUA_REGISTRYINDEX);/// Р·Р°РїРёС€РµРј РІС‹Р±СЂР°РЅРЅС‹Р№ СЃРїРµР»Р»
 		lua_getfield(L,-1,"name");
 		size_t Len;
 		const char *S=lua_tolstring(L,-1,&Len);
@@ -438,7 +438,7 @@ l1:
 			mbstowcs(Buf,S,min(Len,199));
 		wndSetTooltip(P+24,Buf);
 		if (clientPlayerInfoPtr!=0)
-			drawUpdateMB(794,100);/// магические числа, не знаю почему такие
+			drawUpdateMB(794,100);/// РјР°РіРёС‡РµСЃРєРёРµ С‡РёСЃР»Р°, РЅРµ Р·РЅР°СЋ РїРѕС‡РµРјСѓ С‚Р°РєРёРµ
 		
 		lua_settop(L,Top);
 		return;
@@ -526,7 +526,7 @@ void mapLoadSpells()
 
 	if (plrClass != 0)
 	{
-		for (int i=0;i<ABIL_TO_SPELL;i++) /// Все обычные спеллы
+		for (int i=0;i<ABIL_TO_SPELL;i++) /// Р’СЃРµ РѕР±С‹С‡РЅС‹Рµ СЃРїРµР»Р»С‹
 		{
 			DWORD DW=mySpellGetFlags(i);
 			if ( (DW & 0x01000000) ||
@@ -541,7 +541,7 @@ void mapLoadSpells()
 	}
 	else
 	{
-		for (int i=0;i<5;i++) /// Все обычные спеллы
+		for (int i=0;i<5;i++) /// Р’СЃРµ РѕР±С‹С‡РЅС‹Рµ СЃРїРµР»Р»С‹
 		{
 			lua_pushinteger(L,i);
 			lua_rawseti(L,-2,Cnt++);
@@ -562,14 +562,14 @@ void mapLoadSpells()
 		lua_setfield(L,-2,"mana");
 		lua_pushinteger(L,0x3080A0);
 		lua_setfield(L,-2,"color");
-		lua_pushinteger(L,0x01000008);// Общий, площадный
+		lua_pushinteger(L,0x01000008);// РћР±С‰РёР№, РїР»РѕС‰Р°РґРЅС‹Р№
 		lua_setfield(L,-2,"flags");
 		//player,targX,targY,targetUnit,data -> success
 		if (0==luaL_loadstring(L,
 			"local me,tx,ty=... \n"
 			"local x,y = unitPos(me) \n"
 			"if not mapTraceRay(x,y,tx,ty,5) then return false end \n"
-			"soundMake(0x28,tx,ty) " // звук срабатывания ловушки
+			"soundMake(0x28,tx,ty) " // Р·РІСѓРє СЃСЂР°Р±Р°С‚С‹РІР°РЅРёСЏ Р»РѕРІСѓС€РєРё
 			"netPointFx(0x89,tx,ty) "
 //			"soundSyll(me,1) "
 			"local r=createObject('waterbarrel',tx,ty) \n"
@@ -623,21 +623,21 @@ void spellListInit()
 	bool useMySpells=false;
 	if (useMySpells) 
 	{
-		//////// драгдроп
-		/// 0045DCA0 - там функция, которая вызывается при попытки бросить спелл куда-либо 
-		///    - соответственно ее править если надо кидать спеллы в другие окна
+		//////// РґСЂР°РіРґСЂРѕРї
+		/// 0045DCA0 - С‚Р°Рј С„СѓРЅРєС†РёСЏ, РєРѕС‚РѕСЂР°СЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё РїРѕРїС‹С‚РєРё Р±СЂРѕСЃРёС‚СЊ СЃРїРµР»Р» РєСѓРґР°-Р»РёР±Рѕ 
+		///    - СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РµРµ РїСЂР°РІРёС‚СЊ РµСЃР»Рё РЅР°РґРѕ РєРёРґР°С‚СЊ СЃРїРµР»Р»С‹ РІ РґСЂСѓРіРёРµ РѕРєРЅР°
 
-		///обновляет и считает сколько есть спелов и т.п. 
+		///РѕР±РЅРѕРІР»СЏРµС‚ Рё СЃС‡РёС‚Р°РµС‚ СЃРєРѕР»СЊРєРѕ РµСЃС‚СЊ СЃРїРµР»РѕРІ Рё С‚.Рї. 
 		InjectJumpTo(0x0045ADF0,myBookUpdateList);
-		///// рисование списка спеллов/кричей
+		///// СЂРёСЃРѕРІР°РЅРёРµ СЃРїРёСЃРєР° СЃРїРµР»Р»РѕРІ/РєСЂРёС‡РµР№
 		InjectJumpTo(0x0045BE60,drawSpellListPre);
 		InjectJumpTo(0x0045B76A,getAbilForDnDPre);
 		InjectJumpTo(0x0045B801,getCreaForDnDPre);
 		InjectJumpTo(0x0045B83A,getSpellForDnDPre);
 		//InjectJumpTo(0x0045DC40,mySpellKeyPackSetSpell);
 
-		/// иконка в просмотре отдельной книги за конжа и мага 
-		/// кричи идут как спеллы +74
+		/// РёРєРѕРЅРєР° РІ РїСЂРѕСЃРјРѕС‚СЂРµ РѕС‚РґРµР»СЊРЅРѕР№ РєРЅРёРіРё Р·Р° РєРѕРЅР¶Р° Рё РјР°РіР° 
+		/// РєСЂРёС‡Рё РёРґСѓС‚ РєР°Рє СЃРїРµР»Р»С‹ +74
 
 		InjectOffs(0x0045D0C1+1,&mySpellRewardPre);
 		
@@ -645,14 +645,14 @@ void spellListInit()
 //		InjectOffs(0x004778E6+1,&getAbilIconForDnDPre);
 //		InjectOffs(0x004778FA+1,&getSpellIconForDnDPre);
 
-		InjectAddr(0x0045B93E+1,&mySelectedSpell);//пусть bookMoveToPage листает нашу переменную
-		InjectAddr(0x0045B2A7+1,&mySelectedSpell);//пусть bookLeftProc листает нашу переменную
-		InjectAddr(0x0045B2D6+1,&mySelectedSpell);//пусть bookLeftProc листает нашу переменную
-		InjectAddr(0x0045B103+2,&mySelectedSpell);//пусть bookRightProc листает нашу переменную
-		InjectAddr(0x0045B177+2,&mySelectedSpell);//пусть bookRightProc листает нашу переменную
-		InjectAddr(0x0045B18C+2,&mySelectedSpell);//пусть bookRightProc листает нашу переменную
+		InjectAddr(0x0045B93E+1,&mySelectedSpell);//РїСѓСЃС‚СЊ bookMoveToPage Р»РёСЃС‚Р°РµС‚ РЅР°С€Сѓ РїРµСЂРµРјРµРЅРЅСѓСЋ
+		InjectAddr(0x0045B2A7+1,&mySelectedSpell);//РїСѓСЃС‚СЊ bookLeftProc Р»РёСЃС‚Р°РµС‚ РЅР°С€Сѓ РїРµСЂРµРјРµРЅРЅСѓСЋ
+		InjectAddr(0x0045B2D6+1,&mySelectedSpell);//РїСѓСЃС‚СЊ bookLeftProc Р»РёСЃС‚Р°РµС‚ РЅР°С€Сѓ РїРµСЂРµРјРµРЅРЅСѓСЋ
+		InjectAddr(0x0045B103+2,&mySelectedSpell);//РїСѓСЃС‚СЊ bookRightProc Р»РёСЃС‚Р°РµС‚ РЅР°С€Сѓ РїРµСЂРµРјРµРЅРЅСѓСЋ
+		InjectAddr(0x0045B177+2,&mySelectedSpell);//РїСѓСЃС‚СЊ bookRightProc Р»РёСЃС‚Р°РµС‚ РЅР°С€Сѓ РїРµСЂРµРјРµРЅРЅСѓСЋ
+		InjectAddr(0x0045B18C+2,&mySelectedSpell);//РїСѓСЃС‚СЊ bookRightProc Р»РёСЃС‚Р°РµС‚ РЅР°С€Сѓ РїРµСЂРµРјРµРЅРЅСѓСЋ
 
-		InjectJumpTo(0x0045C005,mySpellSelectOnePre); // джамп на установку виртуального спела в режиме одного объекта
+		InjectJumpTo(0x0045C005,mySpellSelectOnePre); // РґР¶Р°РјРї РЅР° СѓСЃС‚Р°РЅРѕРІРєСѓ РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ СЃРїРµР»Р° РІ СЂРµР¶РёРјРµ РѕРґРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
 
 		InjectJumpTo(0x0045FE6F,(void*)0x0045FE81);
 		
@@ -669,7 +669,7 @@ void spellListInit()
 		lua_pushinteger(L,i);	
 		lua_rawseti(L,-2,i);
 	}
-	registerClientVar("spellData");/// Туда плюхаются ВСЕ спеллы какие есть
+	registerClientVar("spellData");/// РўСѓРґР° РїР»СЋС…Р°СЋС‚СЃСЏ Р’РЎР• СЃРїРµР»Р»С‹ РєР°РєРёРµ РµСЃС‚СЊ
 
 	lua_createtable(L,256,0);
 	registerClientVar("bookSpellList");

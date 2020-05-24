@@ -14,9 +14,9 @@ extern BYTE **clientPlayerInfoPtr;
 
 void FxBuffer_t::getValues(int First,int Len)
 {
-	//åùå íå ãîòîâî
+	//ÐµÑ‰Ðµ Ð½Ðµ Ð³Ð¾Ñ‚Ð¾Ð²Ð¾
 }
-bool FxBuffer_t::delBlock(int Id) //óäàëÿåì áëîê
+bool FxBuffer_t::delBlock(int Id) //ÑƒÐ´Ð°Ð»ÑÐµÐ¼ Ð±Ð»Ð¾Ðº
 {
 	int State=0;
 	int Cnt=0;
@@ -35,7 +35,7 @@ bool FxBuffer_t::delBlock(int Id) //óäàëÿåì áëîê
 				{
 					if (Id==(Start + P- Buf->Data))
 					{
-						*P=1;// ïðîïóñê
+						*P=1;// Ð¿Ñ€Ð¾Ð¿ÑƒÑÐº
 						State=3;
 						return true;//TODO
 					}
@@ -45,7 +45,7 @@ bool FxBuffer_t::delBlock(int Id) //óäàëÿåì áëîê
 					State=1;
 				}
 				break;
-			case 1: // ãðóçèì ñ÷åò÷èê
+			case 1: // Ð³Ñ€ÑƒÐ·Ð¸Ð¼ ÑÑ‡ÐµÑ‚Ñ‡Ð¸Ðº
 				CntPtr=P;
 				Cnt=*P;
 				State=2;
@@ -65,7 +65,7 @@ bool FxBuffer_t::delBlock(int Id) //óäàëÿåì áëîê
 		}
 		if (State==2)
 		{
-			if (Cnt==0) // ñúåëè ïîñëåäíèé êóñîê
+			if (Cnt==0) // ÑÑŠÐµÐ»Ð¸ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ ÐºÑƒÑÐ¾Ðº
 			{
 				Buf->FreeSize+=Free;
 			}
@@ -127,7 +127,7 @@ FxBuffer_t *FxBuffer_t::addBlock(int Size,int *Id)
 	return Ret;
 }
 
-// åùå íàäî îòíîñèòåëüíî êóðñîðà ñäåëàòü
+// ÐµÑ‰Ðµ Ð½Ð°Ð´Ð¾ Ð¾Ñ‚Ð½Ð¾ÑÐ¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ ÐºÑƒÑ€ÑÐ¾Ñ€Ð° ÑÐ´ÐµÐ»Ð°Ñ‚ÑŒ
 void FxBuffer_t::drawBuffers()
 {
 	int State=0;
@@ -142,9 +142,9 @@ void FxBuffer_t::drawBuffers()
 	{
 		for (DWORD *P=Buf->Data,*E=P + (Buf->Size - Buf->FreeSize) ;P<E; Idx++)
 		{
-			switch(State)///!!! íå ìåíåå 2õ
+			switch(State)///!!! Ð½Ðµ Ð¼ÐµÐ½ÐµÐµ 2Ñ…
 			{
-			case 0: // ÷èòàåì äàííûå 
+			case 0: // Ñ‡Ð¸Ñ‚Ð°ÐµÐ¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ 
 				State=1 + *(P++);
 				break;
 			case 1:
@@ -164,32 +164,32 @@ void FxBuffer_t::drawBuffers()
 				noxSetRectColorMB(*(P++));
 				State = 0;
 				break;
-			case 10: // íà÷èíàåì ðèñîâàòü ëèíèþ
+			case 10: // Ð½Ð°Ñ‡Ð¸Ð½Ð°ÐµÐ¼ Ñ€Ð¸ÑÐ¾Ð²Ð°Ñ‚ÑŒ Ð»Ð¸Ð½Ð¸ÑŽ
 				State=105;
 				Cnt=*(P++);
 				break;
-			case 105: // ñîâñåì ïåðâàÿ òî÷êà X
+			case 105: // ÑÐ¾Ð²ÑÐµÐ¼ Ð¿ÐµÑ€Ð²Ð°Ñ Ñ‚Ð¾Ñ‡ÐºÐ° X
 				if (--Cnt==0)
 					State = 0;
 				else
 					State = 106;
 				X1 = *((int*)(P++)) - OfsX;
 				break;
-			case 106: // ñîâñåì ïåðâàÿ òî÷êà Y
+			case 106: // ÑÐ¾Ð²ÑÐµÐ¼ Ð¿ÐµÑ€Ð²Ð°Ñ Ñ‚Ð¾Ñ‡ÐºÐ° Y
 				if (--Cnt==0)
 					State = 0;
 				else
 					State = 107;
 				Y1 = *((int*)(P++)) - OfsY;
 				break;
-			case 107: // ñîâñåì ïåðâàÿ òî÷êà X
+			case 107: // ÑÐ¾Ð²ÑÐµÐ¼ Ð¿ÐµÑ€Ð²Ð°Ñ Ñ‚Ð¾Ñ‡ÐºÐ° X
 				if (--Cnt==0)
 					State = 0;
 				else
 					State = 108;
 				X2 = *((int*)(P++)) - OfsX;
 				break;
-			case 108: // ñîâñåì ïåðâàÿ òî÷êà Y
+			case 108: // ÑÐ¾Ð²ÑÐµÐ¼ Ð¿ÐµÑ€Ð²Ð°Ñ Ñ‚Ð¾Ñ‡ÐºÐ° Y
 				if (--Cnt==0)
 					State = 0;
 				else
@@ -200,22 +200,22 @@ void FxBuffer_t::drawBuffers()
 				noxRasterDrawLines();
 				X1=X2;Y1=Y2;
 				break;
-			case 11:// íóëåâîå ñìåùåíèå
+			case 11:// Ð½ÑƒÐ»ÐµÐ²Ð¾Ðµ ÑÐ¼ÐµÑ‰ÐµÐ½Ð¸Ðµ
 				OfsX=0;
 				OfsY=0;
 				State = 0;
 				break;
-			case 12:// ñìåùåíèå îò âüþïîðòà
+			case 12:// ÑÐ¼ÐµÑ‰ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ Ð²ÑŒÑŽÐ¿Ð¾Ñ€Ñ‚Ð°
 				OfsX=*noxScreenX;
 				OfsY=*noxScreenY;
 				State = 0;
 				break;
-			case 13:// îñòàíîâêà
+			case 13:// Ð¾ÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ°
 				Buf=StopBuf;
 				P=E;
 				State = 0;
 				break;
-			case 14: // ñäâèã [ñêîëüêî, dX, dY , îòêóäà, êóäà], ïðîâåðèòü
+			case 14: // ÑÐ´Ð²Ð¸Ð³ [ÑÐºÐ¾Ð»ÑŒÐºÐ¾, dX, dY , Ð¾Ñ‚ÐºÑƒÐ´Ð°, ÐºÑƒÐ´Ð°], Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÑŒ
 				State=110;
 				Cnt=*(P++);
 				break;
@@ -239,12 +239,12 @@ void FxBuffer_t::drawBuffers()
 					DWORD *sp=0,*dp=0;
 					for( int Base=0 ; db!=NULL ; db= db->Next,Base+=db->Size)
 					{
-						if ( X1 > Base && X1 < Base + db->Size ) // â ýòîì áóôåðå ëåæèò èñòî÷íèê
+						if ( X1 > Base && X1 < Base + db->Size ) // Ð² ÑÑ‚Ð¾Ð¼ Ð±ÑƒÑ„ÐµÑ€Ðµ Ð»ÐµÐ¶Ð¸Ñ‚ Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸Ðº
 						{
 							X1 -=Base;
 							sp = db->Data;
 						}
-						if ( X2 > Base && X2 < Base + db->Size ) // â ýòîì áóôåðå ëåæèò íàçíà÷åíèå
+						if ( X2 > Base && X2 < Base + db->Size ) // Ð² ÑÑ‚Ð¾Ð¼ Ð±ÑƒÑ„ÐµÑ€Ðµ Ð»ÐµÐ¶Ð¸Ñ‚ Ð½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ
 						{
 							X2 -=Base;
 							dp = db->Data;

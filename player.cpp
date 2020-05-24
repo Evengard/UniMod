@@ -7,15 +7,15 @@ void (__cdecl *playerObserveCre)(void *Player,void *Creature);
 void (__cdecl *playerObserveCreUndo)(void *Player);
 void (__cdecl *sub_4FC2B0) (void*);
 void (__cdecl *sub_4E6040) (void*);
-/// не вполне понятная функция
+/// РЅРµ РІРїРѕР»РЅРµ РїРѕРЅСЏС‚РЅР°СЏ С„СѓРЅРєС†РёСЏ
 void *(__cdecl *netUnitFromPacketMB)(int NetIdx);
 
 extern int (__cdecl *printCentered)(wchar_t *Text);
 /*
-во вселенном состоянии надо фильтровать сообщение 0x79 тру спелл и делать на него
-обход до 0051C16C, подменив источник
+РІРѕ РІСЃРµР»РµРЅРЅРѕРј СЃРѕСЃС‚РѕСЏРЅРёРё РЅР°РґРѕ С„РёР»СЊС‚СЂРѕРІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ 0x79 С‚СЂСѓ СЃРїРµР»Р» Рё РґРµР»Р°С‚СЊ РЅР° РЅРµРіРѕ
+РѕР±С…РѕРґ РґРѕ 0051C16C, РїРѕРґРјРµРЅРёРІ РёСЃС‚РѕС‡РЅРёРє
 */
-// это функции, которые принимают команды игроков
+// СЌС‚Рѕ С„СѓРЅРєС†РёРё, РєРѕС‚РѕСЂС‹Рµ РїСЂРёРЅРёРјР°СЋС‚ РєРѕРјР°РЅРґС‹ РёРіСЂРѕРєРѕРІ
 void *(*playerControlBufferFirst)(int N);
 void *(*playerControlBufferNext)(int N, void *Prev);
 
@@ -65,7 +65,7 @@ namespace
 			mov eax,[ecx]
 			and eax,[esp+4]
 			ret
-		};//просто это была функция CheckGameFlags :)
+		};//РїСЂРѕСЃС‚Рѕ СЌС‚Рѕ Р±С‹Р»Р° С„СѓРЅРєС†РёСЏ CheckGameFlags :)
 	}
 
 	void __cdecl onPlayerLeaveObs(void *Player)
@@ -195,7 +195,7 @@ namespace
 		lua_settop(L,Top);
 		return Ret;
 	}
-	// А это фильтры, которые мы вместо них вставим
+	// Рђ СЌС‚Рѕ С„РёР»СЊС‚СЂС‹, РєРѕС‚РѕСЂС‹Рµ РјС‹ РІРјРµСЃС‚Рѕ РЅРёС… РІСЃС‚Р°РІРёРј
 	// 6=lclick, 2 = rclick 7=jump
 	void __declspec(naked) *myPlayerControlBufferFirst(int N)
 	{
@@ -315,12 +315,12 @@ l1:
 			{
 				return R;
 			}
-			serverFlagsSet(4);/// включаем тимы
+			serverFlagsSet(4);/// РІРєР»СЋС‡Р°РµРј С‚РёРјС‹
 			wchar_t* RR=NULL;
-			RR=noxTeamDefaultName(((byte*)R)[0x38]);//Получаем дефолтное название тимы - то что записано в CSF-ке, на основании цвета тимы
+			RR=noxTeamDefaultName(((byte*)R)[0x38]);//РџРѕР»СѓС‡Р°РµРј РґРµС„РѕР»С‚РЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РёРјС‹ - С‚Рѕ С‡С‚Рѕ Р·Р°РїРёСЃР°РЅРѕ РІ CSF-РєРµ, РЅР° РѕСЃРЅРѕРІР°РЅРёРё С†РІРµС‚Р° С‚РёРјС‹
 			memcpy(R, RR, 0x28);
 			((byte*)R)[0x44]=1;
-			teamSendTeam(R); //Тут записывается информация о наличии тимы вообще - однако НАЗВАНИЕ тимы не посылается на клиент - клиент юзает СВОЁ ДЕФОЛТНОЕ название (!)
+			teamSendTeam(R); //РўСѓС‚ Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РЅР°Р»РёС‡РёРё С‚РёРјС‹ РІРѕРѕР±С‰Рµ - РѕРґРЅР°РєРѕ РќРђР—Р’РђРќРР• С‚РёРјС‹ РЅРµ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РєР»РёРµРЅС‚ - РєР»РёРµРЅС‚ СЋР·Р°РµС‚ РЎР’РћРЃ Р”Р•Р¤РћР›РўРќРћР• РЅР°Р·РІР°РЅРёРµ (!)
 		}
 		return R;
 	}
@@ -343,8 +343,8 @@ l1:
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		BYTE *B=(BYTE *)P;B+=0x2EC;//контроллер
-		B=*((BYTE**)B);B+=0x114;//плэеринфо?
+		BYTE *B=(BYTE *)P;B+=0x2EC;//РєРѕРЅС‚СЂРѕР»Р»РµСЂ
+		B=*((BYTE**)B);B+=0x114;//РїР»СЌРµСЂРёРЅС„Рѕ?
 		B=*((BYTE**)B);B+=0x8EC;
 		lua_pushinteger(L,*((int*)B));B+=4;
 		lua_pushinteger(L,*((int*)B));
@@ -353,10 +353,10 @@ l1:
 
 }
 
-/// Вызывается перед попыткой колдовать спелл
-/// если 0 - все как обычно (проверки на чат, на саммон и т.п.)
-/// если 1 - колдуем
-/// если -1 - нет
+/// Р’С‹Р·С‹РІР°РµС‚СЃСЏ РїРµСЂРµРґ РїРѕРїС‹С‚РєРѕР№ РєРѕР»РґРѕРІР°С‚СЊ СЃРїРµР»Р»
+/// РµСЃР»Рё 0 - РІСЃРµ РєР°Рє РѕР±С‹С‡РЅРѕ (РїСЂРѕРІРµСЂРєРё РЅР° С‡Р°С‚, РЅР° СЃР°РјРјРѕРЅ Рё С‚.Рї.)
+/// РµСЃР»Рё 1 - РєРѕР»РґСѓРµРј
+/// РµСЃР»Рё -1 - РЅРµС‚
 extern "C" int __cdecl  playerOnTrySpell(bigUnitStruct *Unit,byte *Uc,spellPacket *Pckt)
 {
 	int Top=lua_gettop(L);
@@ -370,7 +370,7 @@ extern "C" int __cdecl  playerOnTrySpell(bigUnitStruct *Unit,byte *Uc,spellPacke
 		if (!lua_isfunction(L,-1))
 			break;
 		lua_pushlightuserdata(L,Unit);
-		void *Targ=*((void**)(Uc+0x120));/// текущая цель игрока
+		void *Targ=*((void**)(Uc+0x120));/// С‚РµРєСѓС‰Р°СЏ С†РµР»СЊ РёРіСЂРѕРєР°
 		if (Targ)
 			lua_pushlightuserdata(L, Targ );
 		else
@@ -409,10 +409,10 @@ void playerInit()
 	ASSIGN(sub_4E6040,0x4E6040);
 
 	lua_newtable(L);
-	registerServerVar("playerOnSpell");//сюда кладем реакции на спеллы плеера
+	registerServerVar("playerOnSpell");//СЃСЋРґР° РєР»Р°РґРµРј СЂРµР°РєС†РёРё РЅР° СЃРїРµР»Р»С‹ РїР»РµРµСЂР°
 
 	lua_newtable(L);
-	registerServerVar("playerOnInput"); // сюда реакции на действия плеера
+	registerServerVar("playerOnInput"); // СЃСЋРґР° СЂРµР°РєС†РёРё РЅР° РґРµР№СЃС‚РІРёСЏ РїР»РµРµСЂР°
 
 	InjectOffs(0x004E637F+1,&myPlayerControlBufferFirst);
 	InjectOffs(0x004E639E+1,&myPlayerControlBufferFirst);

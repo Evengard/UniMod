@@ -48,7 +48,7 @@ using namespace std;
 
 extern byte authorisedState[0x20];
 extern char* authorisedLogins[0x20];
-extern bool specialAuthorisation; //Отключение альтернативной авторизации
+extern bool specialAuthorisation; //РћС‚РєР»СЋС‡РµРЅРёРµ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕР№ Р°РІС‚РѕСЂРёР·Р°С†РёРё
 extern char authSendWelcomeMsg[0x20];
 extern std::pair<int, char*> httpGetInternal(char* uri);
 

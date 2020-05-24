@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-void (__cdecl *sub_43B4D0) (); //для хоста 
+void (__cdecl *sub_43B4D0) (); //РґР»СЏ С…РѕСЃС‚Р° 
 void (__cdecl *parseGamedataBinPre) ();
 int (__cdecl *noxCheckGameFlags) (int);
 void (__cdecl *noxSetGameFlags) (int);
@@ -25,7 +25,7 @@ extern void InjectJumpTo(DWORD Addr,void *Fn);
 
 namespace
 {
-	void __declspec(naked) asmHostWhenStart() // хостим сервер когда стартует игра
+	void __declspec(naked) asmHostWhenStart() // С…РѕСЃС‚РёРј СЃРµСЂРІРµСЂ РєРѕРіРґР° СЃС‚Р°СЂС‚СѓРµС‚ РёРіСЂР°
 	{
 		__asm
 		{
@@ -78,7 +78,7 @@ namespace
 			byte *bt=(byte*)(0x004AB105);
 			DWORD OldProtect;
 			VirtualProtect(bt,1,PAGE_EXECUTE_READWRITE,&OldProtect);
-			memcpy((byte*)bt,&OperatorJmps,1); // убираем заставочки
+			memcpy((byte*)bt,&OperatorJmps,1); // СѓР±РёСЂР°РµРј Р·Р°СЃС‚Р°РІРѕС‡РєРё
 			VirtualProtect(bt,1,OldProtect,&OldProtect);
 		}
 		if (strcmp(str, "-debug") == 0)
@@ -87,7 +87,7 @@ namespace
 		}
 	}
 
-	void __declspec(naked) asmCheckAutoSrvFlag() // флаг проверяем
+	void __declspec(naked) asmCheckAutoSrvFlag() // С„Р»Р°Рі РїСЂРѕРІРµСЂСЏРµРј
 	{
 		__asm
 		{
@@ -118,7 +118,7 @@ void autoServer()
 	ASSIGN(sub_4D6F80,0x4D6F80);
 	ASSIGN(sub_473670,0x473670);
 	ASSIGN(sub_472520,0x472520);
-	ASSIGN(sub_43AF50,0x0043AF50); // влияет на видимость игры
+	ASSIGN(sub_43AF50,0x0043AF50); // РІР»РёСЏРµС‚ РЅР° РІРёРґРёРјРѕСЃС‚СЊ РёРіСЂС‹
 
 	ASSIGN(dword_748260,0x00748260);
 

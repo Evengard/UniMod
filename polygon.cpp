@@ -95,11 +95,11 @@ namespace
 void polygonInit()
 {
 
-	ASSIGN(noxPolygonGetByIdx,0x004214A0); // функции
+	ASSIGN(noxPolygonGetByIdx,0x004214A0); // С„СѓРЅРєС†РёРё
 	ASSIGN(noxPolygonAngleGetByNum,0x00421030);
 	
-	ASSIGN(noxNextPolygonIdx,0x00595BC0); // переменные // содержит идкс следующего (еще не существующего полигона)
-	ASSIGN(noxNextPolygonAngleNum,0x00595BC4); // номер следующего угла
+	ASSIGN(noxNextPolygonIdx,0x00595BC0); // РїРµСЂРµРјРµРЅРЅС‹Рµ // СЃРѕРґРµСЂР¶РёС‚ РёРґРєСЃ СЃР»РµРґСѓСЋС‰РµРіРѕ (РµС‰Рµ РЅРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ РїРѕР»РёРіРѕРЅР°)
+	ASSIGN(noxNextPolygonAngleNum,0x00595BC4); // РЅРѕРјРµСЂ СЃР»РµРґСѓСЋС‰РµРіРѕ СѓРіР»Р°
 
 
 

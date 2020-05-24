@@ -21,7 +21,7 @@ namespace
 	struct DefData
 	{
 		const char *LuaStr;
-		int Ofs;/// смещение в юнитдефе
+		int Ofs;/// СЃРјРµС‰РµРЅРёРµ РІ СЋРЅРёС‚РґРµС„Рµ
 		int Type;
 		/// 1=int
 		/// 2=byte
@@ -30,14 +30,14 @@ namespace
 		/// 5=imgId
 		/// 6=word
 		/// 7=stringPtr
-		/// 8=stringWPtr // вайд-строка
-		/// 9=FnTable 2 // таблицы с 2мя двордами
-		// 10=FnTable 3 // таблицы с 3мя двордами
-		// 11=FnTable 4 // таблицы с 4мя двордами
+		/// 8=stringWPtr // РІР°Р№Рґ-СЃС‚СЂРѕРєР°
+		/// 9=FnTable 2 // С‚Р°Р±Р»РёС†С‹ СЃ 2РјСЏ РґРІРѕСЂРґР°РјРё
+		// 10=FnTable 3 // С‚Р°Р±Р»РёС†С‹ СЃ 3РјСЏ РґРІРѕСЂРґР°РјРё
+		// 11=FnTable 4 // С‚Р°Р±Р»РёС†С‹ СЃ 4РјСЏ РґРІРѕСЂРґР°РјРё
 		DWORD TablePtr;
 	};
 	int X;
-	/// данные брать из 005B82B0 unitDefParseTable
+	/// РґР°РЅРЅС‹Рµ Р±СЂР°С‚СЊ РёР· 005B82B0 unitDefParseTable
 	const DefData ServerDef[]=
 	{
 		{"thingType",		0x00,6},	
@@ -56,7 +56,7 @@ namespace
 		{"collideFn",		0x8C,11,0x005CA1B8},//unitCollideProcTable
 		{0},
 	};
-	// данные из 005A4CF8 spriteDefParseTable
+	// РґР°РЅРЅС‹Рµ РёР· 005A4CF8 spriteDefParseTable
 	const DefData ClientDef[]=
 	{
 		{"prettyName",			0x4,8},
@@ -105,7 +105,7 @@ namespace
 			lua_pushnil(L);
 			return;
 		}
-		/// TODO: Здесь надо добавить проверку на случай функции из юнимод
+		/// TODO: Р—РґРµСЃСЊ РЅР°РґРѕ РґРѕР±Р°РІРёС‚СЊ РїСЂРѕРІРµСЂРєСѓ РЅР° СЃР»СѓС‡Р°Р№ С„СѓРЅРєС†РёРё РёР· СЋРЅРёРјРѕРґ
 		char Buf[32]="";
 		sprintf(Buf,"<unknown %p>",Ptr);
 		lua_pushstring(L,Buf);
@@ -125,7 +125,7 @@ namespace
 		case 3:
 			lua_pushnumber(L,*((float*)(B+D->Ofs)));
 			break;
-		case 5:	/// пока просто загружу число, а потом чего-нить придумаю
+		case 5:	/// РїРѕРєР° РїСЂРѕСЃС‚Рѕ Р·Р°РіСЂСѓР¶Сѓ С‡РёСЃР»Рѕ, Р° РїРѕС‚РѕРј С‡РµРіРѕ-РЅРёС‚СЊ РїСЂРёРґСѓРјР°СЋ
 
 		case 4:
 			sprintf(Buf,"0x%08X",*((int*)(B+D->Ofs)));
@@ -158,13 +158,13 @@ namespace
 				lua_pushnil(L);
 			}
 			break;
-		case 9: //функции на 2
+		case 9: //С„СѓРЅРєС†РёРё РЅР° 2
 			dumpFnTable(B,D,L,2);
 			break;
-		case 10: //функции на 3-е
+		case 10: //С„СѓРЅРєС†РёРё РЅР° 3-Рµ
 			dumpFnTable(B,D,L,3);
 			break;
-		case 11: //функции на 4-е
+		case 11: //С„СѓРЅРєС†РёРё РЅР° 4-Рµ
 			dumpFnTable(B,D,L,4);
 			break;
 		
@@ -192,7 +192,7 @@ namespace
 		case 3:
 			*((float*)(B+D->Ofs))=*((lua_Number*)Value);;
 			break;
-		case 5:	/// пока просто загружу число, а потом чего-нить придумаю
+		case 5:	/// РїРѕРєР° РїСЂРѕСЃС‚Рѕ Р·Р°РіСЂСѓР¶Сѓ С‡РёСЃР»Рѕ, Р° РїРѕС‚РѕРј С‡РµРіРѕ-РЅРёС‚СЊ РїСЂРёРґСѓРјР°СЋ
 
 		case 4:
 			*((int*)(B+D->Ofs))=*((lua_Number*)Value);;
@@ -230,9 +230,9 @@ namespace
 				}
 			}
 			break;
-		case 9: //функции на 2
-		case 10: //функции на 3-е
-		case 11: //функции на 4-е
+		case 9: //С„СѓРЅРєС†РёРё РЅР° 2
+		case 10: //С„СѓРЅРєС†РёРё РЅР° 3-Рµ
+		case 11: //С„СѓРЅРєС†РёРё РЅР° 4-Рµ
 		default:
 			return;
 		}
@@ -258,7 +258,7 @@ namespace
 		case 3:
 			*((float*)(B+D->Ofs))=lua_tonumber(L,3);
 			break;
-		case 5:	/// пока просто загружу число, а потом чего-нить придумаю
+		case 5:	/// РїРѕРєР° РїСЂРѕСЃС‚Рѕ Р·Р°РіСЂСѓР¶Сѓ С‡РёСЃР»Рѕ, Р° РїРѕС‚РѕРј С‡РµРіРѕ-РЅРёС‚СЊ РїСЂРёРґСѓРјР°СЋ
 
 		case 4:
 			*((int*)(B+D->Ofs))=lua_tointeger(L,3);
@@ -296,9 +296,9 @@ namespace
 				}
 			}
 			break;
-		case 9: //функции на 2
-		case 10: //функции на 3-е
-		case 11: //функции на 4-е
+		case 9: //С„СѓРЅРєС†РёРё РЅР° 2
+		case 10: //С„СѓРЅРєС†РёРё РЅР° 3-Рµ
+		case 11: //С„СѓРЅРєС†РёРё РЅР° 4-Рµ
 		default:
 			sprintf(Buf,"field %s is not yet supported",lua_tostring(L,2));
 			lua_pushstring(L,Buf);
@@ -373,8 +373,8 @@ namespace
 				break;
 			}
 		}
-		/// TODO: стоит проверить, а есть ли такое свойство
-		///тут отправляем на клиент и меняем свойства там
+		/// TODO: СЃС‚РѕРёС‚ РїСЂРѕРІРµСЂРёС‚СЊ, Р° РµСЃС‚СЊ Р»Рё С‚Р°РєРѕРµ СЃРІРѕР№СЃС‚РІРѕ
+		///С‚СѓС‚ РѕС‚РїСЂР°РІР»СЏРµРј РЅР° РєР»РёРµРЅС‚ Рё РјРµРЅСЏРµРј СЃРІРѕР№СЃС‚РІР° С‚Р°Рј
 
 		const char *Value=0;
 		size_t ValueLen=0;
@@ -408,7 +408,7 @@ namespace
 		int PackSize=sizeof(Packet)+ValueLen+strlen(Str)+1;
 		Packet.ValueLen=ValueLen;
 
-		BYTE *Buf=(BYTE*)_alloca(PackSize);// создает переменную в стэке, потому сама по выходе удалится
+		BYTE *Buf=(BYTE*)_alloca(PackSize);// СЃРѕР·РґР°РµС‚ РїРµСЂРµРјРµРЅРЅСѓСЋ РІ СЃС‚СЌРєРµ, РїРѕС‚РѕРјСѓ СЃР°РјР° РїРѕ РІС‹С…РѕРґРµ СѓРґР°Р»РёС‚СЃСЏ
 		memcpy(Buf,&Packet,sizeof(Packet));
 		memcpy((char*)Buf+sizeof(Packet),Value,ValueLen);
 		strcpy((char*)Buf+sizeof(Packet)+ValueLen,Str);
@@ -424,7 +424,7 @@ void netOnUpdateUnitDef(BYTE *Buf,BYTE *End)
 {
 	PacketDef *Packet=(PacketDef*)Buf;
 	if (End-Buf < (sizeof(PacketDef)+luaTypeLen[Packet->ValType]))
-		return ;// ошибка в пакете
+		return ;// РѕС€РёР±РєР° РІ РїР°РєРµС‚Рµ
 	BYTE *B=(BYTE*)spriteDefGet(Packet->TT);
 	const char *Str=(const char*)(Buf+sizeof(PacketDef)+Packet->ValueLen);
 	const char *Value=(const char*)(Buf+sizeof(PacketDef) );

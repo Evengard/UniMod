@@ -14,7 +14,7 @@ struct packetChat
 struct packetCast
 {
 	byte pType;// =0x53
-	//затем идет буффер спеллов
+	//Р·Р°С‚РµРј РёРґРµС‚ Р±СѓС„С„РµСЂ СЃРїРµР»Р»РѕРІ
 	DWORD Buf[5]; //+1
 	byte X;//+15
 
@@ -66,7 +66,7 @@ namespace
 	}
 
 
-	int conCur=0; // 0 - курсор в самом самом начале, 1 - перед 1 буквой. И т. д.
+	int conCur=0; // 0 - РєСѓСЂСЃРѕСЂ РІ СЃР°РјРѕРј СЃР°РјРѕРј РЅР°С‡Р°Р»Рµ, 1 - РїРµСЂРµРґ 1 Р±СѓРєРІРѕР№. Р С‚. Рґ.
 	int lenStrOld=0;
 
 	int (__cdecl *consoleEditProc)(void* Window,int Msg,int A,int B);
@@ -76,17 +76,17 @@ namespace
 		BYTE *P=(BYTE*)Window;
 		if (Msg==0x15)
 		{
-			P=*((BYTE**)(P+0x20));//Получаем данные со строчкой
-			if (B==2) // Отпускают
+			P=*((BYTE**)(P+0x20));//РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ СЃРѕ СЃС‚СЂРѕС‡РєРѕР№
+			if (B==2) // РћС‚РїСѓСЃРєР°СЋС‚
 			{
 				std::wstring stroka((const wchar_t*) P);
 				int Pos=stroka.size();
-				if (A==0x4B+0x80) // 0x4B - код кнопки влево
+				if (A==0x4B+0x80) // 0x4B - РєРѕРґ РєРЅРѕРїРєРё РІР»РµРІРѕ
 				{
 					if (conCur>0)
 						conCur--;
 					return 1;
-				}else if (A==0x4D+0x80) // вправо 
+				}else if (A==0x4D+0x80) // РІРїСЂР°РІРѕ 
 				{
 					if (conCur<Pos)
 						conCur++;
@@ -107,7 +107,7 @@ namespace
 				{
 					conCur=0;
 					return 1;
-				}else if (A==0xE) // Бак спайс нажали
+				}else if (A==0xE) // Р‘Р°Рє СЃРїР°Р№СЃ РЅР°Р¶Р°Р»Рё
 				{
 					if ((Pos==0) || (conCur==0))
 						return 1;
@@ -116,29 +116,29 @@ namespace
 					conCur--;
 					lenStrOld--;
 					return 1;
-				}else if (A==0x48+0x80) // 48 - вверх, 50- вниз
+				}else if (A==0x48+0x80) // 48 - РІРІРµСЂС…, 50- РІРЅРёР·
 				{
-					int Top=lua_gettop(L); // запоминаем что в начале
+					int Top=lua_gettop(L); // Р·Р°РїРѕРјРёРЅР°РµРј С‡С‚Рѕ РІ РЅР°С‡Р°Р»Рµ
 					lua_getglobal(L,"conStr");
-					if (lua_type(L,-1)!=LUA_TTABLE) // если там нил например
+					if (lua_type(L,-1)!=LUA_TTABLE) // РµСЃР»Рё С‚Р°Рј РЅРёР» РЅР°РїСЂРёРјРµСЂ
 					{
 						lua_settop(L,Top);
 						return 1;
 					}
 					lua_getfield(L,-1,"lastItem");
-					int lastI=lua_tointeger(L,-1); // для удобства
+					int lastI=lua_tointeger(L,-1); // РґР»СЏ СѓРґРѕР±СЃС‚РІР°
 					lua_getfield(L,-2,"lastStr");
 					int lastS=lua_tointeger(L,-1);
 					lastS--;
 					if (lastS<1) lastS=luaL_getn(L,-3);
 					if (lastS!=lastI)
 					{
-						//lastS(старый) lastI [таблица]
+						//lastS(СЃС‚Р°СЂС‹Р№) lastI [С‚Р°Р±Р»РёС†Р°]
 						lua_pushinteger(L,lastS);
 						lua_setfield(L,-4,"lastStr");
 					}
 					lua_rawgeti(L,-3,lastS);
-					if (lua_type(L,-1)!=LUA_TSTRING) // если там не строка а нил например
+					if (lua_type(L,-1)!=LUA_TSTRING) // РµСЃР»Рё С‚Р°Рј РЅРµ СЃС‚СЂРѕРєР° Р° РЅРёР» РЅР°РїСЂРёРјРµСЂ
 					{
 						lua_settop(L,Top);
 						return 1;
@@ -148,35 +148,35 @@ namespace
 					wchar_t *W=(wchar_t*)P;
 					mbstowcs(W, V,300);
 					noxCallWndProc(Window,0x401E,(int)(W),-1);
-					W[strlen(V)]=0;/// на всякий случай припишем 0
-					conCur=strlen(V); // Помещаем в конец курсорчик
+					W[strlen(V)]=0;/// РЅР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№ РїСЂРёРїРёС€РµРј 0
+					conCur=strlen(V); // РџРѕРјРµС‰Р°РµРј РІ РєРѕРЅРµС† РєСѓСЂСЃРѕСЂС‡РёРє
 					lenStrOld=strlen(V);
 					lua_settop(L,Top);
 					return 1;
 				}
 				else if (A==0x50+0x80) 
 				{
-					int Top=lua_gettop(L); // запоминаем что в начале
+					int Top=lua_gettop(L); // Р·Р°РїРѕРјРёРЅР°РµРј С‡С‚Рѕ РІ РЅР°С‡Р°Р»Рµ
 					lua_getglobal(L,"conStr");
-					if (lua_type(L,-1)!=LUA_TTABLE) // если там нил например
+					if (lua_type(L,-1)!=LUA_TTABLE) // РµСЃР»Рё С‚Р°Рј РЅРёР» РЅР°РїСЂРёРјРµСЂ
 					{
 						lua_settop(L,Top);
 						return 1;
 					}
 					lua_getfield(L,-1,"lastItem");
-					int lastI=lua_tointeger(L,-1); // для удобства
+					int lastI=lua_tointeger(L,-1); // РґР»СЏ СѓРґРѕР±СЃС‚РІР°
 					lua_getfield(L,-2,"lastStr");
 					int lastS=lua_tointeger(L,-1);
 					lastS++;
 					if (lastS>50 || lastS>luaL_getn(L,-3)) lastS=1;
 					if (lastS!=lastI)
 					{
-						//lastS(старый) lastI [таблица]
+						//lastS(СЃС‚Р°СЂС‹Р№) lastI [С‚Р°Р±Р»РёС†Р°]
 						lua_pushinteger(L,lastS);
 						lua_setfield(L,-4,"lastStr");
 					}
 					lua_rawgeti(L,-3,lastS);
-					if (lua_type(L,-1)!=LUA_TSTRING) // если там не строка а нил например
+					if (lua_type(L,-1)!=LUA_TSTRING) // РµСЃР»Рё С‚Р°Рј РЅРµ СЃС‚СЂРѕРєР° Р° РЅРёР» РЅР°РїСЂРёРјРµСЂ
 					{
 						lua_settop(L,Top);
 						return 1;
@@ -186,14 +186,14 @@ namespace
 					wchar_t *W=(wchar_t*)P;
 					mbstowcs(W, V,300);
 					noxCallWndProc(Window,0x401E,(int)(W),-1);
-					W[strlen(V)]=0;// на всякий случай припишем 0
-					conCur=strlen(V); // курсор в конец
+					W[strlen(V)]=0;// РЅР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№ РїСЂРёРїРёС€РµРј 0
+					conCur=strlen(V); // РєСѓСЂСЃРѕСЂ РІ РєРѕРЅРµС†
 					lenStrOld=strlen(V);
 					lua_settop(L,Top);
 					return 1;
-				}else if (A==0x1C) // нажали энтер?
+				}else if (A==0x1C) // РЅР°Р¶Р°Р»Рё СЌРЅС‚РµСЂ?
 				{
-					int Top=lua_gettop(L); // запоминаеем что в начале
+					int Top=lua_gettop(L); // Р·Р°РїРѕРјРёРЅР°РµРµРј С‡С‚Рѕ РІ РЅР°С‡Р°Р»Рµ
 					char string[300]="";
 					wchar_t *W=(wchar_t*)P;
 					int Len=wcslen(W);
@@ -208,10 +208,10 @@ namespace
 					if (Len==0) 
 					{
 						lua_settop(L,Top);
-						consoleProcFn();// Вызываем обработку
+						consoleProcFn();// Р’С‹Р·С‹РІР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ
 						return 1;
 					}
-					lua_getfield(L,-1,"lastItem"); // достаем последний элемент 
+					lua_getfield(L,-1,"lastItem"); // РґРѕСЃС‚Р°РµРј РїРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚ 
 					int lastI=lua_tointeger(L,-1)+1;
 					if (lastI>50)
 						lastI=1;
@@ -225,14 +225,14 @@ namespace
 					lua_pushinteger(L,lastI);
 					lua_setfield(L,-2,"lastStr");
 					lua_settop(L,Top);
-					conCur=0; // курсор в начало
+					conCur=0; // РєСѓСЂСЃРѕСЂ РІ РЅР°С‡Р°Р»Рѕ
 					lenStrOld=0;
-					consoleProcFn();// Вызываем обработку
+					consoleProcFn();// Р’С‹Р·С‹РІР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ
 					return 1;
 				}
 				consoleEditProc(Window,Msg,A,B);
 				stroka=(const wchar_t*)P;
-				if (lenStrOld<stroka.size()) // код для кнопачек
+				if (lenStrOld<stroka.size()) // РєРѕРґ РґР»СЏ РєРЅРѕРїР°С‡РµРє
 				{
 					lenStrOld++;
 					stroka.insert(conCur,1,stroka.at(lenStrOld-1));
@@ -317,10 +317,10 @@ void consoleInit()
 	ASSIGN(consoleParse,0x00443C80);
 
 	InjectAddr(0x00450E4C+1,&consoleEditProcNew);
-	InjectJumpTo(0x004884C5 ,&consoleEditDraw); // Меняем размеры
+	InjectJumpTo(0x004884C5 ,&consoleEditDraw); // РњРµРЅСЏРµРј СЂР°Р·РјРµСЂС‹
 	InjectJumpTo(0x450B90 ,&onPrintConsoleTrap);
 
-	lua_newtable(L); // делаем таблицу для строк
+	lua_newtable(L); // РґРµР»Р°РµРј С‚Р°Р±Р»РёС†Сѓ РґР»СЏ СЃС‚СЂРѕРє
 	lua_pushinteger(L,1);
 	lua_setfield(L,-2,"lastItem");
 	lua_pushinteger(L,1);
