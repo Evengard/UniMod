@@ -244,7 +244,7 @@ void doFormGame()
 				/*else if (0==strcmpi(Mode,"quest"))
 				{
 					Data->gameFlags=0x3007;
-				}*///От греха, а то грузить напрямую слишком бажно. Лучше уж полностью сервак с нуля пересоздавать...
+				}*///РћС‚ РіСЂРµС…Р°, Р° С‚Рѕ РіСЂСѓР·РёС‚СЊ РЅР°РїСЂСЏРјСѓСЋ СЃР»РёС€РєРѕРј Р±Р°Р¶РЅРѕ. Р›СѓС‡С€Рµ СѓР¶ РїРѕР»РЅРѕСЃС‚СЊСЋ СЃРµСЂРІР°Рє СЃ РЅСѓР»СЏ РїРµСЂРµСЃРѕР·РґР°РІР°С‚СЊ...
 				else if (0==strcmpi(Mode,"arena") && (availableMode&0x100))
 				{
 					Data->gameFlags=Data->gameFlags&0xE00F;
@@ -254,7 +254,7 @@ void doFormGame()
 				else
 				{
 					__int16 currentGameFlags=(__int16)*GameFlags&0x1FF0;
-					if(availableMode&currentGameFlags) //Если игра поддерживает текущий режим игры
+					if(availableMode&currentGameFlags) //Р•СЃР»Рё РёРіСЂР° РїРѕРґРґРµСЂР¶РёРІР°РµС‚ С‚РµРєСѓС‰РёР№ СЂРµР¶РёРј РёРіСЂС‹
 					{
 						Data->gameFlags=Data->gameFlags&0xE00F;
 						Data->gameFlags=Data->gameFlags|currentGameFlags;
@@ -289,7 +289,7 @@ void doFormGame()
 						Data->gameFlags=Data->gameFlags&0xE00F;
 						Data->gameFlags=Data->gameFlags|0x10;
 					}
-					else //Все остальные пробуем загрузить с текущими флагами
+					else //Р’СЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїСЂРѕР±СѓРµРј Р·Р°РіСЂСѓР·РёС‚СЊ СЃ С‚РµРєСѓС‰РёРјРё С„Р»Р°РіР°РјРё
 					{
 						Data->gameFlags=Data->gameFlags&0xE00F;
 						Data->gameFlags=Data->gameFlags|currentGameFlags;
@@ -305,7 +305,7 @@ void doFormGame()
 			else if(newGame==false)
 			{
 				__int16 currentGameFlags=(__int16)*GameFlags&0x1FF0;
-				if(availableMode&currentGameFlags) //Если игра поддерживает текущий режим игры
+				if(availableMode&currentGameFlags) //Р•СЃР»Рё РёРіСЂР° РїРѕРґРґРµСЂР¶РёРІР°РµС‚ С‚РµРєСѓС‰РёР№ СЂРµР¶РёРј РёРіСЂС‹
 				{
 					Data->gameFlags=Data->gameFlags&0xE00F;
 					Data->gameFlags=Data->gameFlags|currentGameFlags;
@@ -340,7 +340,7 @@ void doFormGame()
 					Data->gameFlags=Data->gameFlags&0xE00F;
 					Data->gameFlags=Data->gameFlags|0x10;
 				}
-				else //Все остальные пробуем загрузить с текущими флагами
+				else //Р’СЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїСЂРѕР±СѓРµРј Р·Р°РіСЂСѓР·РёС‚СЊ СЃ С‚РµРєСѓС‰РёРјРё С„Р»Р°РіР°РјРё
 				{
 					Data->gameFlags=Data->gameFlags&0xE00F;
 					Data->gameFlags=Data->gameFlags|currentGameFlags;
@@ -459,34 +459,34 @@ namespace
 				if(!file.eof())
 				{
 					if(fileLine.size()>0 && fileLine[fileLine.size()-1]=='\r')
-						fileLine.erase((fileLine.size()-1), 1); // Тут мы CR удаляем. Тот самый атавизм со времён печатных машинок
-					if(fileLine.size()<=0) //Пустая строчка нам не нужна.
+						fileLine.erase((fileLine.size()-1), 1); // РўСѓС‚ РјС‹ CR СѓРґР°Р»СЏРµРј. РўРѕС‚ СЃР°РјС‹Р№ Р°С‚Р°РІРёР·Рј СЃРѕ РІСЂРµРјС‘РЅ РїРµС‡Р°С‚РЅС‹С… РјР°С€РёРЅРѕРє
+					if(fileLine.size()<=0) //РџСѓСЃС‚Р°СЏ СЃС‚СЂРѕС‡РєР° РЅР°Рј РЅРµ РЅСѓР¶РЅР°.
 					{
 							continue;
 					}
 					transform(fileLine.begin(), fileLine.end(), fileLine.begin(), tolower);
 					if(searchMode==1 && fileLine[0]!='[')
 					{
-						fileLine = fileLine.substr(0,13); // Вместе с .map может быть только 13 символов максимум. Отрезаем всё лишнее.
+						fileLine = fileLine.substr(0,13); // Р’РјРµСЃС‚Рµ СЃ .map РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ 13 СЃРёРјРІРѕР»РѕРІ РјР°РєСЃРёРјСѓРј. РћС‚СЂРµР·Р°РµРј РІСЃС‘ Р»РёС€РЅРµРµ.
 						size_t mapLoc = fileLine.rfind(".map");
 						if(mapLoc!=std::string::npos)
-							fileLine = fileLine.substr(0, mapLoc); // Отрезаем .map. Не именуйте плз карты так: my.map.m! Ну или не прописывайте их в таком виде в мапцикл, а прописывайте по старинке с расширением - my.map.m.map. А не то не загрузится.
-						fileLine = fileLine.substr(0,8); // А без .map может быть только 8 символов. Опять таки отрезаем лишнее.
-						if(mapLoadFromFile((char*)fileLine.c_str()) && mapLoadFlags(mapLoadData)&modeId) // Проверка, а валидный ли это вообще файл карты... И нужного ли режима!
+							fileLine = fileLine.substr(0, mapLoc); // РћС‚СЂРµР·Р°РµРј .map. РќРµ РёРјРµРЅСѓР№С‚Рµ РїР»Р· РєР°СЂС‚С‹ С‚Р°Рє: my.map.m! РќСѓ РёР»Рё РЅРµ РїСЂРѕРїРёСЃС‹РІР°Р№С‚Рµ РёС… РІ С‚Р°РєРѕРј РІРёРґРµ РІ РјР°РїС†РёРєР», Р° РїСЂРѕРїРёСЃС‹РІР°Р№С‚Рµ РїРѕ СЃС‚Р°СЂРёРЅРєРµ СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј - my.map.m.map. Рђ РЅРµ С‚Рѕ РЅРµ Р·Р°РіСЂСѓР·РёС‚СЃСЏ.
+						fileLine = fileLine.substr(0,8); // Рђ Р±РµР· .map РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ 8 СЃРёРјРІРѕР»РѕРІ. РћРїСЏС‚СЊ С‚Р°РєРё РѕС‚СЂРµР·Р°РµРј Р»РёС€РЅРµРµ.
+						if(mapLoadFromFile((char*)fileLine.c_str()) && mapLoadFlags(mapLoadData)&modeId) // РџСЂРѕРІРµСЂРєР°, Р° РІР°Р»РёРґРЅС‹Р№ Р»Рё СЌС‚Рѕ РІРѕРѕР±С‰Рµ С„Р°Р№Р» РєР°СЂС‚С‹... Р РЅСѓР¶РЅРѕРіРѕ Р»Рё СЂРµР¶РёРјР°!
 						{
-							fileLine.append(".map"); // Аппендим обратно .map. Требуется для собственно загрузчика карт мапцикла
-							formedMapcycle.push_back(fileLine); // Загоняем в список
+							fileLine.append(".map"); // РђРїРїРµРЅРґРёРј РѕР±СЂР°С‚РЅРѕ .map. РўСЂРµР±СѓРµС‚СЃСЏ РґР»СЏ СЃРѕР±СЃС‚РІРµРЅРЅРѕ Р·Р°РіСЂСѓР·С‡РёРєР° РєР°СЂС‚ РјР°РїС†РёРєР»Р°
+							formedMapcycle.push_back(fileLine); // Р—Р°РіРѕРЅСЏРµРј РІ СЃРїРёСЃРѕРє
 						}
 					}
-					else if(searchMode==1) // Сюда мы падаем только если мы достигли следующего mode-а
+					else if(searchMode==1) // РЎСЋРґР° РјС‹ РїР°РґР°РµРј С‚РѕР»СЊРєРѕ РµСЃР»Рё РјС‹ РґРѕСЃС‚РёРіР»Рё СЃР»РµРґСѓСЋС‰РµРіРѕ mode-Р°
 					{
 						searchMode++;
 						break;
 					}
-					if(searchMode==0 && fileLine.compare(mode)==0) // Ура, мы нашли наш режим игры! Переходим в режим скана названий мап...
+					if(searchMode==0 && fileLine.compare(mode)==0) // РЈСЂР°, РјС‹ РЅР°С€Р»Рё РЅР°С€ СЂРµР¶РёРј РёРіСЂС‹! РџРµСЂРµС…РѕРґРёРј РІ СЂРµР¶РёРј СЃРєР°РЅР° РЅР°Р·РІР°РЅРёР№ РјР°Рї...
 						searchMode++;
 				}
-				else // Файло кончилось, что получилось то и получилось
+				else // Р¤Р°Р№Р»Рѕ РєРѕРЅС‡РёР»РѕСЃСЊ, С‡С‚Рѕ РїРѕР»СѓС‡РёР»РѕСЃСЊ С‚Рѕ Рё РїРѕР»СѓС‡РёР»РѕСЃСЊ
 				{
 					searchMode=2;
 					break;
@@ -500,23 +500,23 @@ namespace
 	{
 		__int16 currentMode = ((__int16)*GameFlags)&0x1FF0;
 		int nextPosition=mapCycleCurrentPosition+1;
-		if(currentMode!=mapCycleLastModeId || mapCycleCurrentList.size()<=nextPosition) // Если мы достигли конца предварительно сгенеренного списка из файла мапцикла, или же режим игры сменился - перегенерим список мапцикла для текущего режима игры из файла
+		if(currentMode!=mapCycleLastModeId || mapCycleCurrentList.size()<=nextPosition) // Р•СЃР»Рё РјС‹ РґРѕСЃС‚РёРіР»Рё РєРѕРЅС†Р° РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СЃРіРµРЅРµСЂРµРЅРЅРѕРіРѕ СЃРїРёСЃРєР° РёР· С„Р°Р№Р»Р° РјР°РїС†РёРєР»Р°, РёР»Рё Р¶Рµ СЂРµР¶РёРј РёРіСЂС‹ СЃРјРµРЅРёР»СЃСЏ - РїРµСЂРµРіРµРЅРµСЂРёРј СЃРїРёСЃРѕРє РјР°РїС†РёРєР»Р° РґР»СЏ С‚РµРєСѓС‰РµРіРѕ СЂРµР¶РёРјР° РёРіСЂС‹ РёР· С„Р°Р№Р»Р°
 		{
 			mapCycleLastModeId=currentMode;
 			mapCycleCurrentList=mapCycleFormListMode(mapCycleLastModeId);
 			nextPosition=0;
 		}
 		
-		if(mapCycleCurrentList.size()<=nextPosition) // Если несмотря на перегенерирование списка мапцикла мы всё равно достигли его конца - ну чтож, начит мапцикл невалиден - возвращаем текущую карту и умываем руки
+		if(mapCycleCurrentList.size()<=nextPosition) // Р•СЃР»Рё РЅРµСЃРјРѕС‚СЂСЏ РЅР° РїРµСЂРµРіРµРЅРµСЂРёСЂРѕРІР°РЅРёРµ СЃРїРёСЃРєР° РјР°РїС†РёРєР»Р° РјС‹ РІСЃС‘ СЂР°РІРЅРѕ РґРѕСЃС‚РёРіР»Рё РµРіРѕ РєРѕРЅС†Р° - РЅСѓ С‡С‚РѕР¶, РЅР°С‡РёС‚ РјР°РїС†РёРєР» РЅРµРІР°Р»РёРґРµРЅ - РІРѕР·РІСЂР°С‰Р°РµРј С‚РµРєСѓС‰СѓСЋ РєР°СЂС‚Сѓ Рё СѓРјС‹РІР°РµРј СЂСѓРєРё
 		{
 			char* ret = new char[13];
 			strcpy(ret, mapGetName());
 			strcat(ret, ".map");
 			return ret;
 		}
-		mapCycleCurrentPosition=nextPosition; // Фиксируем текущий индекс позиции
+		mapCycleCurrentPosition=nextPosition; // Р¤РёРєСЃРёСЂСѓРµРј С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ РїРѕР·РёС†РёРё
 		return (void*)mapCycleCurrentList[nextPosition].c_str();
-		// А ведь раньше тут был мегаиндийский код аж на 327 строк, не считая объявлений переменных выше...
+		// Рђ РІРµРґСЊ СЂР°РЅСЊС€Рµ С‚СѓС‚ Р±С‹Р» РјРµРіР°РёРЅРґРёР№СЃРєРёР№ РєРѕРґ Р°Р¶ РЅР° 327 СЃС‚СЂРѕРє, РЅРµ СЃС‡РёС‚Р°СЏ РѕР±СЉСЏРІР»РµРЅРёР№ РїРµСЂРµРјРµРЅРЅС‹С… РІС‹С€Рµ...
 	}
 		
 
@@ -740,7 +740,7 @@ namespace
 					/*else if (0==strcmpi(Mode,"quest"))
 					{
 						Data->gameFlags=0x3007;
-					}*///От греха, а то грузить напрямую слишком бажно. Лучше уж полностью сервак с нуля пересоздавать...
+					}*///РћС‚ РіСЂРµС…Р°, Р° С‚Рѕ РіСЂСѓР·РёС‚СЊ РЅР°РїСЂСЏРјСѓСЋ СЃР»РёС€РєРѕРј Р±Р°Р¶РЅРѕ. Р›СѓС‡С€Рµ СѓР¶ РїРѕР»РЅРѕСЃС‚СЊСЋ СЃРµСЂРІР°Рє СЃ РЅСѓР»СЏ РїРµСЂРµСЃРѕР·РґР°РІР°С‚СЊ...
 					else if (0==strcmpi(Mode,"arena") && (availableMode&0x100))
 					{
 						Data->gameFlags=Data->gameFlags&0xE00F;
@@ -750,7 +750,7 @@ namespace
 					else
 					{
 						__int16 currentGameFlags=(__int16)*GameFlags&0x1FF0;
-						if(availableMode&currentGameFlags) //Если игра поддерживает текущий режим игры
+						if(availableMode&currentGameFlags) //Р•СЃР»Рё РёРіСЂР° РїРѕРґРґРµСЂР¶РёРІР°РµС‚ С‚РµРєСѓС‰РёР№ СЂРµР¶РёРј РёРіСЂС‹
 						{
 							Data->gameFlags=Data->gameFlags&0xE00F;
 							Data->gameFlags=Data->gameFlags|currentGameFlags;
@@ -785,7 +785,7 @@ namespace
 							Data->gameFlags=Data->gameFlags&0xE00F;
 							Data->gameFlags=Data->gameFlags|0x10;
 						}
-						else //Все остальные пробуем загрузить с текущими флагами
+						else //Р’СЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїСЂРѕР±СѓРµРј Р·Р°РіСЂСѓР·РёС‚СЊ СЃ С‚РµРєСѓС‰РёРјРё С„Р»Р°РіР°РјРё
 						{
 							Data->gameFlags=Data->gameFlags&0xE00F;
 							Data->gameFlags=Data->gameFlags|currentGameFlags;
@@ -801,7 +801,7 @@ namespace
 				else if(newGame==false)
 				{
 					__int16 currentGameFlags=(__int16)*GameFlags&0x1FF0;
-					if(availableMode&currentGameFlags) //Если игра поддерживает текущий режим игры
+					if(availableMode&currentGameFlags) //Р•СЃР»Рё РёРіСЂР° РїРѕРґРґРµСЂР¶РёРІР°РµС‚ С‚РµРєСѓС‰РёР№ СЂРµР¶РёРј РёРіСЂС‹
 					{
 						Data->gameFlags=Data->gameFlags&0xE00F;
 						Data->gameFlags=Data->gameFlags|currentGameFlags;
@@ -836,7 +836,7 @@ namespace
 						Data->gameFlags=Data->gameFlags&0xE00F;
 						Data->gameFlags=Data->gameFlags|0x10;
 					}
-					else //Все остальные пробуем загрузить с текущими флагами
+					else //Р’СЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїСЂРѕР±СѓРµРј Р·Р°РіСЂСѓР·РёС‚СЊ СЃ С‚РµРєСѓС‰РёРјРё С„Р»Р°РіР°РјРё
 					{
 						Data->gameFlags=Data->gameFlags&0xE00F;
 						Data->gameFlags=Data->gameFlags|currentGameFlags;
@@ -1118,7 +1118,7 @@ namespace
 		playerInfoStruct *result=playerGetDataFromIndex(Index);
 		if(Index!=0x1F && specialAuthorisation==true)
 		{
-			authorisedState[(byte)Index]=0; // Перестраховщик я какой то... (c) Evengard
+			authorisedState[(byte)Index]=0; // РџРµСЂРµСЃС‚СЂР°С…РѕРІС‰РёРє СЏ РєР°РєРѕР№ С‚Рѕ... (c) Evengard
 			authorisedLogins[(byte)Index]="";
 			playerGoObserver(result, 1, 1);
 			authSendWelcomeMsg[Index]=30;
@@ -1148,10 +1148,10 @@ void adminInit(lua_State *L)
 	ASSIGN(serverInfoChanged,0x005D5360);
 	//ASSIGN(serverModeChange,0x0062F0B6);
 	ASSIGN(consoleServerMapLoad,0x00441910);
-	ASSIGN(mapLoadFromFile,0x004CFE10);// функция загрузки карты из файла
-	ASSIGN(mapLoadName,0x00409D70);// функция загрузки карты из файла - используется при загрузке из мапцикла
-	ASSIGN(mapLoadData, 0x00974880);// оффсет куда mapLoadFromFile грузит карту
-	ASSIGN(mapLoadFlags, 0x004CFFA0);// функция получения флагов из загруженного файла
+	ASSIGN(mapLoadFromFile,0x004CFE10);// С„СѓРЅРєС†РёСЏ Р·Р°РіСЂСѓР·РєРё РєР°СЂС‚С‹ РёР· С„Р°Р№Р»Р°
+	ASSIGN(mapLoadName,0x00409D70);// С„СѓРЅРєС†РёСЏ Р·Р°РіСЂСѓР·РєРё РєР°СЂС‚С‹ РёР· С„Р°Р№Р»Р° - РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё Р·Р°РіСЂСѓР·РєРµ РёР· РјР°РїС†РёРєР»Р°
+	ASSIGN(mapLoadData, 0x00974880);// РѕС„С„СЃРµС‚ РєСѓРґР° mapLoadFromFile РіСЂСѓР·РёС‚ РєР°СЂС‚Сѓ
+	ASSIGN(mapLoadFlags, 0x004CFFA0);// С„СѓРЅРєС†РёСЏ РїРѕР»СѓС‡РµРЅРёСЏ С„Р»Р°РіРѕРІ РёР· Р·Р°РіСЂСѓР¶РµРЅРЅРѕРіРѕ С„Р°Р№Р»Р°
 	ASSIGN(noxMapCycleNext, 0x004D0CF0);
 	ASSIGN(_time,0x00566BD3);
 	ASSIGN(noxMapCycleEnabledCheck, 0x004D0D70);
@@ -1166,15 +1166,15 @@ void adminInit(lua_State *L)
 	ASSIGN(currentPort,0x0097EBC8);
 	ASSIGN(playerKickByIdx,0x004DEAB0);
 
-	InjectOffs(0x004D280B+1,&onMapCycleEnabledCheck); //Обход проверки на вкл. мапцикл если использовалась formNextGame
+	InjectOffs(0x004D280B+1,&onMapCycleEnabledCheck); //РћР±С…РѕРґ РїСЂРѕРІРµСЂРєРё РЅР° РІРєР». РјР°РїС†РёРєР» РµСЃР»Рё РёСЃРїРѕР»СЊР·РѕРІР°Р»Р°СЃСЊ formNextGame
 	InjectOffs(0x0043E333+1,&OnGuiUpdate);
 	InjectOffs(0x00413D37+1,&onEndGame);
-	InjectOffs(0x004D281D+1,&onLoadMapCycle); //Хук на мапцикл
-	InjectOffs(0x004D283F+1,&onLoadMapCycle); //Хук на мапцикл
-	InjectOffs(0x004D284F+1,&onMapLoadName); //Поддержка new=1 в formNextGame (а вообще походу костыль)
-	InjectOffs(0x0043AAB9+1,&onServerStart); //Server startup hook - инициализируем тут свои переменные
-	InjectOffs(0x004DE55E+1,&onPlayerLeave); //Уход игрока с серва - деавторизуем его
-	InjectOffs(0x004DDF6C+1,&onPlayerJoin); //Игрок вошёл на сервер - вводим его в обсерв
+	InjectOffs(0x004D281D+1,&onLoadMapCycle); //РҐСѓРє РЅР° РјР°РїС†РёРєР»
+	InjectOffs(0x004D283F+1,&onLoadMapCycle); //РҐСѓРє РЅР° РјР°РїС†РёРєР»
+	InjectOffs(0x004D284F+1,&onMapLoadName); //РџРѕРґРґРµСЂР¶РєР° new=1 РІ formNextGame (Р° РІРѕРѕР±С‰Рµ РїРѕС…РѕРґСѓ РєРѕСЃС‚С‹Р»СЊ)
+	InjectOffs(0x0043AAB9+1,&onServerStart); //Server startup hook - РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј С‚СѓС‚ СЃРІРѕРё РїРµСЂРµРјРµРЅРЅС‹Рµ
+	InjectOffs(0x004DE55E+1,&onPlayerLeave); //РЈС…РѕРґ РёРіСЂРѕРєР° СЃ СЃРµСЂРІР° - РґРµР°РІС‚РѕСЂРёР·СѓРµРј РµРіРѕ
+	InjectOffs(0x004DDF6C+1,&onPlayerJoin); //РРіСЂРѕРє РІРѕС€С‘Р» РЅР° СЃРµСЂРІРµСЂ - РІРІРѕРґРёРј РµРіРѕ РІ РѕР±СЃРµСЂРІ
 
 	int Top=lua_gettop(L);
 	if (0!=luaL_loadstring(L,
@@ -1240,6 +1240,6 @@ void adminInit(lua_State *L)
 	registerserver("playerKickUData",&playerKickUData);
 
 	authInit(L);
-	//strcpy((char*)0x005AFA20, "So_Forum"); // Смена дефолтной чат-мапы при игре через "локальную" сеть
+	//strcpy((char*)0x005AFA20, "So_Forum"); // РЎРјРµРЅР° РґРµС„РѕР»С‚РЅРѕР№ С‡Р°С‚-РјР°РїС‹ РїСЂРё РёРіСЂРµ С‡РµСЂРµР· "Р»РѕРєР°Р»СЊРЅСѓСЋ" СЃРµС‚СЊ
 	lua_settop(L,Top);
 }

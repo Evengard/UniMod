@@ -6,7 +6,7 @@
 extern int (__cdecl *spellAccept)(int SpellType,void *Caster,void *CasterMB2,void *Carrier,
 								SpellTargetBlock *Block,int Power);
 
-int (__cdecl *monsterGetVoice)(void* Monster); // вообще птр возвращается
+int (__cdecl *monsterGetVoice)(void* Monster); // РІРѕРѕР±С‰Рµ РїС‚СЂ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ
 creatureAction* (__cdecl *monsterActionPush)(void *Unit,int ActionType);
 void (__cdecl *monsterActionPop)(void *Unit);
 void (__cdecl *noxReportComplete)(void *Unit);
@@ -63,7 +63,7 @@ namespace
 		}
 		while(0);
 		lua_settop(L,Top);
-		return voice; // хук был поставлен на эту функцию
+		return voice; // С…СѓРє Р±С‹Р» РїРѕСЃС‚Р°РІР»РµРЅ РЅР° СЌС‚Сѓ С„СѓРЅРєС†РёСЋ
 	}
 
 	int __cdecl reactUse(bigUnitStruct *User,bigUnitStruct *Thing)
@@ -105,7 +105,7 @@ namespace
 			lua_error_(L);
 		}
 		lua_pushvalue(L,1);
-		///Здесь неплохо бы зарегить уничтожение объекта, чтобы таблица не росла
+		///Р—РґРµСЃСЊ РЅРµРїР»РѕС…Рѕ Р±С‹ Р·Р°СЂРµРіРёС‚СЊ СѓРЅРёС‡С‚РѕР¶РµРЅРёРµ РѕР±СЉРµРєС‚Р°, С‡С‚РѕР±С‹ С‚Р°Р±Р»РёС†Р° РЅРµ СЂРѕСЃР»Р°
 		lua_pushvalue(L,2);
 		lua_settable(L,lua_upvalueindex(2));
 		bigUnitStruct *Unit=(bigUnitStruct *)lua_touserdata(L,1);
@@ -146,7 +146,7 @@ namespace
 		lua_gettable(L,-2);
 		lua_pushlightuserdata(L,Unit);
 		lua_pushnil(L);
-		lua_settable(L,-4);// сразу удалим, чтобы не получить рекурсию
+		lua_settable(L,-4);// СЃСЂР°Р·Сѓ СѓРґР°Р»РёРј, С‡С‚РѕР±С‹ РЅРµ РїРѕР»СѓС‡РёС‚СЊ СЂРµРєСѓСЂСЃРёСЋ
 		if(lua_type(L,-1)!=LUA_TFUNCTION)
 		{
 			noxReportComplete(Unit);
@@ -173,7 +173,7 @@ namespace
 			lua_error_(L);
 		}
 		lua_pushvalue(L,1);
-		///Здесь неплохо бы зарегить уничтожение объекта, чтобы таблица не росла
+		///Р—РґРµСЃСЊ РЅРµРїР»РѕС…Рѕ Р±С‹ Р·Р°СЂРµРіРёС‚СЊ СѓРЅРёС‡С‚РѕР¶РµРЅРёРµ РѕР±СЉРµРєС‚Р°, С‡С‚РѕР±С‹ С‚Р°Р±Р»РёС†Р° РЅРµ СЂРѕСЃР»Р°
 		lua_pushvalue(L,2);
 		lua_settable(L,lua_upvalueindex(1));
 		return 0;
@@ -205,7 +205,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		if(lua_type(L,2)!=LUA_TFUNCTION)/// удаляем нафиг наш обработчик
+		if(lua_type(L,2)!=LUA_TFUNCTION)/// СѓРґР°Р»СЏРµРј РЅР°С„РёРі РЅР°С€ РѕР±СЂР°Р±РѕС‚С‡РёРє
 		{
 			lua_pushvalue(L,1);
 			lua_gettable(L,lua_upvalueindex(1));
@@ -225,10 +225,10 @@ namespace
 		bigUnitStruct *P=(bigUnitStruct *)lua_touserdata(L,1);
 		lua_pushvalue(L,1);
 		lua_pushlightuserdata(L,P->dieFnPtr);
-		lua_settable(L,lua_upvalueindex(1));/// запишем в таблицу
+		lua_settable(L,lua_upvalueindex(1));/// Р·Р°РїРёС€РµРј РІ С‚Р°Р±Р»РёС†Сѓ
 		lua_pushvalue(L,1);
 		lua_pushvalue(L,2);
-		lua_settable(L,lua_upvalueindex(2));/// запишем в таблицу что нам вызывать
+		lua_settable(L,lua_upvalueindex(2));/// Р·Р°РїРёС€РµРј РІ С‚Р°Р±Р»РёС†Сѓ С‡С‚Рѕ РЅР°Рј РІС‹Р·С‹РІР°С‚СЊ
 		P->dieFnPtr=&dieFn;
 		return 0;
 	}
@@ -252,8 +252,8 @@ namespace
 			else
 				lua_pushlightuserdata(L, (void*)Unit);
 					
-		if(0!=lua_pcall(L,2,1,0))/// BUGBUG косяк в том, что если внутри функции удалить 
-			/// объект - то там еще старое значение
+		if(0!=lua_pcall(L,2,1,0))/// BUGBUG РєРѕСЃСЏРє РІ С‚РѕРј, С‡С‚Рѕ РµСЃР»Рё РІРЅСѓС‚СЂРё С„СѓРЅРєС†РёРё СѓРґР°Р»РёС‚СЊ 
+			/// РѕР±СЉРµРєС‚ - С‚Рѕ С‚Р°Рј РµС‰Рµ СЃС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ
 		{
 			conPrintI(lua_tostring(L,-1));
 			lua_pop(L,1);
@@ -265,7 +265,7 @@ namespace
 		lua_gettable(L,-2);
 		if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
 		{
-			lua_pop(L,4);/// что достали - таблица - результат функции- таблица
+			lua_pop(L,4);/// С‡С‚Рѕ РґРѕСЃС‚Р°Р»Рё - С‚Р°Р±Р»РёС†Р° - СЂРµР·СѓР»СЊС‚Р°С‚ С„СѓРЅРєС†РёРё- С‚Р°Р±Р»РёС†Р°
 			return;
 		}
 		void (__cdecl *Old)(void *);
@@ -275,12 +275,12 @@ namespace
 
 		lua_pushlightuserdata(L,Me);
 		lua_pushnil(L);
-		lua_settable(L,-4);// Удаляем себя из таблицы
+		lua_settable(L,-4);// РЈРґР°Р»СЏРµРј СЃРµР±СЏ РёР· С‚Р°Р±Р»РёС†С‹
 		if ( (Old!=NULL) && (0==lua_toboolean(L,-3)))
 		{
 			Old(Me);
 		}
-		lua_pop(L,4);/// удаляем таблицу
+		lua_pop(L,4);/// СѓРґР°Р»СЏРµРј С‚Р°Р±Р»РёС†Сѓ
 		return;
 	}
 	void __cdecl collideFn(bigUnitStruct *Me,bigUnitStruct *Him,noxPoint *Pt);
@@ -293,7 +293,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		if(lua_type(L,2)!=LUA_TFUNCTION)/// удаляем нафиг наш обработчик
+		if(lua_type(L,2)!=LUA_TFUNCTION)/// СѓРґР°Р»СЏРµРј РЅР°С„РёРі РЅР°С€ РѕР±СЂР°Р±РѕС‚С‡РёРє
 		{
 			lua_pushvalue(L,1);
 			lua_gettable(L,lua_upvalueindex(1));
@@ -313,10 +313,10 @@ namespace
 		bigUnitStruct *P=(bigUnitStruct *)lua_touserdata(L,1);
 		lua_pushvalue(L,1);
 		lua_pushlightuserdata(L,P->collideFn);
-		lua_settable(L,lua_upvalueindex(1));/// запишем в таблицу
+		lua_settable(L,lua_upvalueindex(1));/// Р·Р°РїРёС€РµРј РІ С‚Р°Р±Р»РёС†Сѓ
 		lua_pushvalue(L,1);
 		lua_pushvalue(L,2);
-		lua_settable(L,lua_upvalueindex(2));/// запишем в таблицу что нам вызывать
+		lua_settable(L,lua_upvalueindex(2));/// Р·Р°РїРёС€РµРј РІ С‚Р°Р±Р»РёС†Сѓ С‡С‚Рѕ РЅР°Рј РІС‹Р·С‹РІР°С‚СЊ
 		P->collideFn=&collideFn;
 		return 0;
 	}
@@ -341,7 +341,7 @@ namespace
 		lua_pushnumber(L,Pt->Y);
 		if(0!=lua_pcall(L,4,0,0))
 			{ lua_pop(L,2); return;}
-		lua_pop(L,1);/// удаляем таблицу
+		lua_pop(L,1);/// СѓРґР°Р»СЏРµРј С‚Р°Р±Р»РёС†Сѓ
 		return;
 	}
 	int unitSetAnyFnL(lua_State*L,int Ofs,void *newAddr)
@@ -351,7 +351,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		if(lua_type(L,2)!=LUA_TFUNCTION)/// удаляем нафиг наш обработчик
+		if(lua_type(L,2)!=LUA_TFUNCTION)/// СѓРґР°Р»СЏРµРј РЅР°С„РёРі РЅР°С€ РѕР±СЂР°Р±РѕС‚С‡РёРє
 		{
 			lua_pushvalue(L,1);
 			lua_gettable(L,lua_upvalueindex(1));
@@ -373,20 +373,20 @@ namespace
 		P+=Ofs;
 		lua_pushvalue(L,1);
 		lua_pushlightuserdata(L,*((void **)P));
-		lua_settable(L,lua_upvalueindex(1));/// запишем в таблицу
+		lua_settable(L,lua_upvalueindex(1));/// Р·Р°РїРёС€РµРј РІ С‚Р°Р±Р»РёС†Сѓ
 		lua_pushvalue(L,1);
 		lua_pushvalue(L,2);
-		lua_settable(L,lua_upvalueindex(2));/// запишем в таблицу что нам вызывать
+		lua_settable(L,lua_upvalueindex(2));/// Р·Р°РїРёС€РµРј РІ С‚Р°Р±Р»РёС†Сѓ С‡С‚Рѕ РЅР°Рј РІС‹Р·С‹РІР°С‚СЊ
 		*((void **)P)=newAddr;
 		return 0;
 	}
 	void initFn(lua_State*L,const char *Name,lua_CFunction luaFn,void *Fn)
 	{
-		lua_newtable(L);// для замененных функций
+		lua_newtable(L);// РґР»СЏ Р·Р°РјРµРЅРµРЅРЅС‹С… С„СѓРЅРєС†РёР№
 		lua_pushlightuserdata(L,luaFn);
 		lua_pushvalue(L,-2);
 		lua_settable(L,LUA_REGISTRYINDEX);
-		lua_newtable(L);// для старых функций
+		lua_newtable(L);// РґР»СЏ СЃС‚Р°СЂС‹С… С„СѓРЅРєС†РёР№
 		lua_pushlightuserdata(L,Fn);
 		lua_pushvalue(L,-2);
 		lua_settable(L,LUA_REGISTRYINDEX);
@@ -422,7 +422,7 @@ namespace
 		lua_gettable(L,-2);
 		if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
 		{
-			lua_pop(L,4);/// что достали - таблица - результат функции- таблица
+			lua_pop(L,4);/// С‡С‚Рѕ РґРѕСЃС‚Р°Р»Рё - С‚Р°Р±Р»РёС†Р° - СЂРµР·СѓР»СЊС‚Р°С‚ С„СѓРЅРєС†РёРё- С‚Р°Р±Р»РёС†Р°
 			return 1;
 		}
 		int (__cdecl* fn) (void *Him,void *Me,noxPoint* Pt);
@@ -432,7 +432,7 @@ namespace
 		{
 			ret=fn(Him,Me,Pt);
 		}
-		lua_pop(L,4);/// удаляем таблицу
+		lua_pop(L,4);/// СѓРґР°Р»СЏРµРј С‚Р°Р±Р»РёС†Сѓ
 		return ret;
 	}
 	int unitSetDropL(lua_State*L)
@@ -471,7 +471,7 @@ namespace
 		lua_gettable(L,-2);
 		if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
 		{
-			lua_pop(L,5);/// что достали - таблица - вызывать си? - дамак - таблица
+			lua_pop(L,5);/// С‡С‚Рѕ РґРѕСЃС‚Р°Р»Рё - С‚Р°Р±Р»РёС†Р° - РІС‹Р·С‹РІР°С‚СЊ СЃРё? - РґР°РјР°Рє - С‚Р°Р±Р»РёС†Р°
 			return 1;
 		}
 		int (__cdecl* fn) (void *Him,void *Me,void *By,int Val,int Type);
@@ -483,7 +483,7 @@ namespace
 		{
 			ret=fn(Me,Him,By,Value,Type);
 		}
-		lua_pop(L,5);/// удаляем таблицу
+		lua_pop(L,5);/// СѓРґР°Р»СЏРµРј С‚Р°Р±Р»РёС†Сѓ
 		return ret;
 	}
 	int unitSetDamageL(lua_State*L)
@@ -491,7 +491,7 @@ namespace
 		return unitSetAnyFnL(L,0x2CC,&damageFn);
 	}
 	
-	// обработчик UPDATE функции, передает 1 аргумент - юнит
+	// РѕР±СЂР°Р±РѕС‚С‡РёРє UPDATE С„СѓРЅРєС†РёРё, РїРµСЂРµРґР°РµС‚ 1 Р°СЂРіСѓРјРµРЅС‚ - СЋРЅРёС‚
 	int unitSetUpdateL(lua_State*L);
 	void __cdecl updateFn(bigUnitStruct *Me)
 	{
@@ -513,7 +513,7 @@ namespace
 		lua_gettable(L,-2);
 		if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
 		{
-			lua_pop(L,4);/// что достали - таблица - результат функции- таблица
+			lua_pop(L,4);/// С‡С‚Рѕ РґРѕСЃС‚Р°Р»Рё - С‚Р°Р±Р»РёС†Р° - СЂРµР·СѓР»СЊС‚Р°С‚ С„СѓРЅРєС†РёРё- С‚Р°Р±Р»РёС†Р°
 			return;
 		}
 		/*
@@ -524,12 +524,12 @@ namespace
 
 		lua_pushlightuserdata(L,Me);
 		lua_pushnil(L);
-		lua_settable(L,-4);// Удаляем себя из таблицы
+		lua_settable(L,-4);// РЈРґР°Р»СЏРµРј СЃРµР±СЏ РёР· С‚Р°Р±Р»РёС†С‹
 		if ( (Old!=NULL) && (0==lua_toboolean(L,-3)))
 		{
 			Old(Me);
 		}
-		lua_pop(L,4);/// удаляем таблицу
+		lua_pop(L,4);/// СѓРґР°Р»СЏРµРј С‚Р°Р±Р»РёС†Сѓ
 		*/
 		return;
 	}
@@ -566,7 +566,7 @@ namespace
 		lua_gettable(L,-2);
 		if(lua_type(L,-1)!=LUA_TLIGHTUSERDATA)
 		{
-			lua_pop(L,4);/// что достали - таблица - результат функции- таблица
+			lua_pop(L,4);/// С‡С‚Рѕ РґРѕСЃС‚Р°Р»Рё - С‚Р°Р±Р»РёС†Р° - СЂРµР·СѓР»СЊС‚Р°С‚ С„СѓРЅРєС†РёРё- С‚Р°Р±Р»РёС†Р°
 			return 1;
 		}
 		int (__cdecl* fn) (void *Him,void *Me,void *A,void *B);
@@ -576,7 +576,7 @@ namespace
 		{
 			ret=fn(Him,Me,A,B);
 		}
-		lua_pop(L,4);/// удаляем таблицу
+		lua_pop(L,4);/// СѓРґР°Р»СЏРµРј С‚Р°Р±Р»РёС†Сѓ
 		return ret;
 	}
 	int unitSetPickupL(lua_State*L)
@@ -584,7 +584,7 @@ namespace
 		return unitSetAnyFnL(L,0x2C4,&pickupFn);
 	}
 
-	void __declspec(naked) asmOnDieMonster() // Важная хрень, что бы unitOnDie для мобов вызывался
+	void __declspec(naked) asmOnDieMonster() // Р’Р°Р¶РЅР°СЏ С…СЂРµРЅСЊ, С‡С‚Рѕ Р±С‹ unitOnDie РґР»СЏ РјРѕР±РѕРІ РІС‹Р·С‹РІР°Р»СЃСЏ
 	{
 		__asm
 		{

@@ -26,21 +26,21 @@ struct imgArrayItem
   char imageName[32];
   char animDirNameMB[32];
   char gap_40[32];
-  int imageVbagId;// для собственных картинок - тут указатель
+  int imageVbagId;// РґР»СЏ СЃРѕР±СЃС‚РІРµРЅРЅС‹С… РєР°СЂС‚РёРЅРѕРє - С‚СѓС‚ СѓРєР°Р·Р°С‚РµР»СЊ
   char auxImageType;
   char imgFlagsMB;
   short field_66;
 };
-struct imageH /// указатель на эту структуру возвращает gLoadItem
+struct imageH /// СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЌС‚Сѓ СЃС‚СЂСѓРєС‚СѓСЂСѓ РІРѕР·РІСЂР°С‰Р°РµС‚ gLoadItem
 {
   void* dataPtr;
   int field_4;
   unsigned short vbagId;
-  // 0x80 значит загружено 
-  // 0x40 хз, остальные - тип изображения 
-  // 2 - обычный 16битный растр цветов
-  // 3 - RLE популярный с прозрачностью вроде (menuBg,BorderCornerUL)
-  // 7 - 16битный растр цветов с предобработкой, отключен (не может быть нарисован)
+  // 0x80 Р·РЅР°С‡РёС‚ Р·Р°РіСЂСѓР¶РµРЅРѕ 
+  // 0x40 С…Р·, РѕСЃС‚Р°Р»СЊРЅС‹Рµ - С‚РёРї РёР·РѕР±СЂР°Р¶РµРЅРёСЏ 
+  // 2 - РѕР±С‹С‡РЅС‹Р№ 16Р±РёС‚РЅС‹Р№ СЂР°СЃС‚СЂ С†РІРµС‚РѕРІ
+  // 3 - RLE РїРѕРїСѓР»СЏСЂРЅС‹Р№ СЃ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊСЋ РІСЂРѕРґРµ (menuBg,BorderCornerUL)
+  // 7 - 16Р±РёС‚РЅС‹Р№ СЂР°СЃС‚СЂ С†РІРµС‚РѕРІ СЃ РїСЂРµРґРѕР±СЂР°Р±РѕС‚РєРѕР№, РѕС‚РєР»СЋС‡РµРЅ (РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅР°СЂРёСЃРѕРІР°РЅ)
   //
   char typeFlags; 
   char field_B;
@@ -51,9 +51,9 @@ struct Sprite2
 	byte Some;
 };
 
-imgArrayItem **imgArray; //указатель на массив vbag
+imgArrayItem **imgArray; //СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЃСЃРёРІ vbag
 int *imgArraySize;
-int *imgArrayNextId; // фактический размер массива vbag (создается нами)
+int *imgArrayNextId; // С„Р°РєС‚РёС‡РµСЃРєРёР№ СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР° vbag (СЃРѕР·РґР°РµС‚СЃСЏ РЅР°РјРё)
 
 namespace
 {
@@ -91,7 +91,7 @@ namespace
 			{
 				if (0==strncmp(P->imageName,SearchFor,sizeof(P->imageName)))
 				{
-					//нашли
+					//РЅР°С€Р»Рё
 					return P->imageVbagId;
 				}
 			}
@@ -106,7 +106,7 @@ namespace
 			push eax
 			call gLoadImgSearchImpl
 			add esp,4
-			pop edx // количество спрайтов в вбаге
+			pop edx // РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРїСЂР°Р№С‚РѕРІ РІ РІР±Р°РіРµ
 			test eax,eax
 			jz l1
 			cmp eax,edx
@@ -115,14 +115,14 @@ namespace
 			push 0x0042F9D0
 			ret
 		l2:
-			// случай когда кастом
+			// СЃР»СѓС‡Р°Р№ РєРѕРіРґР° РєР°СЃС‚РѕРј
 			pop edi
 			pop esi
 			pop ebp
 			pop ebx
 			ret
 		l1:
-			push 0x0042F9C9 // случай когда не найдено
+			push 0x0042F9C9 // СЃР»СѓС‡Р°Р№ РєРѕРіРґР° РЅРµ РЅР°Р№РґРµРЅРѕ
 			ret
 		}
 	}
@@ -135,17 +135,17 @@ namespace
 			if (I->Size>I->Used)
 			{
 				P=I->Items + I->Used;
-				I->Used++; // сейчас добавим
+				I->Used++; // СЃРµР№С‡Р°СЃ РґРѕР±Р°РІРёРј
 				break;
 			}
 		}
-		if (P==NULL) ///  надо добавить новых
+		if (P==NULL) ///  РЅР°РґРѕ РґРѕР±Р°РІРёС‚СЊ РЅРѕРІС‹С…
 		{
 			imgVector.push_back( 
 				ImgVectorRec(Growth,malloc(Growth*sizeof(imgArrayItem) ))
 				);
 			P=imgVector.back().Items;
-			imgVector.back().Used=1;/// сейчас добавим
+			imgVector.back().Used=1;/// СЃРµР№С‡Р°СЃ РґРѕР±Р°РІРёРј
 		}
 		memset(P,0,sizeof(*P));
 		strncpy(P->imageName,Name,sizeof(P->imageName));
@@ -211,12 +211,12 @@ namespace
 		int BlockSize=0;
 		if (useAlpha)
 			BlockSize=sizeof(Sprite2) + 3 * Width * Height; 
-			// предполагаю что не будет через один A/C (в худшем случае размер будет 6xWxH)
+			// РїСЂРµРґРїРѕР»Р°РіР°СЋ С‡С‚Рѕ РЅРµ Р±СѓРґРµС‚ С‡РµСЂРµР· РѕРґРёРЅ A/C (РІ С…СѓРґС€РµРј СЃР»СѓС‡Р°Рµ СЂР°Р·РјРµСЂ Р±СѓРґРµС‚ 6xWxH)
 		else
 			BlockSize=sizeof(Sprite2) + 2 * Width * Height ;
 		H->dataPtr=noxAlloc(BlockSize);
-		H->typeFlags=0x80 | imgType;// загружено в указатель формат, 2
-		H->vbagId=1;// для примера
+		H->typeFlags=0x80 | imgType;// Р·Р°РіСЂСѓР¶РµРЅРѕ РІ СѓРєР°Р·Р°С‚РµР»СЊ С„РѕСЂРјР°С‚, 2
+		H->vbagId=1;// РґР»СЏ РїСЂРёРјРµСЂР°
 		SpritePtr=(Sprite2*)H->dataPtr;
 		SpritePtr->W=Width;
 		SpritePtr->H=Height;
@@ -232,7 +232,7 @@ namespace
 			for (int j=0;j<Height;j++)
 			{
 				png_bytep Src=png.row_pointers[j];
-				int Counter=0; //счетчик повторов
+				int Counter=0; //СЃС‡РµС‚С‡РёРє РїРѕРІС‚РѕСЂРѕРІ
 				Byte *PP=NULL;
 				enum EncodeMode
 				{
@@ -336,7 +336,7 @@ namespace
 		PngReadData *readData=(PngReadData *)png_ptr->io_ptr;
 		if (readData==NULL)
 			return;
-		if (Size > (char*)readData->End - (char*)readData->Current) // слишком много, столько нет
+		if (Size > (char*)readData->End - (char*)readData->Current) // СЃР»РёС€РєРѕРј РјРЅРѕРіРѕ, СЃС‚РѕР»СЊРєРѕ РЅРµС‚
 			return;
 		memcpy(Data,readData->Current,Size);
 		readData->Current=((char*)readData->Current)+Size;
@@ -525,6 +525,6 @@ void ImageUtilInit()
 	ASSIGN(imgArrayNextId,0x00694870);
 
 	InjectJumpTo(0x0042F982,gLoadImgSearch);
-	registerclient("imgLoad",imgLoadImage); // грузить динамически изображение
+	registerclient("imgLoad",imgLoadImage); // РіСЂСѓР·РёС‚СЊ РґРёРЅР°РјРёС‡РµСЃРєРё РёР·РѕР±СЂР°Р¶РµРЅРёРµ
 
 }

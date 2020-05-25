@@ -19,12 +19,12 @@ void (__cdecl *netWallCreate)(void *PrevCmd,wallRec *Wall,int newWall,int tileNa
 int (__cdecl *noxMapGetMaxVari) (int,int,int);
 
 void (__cdecl *noxWallSecretBlock_410760) (void*);
-//newWall=1 если новая стена, 0 - если модифицирована старая
+//newWall=1 РµСЃР»Рё РЅРѕРІР°СЏ СЃС‚РµРЅР°, 0 - РµСЃР»Рё РјРѕРґРёС„РёС†РёСЂРѕРІР°РЅР° СЃС‚Р°СЂР°СЏ
 
 DWORD *wallNextBreakableId;
 wallBreakable_s const *(*noxGetFirstBreakableList)();//0x00410870
-void (__cdecl *noxWallBreackableListAdd)(wallRec * Wall);/// Добавляем в список разрушимых стен
-void (__cdecl *noxWallBreackableListRemove)(void const * WallList);/// Аргумент - блок, Удаляем из списка 
+void (__cdecl *noxWallBreackableListAdd)(wallRec * Wall);/// Р”РѕР±Р°РІР»СЏРµРј РІ СЃРїРёСЃРѕРє СЂР°Р·СЂСѓС€РёРјС‹С… СЃС‚РµРЅ
+void (__cdecl *noxWallBreackableListRemove)(void const * WallList);/// РђСЂРіСѓРјРµРЅС‚ - Р±Р»РѕРє, РЈРґР°Р»СЏРµРј РёР· СЃРїРёСЃРєР° 
 
 extern void printI(const char *S);
 extern void conPrintI(const char *S);
@@ -32,7 +32,7 @@ char *(__cdecl *mapGetName)();
 
 DWORD (__cdecl *scriptPopValue)();
 void (__cdecl *scriptPushValue)(DWORD X);
-char **scriptKey; // все строчки лежат там
+char **scriptKey; // РІСЃРµ СЃС‚СЂРѕС‡РєРё Р»РµР¶Р°С‚ С‚Р°Рј
 DWORD (__cdecl *mapWaypoint)();
 void (__cdecl *mapInitialize)();
 
@@ -81,13 +81,13 @@ namespace {
 		else
 			lua_pushnil(L);
 		
-		lua_getfield(L,LUA_REGISTRYINDEX,"server");// смена контекста
+		lua_getfield(L,LUA_REGISTRYINDEX,"server");// СЃРјРµРЅР° РєРѕРЅС‚РµРєСЃС‚Р°
 		lua_pushstring(L,S);
 		lua_gettable(L,-2);
 		lua_remove(L,-2);
 		if (lua_type(L,-1)==LUA_TFUNCTION)
 		{
-			lua_getfield(L,LUA_REGISTRYINDEX,"server");// смена контекста
+			lua_getfield(L,LUA_REGISTRYINDEX,"server");// СЃРјРµРЅР° РєРѕРЅС‚РµРєСЃС‚Р°
 			lua_setfenv(L,-2);
 
 			lua_pushvalue(L,-4);//parent			
@@ -108,7 +108,7 @@ namespace {
 			Ok= ( 0==luaL_loadstring(L,S) );
 			if (Ok)
 			{
-				lua_getfield(L,LUA_REGISTRYINDEX,"server");// смена контекста
+				lua_getfield(L,LUA_REGISTRYINDEX,"server");// СЃРјРµРЅР° РєРѕРЅС‚РµРєСЃС‚Р°
 				lua_setfenv(L,-2);
 			}
 
@@ -153,7 +153,7 @@ namespace {
 				if (Add)
 				{
 //					conPrintI("wall already in breaklist");	
-					return;/// Уже есть
+					return;/// РЈР¶Рµ РµСЃС‚СЊ
 				}
 				else
 				{
@@ -166,7 +166,7 @@ namespace {
 		if (!Add)
 		{
 //			conPrintI("wall not in breaklist");	
-			return; // И так нету
+			return; // Р С‚Р°Рє РЅРµС‚Сѓ
 		}
 //		conPrintI("wall appended to breaklist");	
 		noxWallBreackableListAdd(P);
@@ -320,7 +320,7 @@ namespace {
 		int x=lua_tointeger(L,1),y=lua_tointeger(L,2);
 		x=(x-x%23)/23;y=(y-y%23)/23;
 		noxMapDelWallAtPt(x,y);
-		//TODO: - хорошо бы обновить клиентский список разрушимых стен
+		//TODO: - С…РѕСЂРѕС€Рѕ Р±С‹ РѕР±РЅРѕРІРёС‚СЊ РєР»РёРµРЅС‚СЃРєРёР№ СЃРїРёСЃРѕРє СЂР°Р·СЂСѓС€РёРјС‹С… СЃС‚РµРЅ
 		return 1;
 	}
 	/*
@@ -408,9 +408,9 @@ namespace {
 	DWORD *mapDoInitialize;
 	bool firstRun=true;
 }
-void __cdecl onLoadLevel() /// вызывается при загрузке левела (сервером???)
+void __cdecl onLoadLevel() /// РІС‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё Р·Р°РіСЂСѓР·РєРµ Р»РµРІРµР»Р° (СЃРµСЂРІРµСЂРѕРј???)
 {
-	/// Сервером или клиентом?
+	/// РЎРµСЂРІРµСЂРѕРј РёР»Рё РєР»РёРµРЅС‚РѕРј?
 	if(0==*mapDoInitialize)
 		return;
 	if (firstRun)

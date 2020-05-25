@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "windowUniMod.h"
 
-// сюда все функции которые связанны с окнами и юзаются в нескольких файлах
+// СЃСЋРґР° РІСЃРµ С„СѓРЅРєС†РёРё РєРѕС‚РѕСЂС‹Рµ СЃРІСЏР·Р°РЅРЅС‹ СЃ РѕРєРЅР°РјРё Рё СЋР·Р°СЋС‚СЃСЏ РІ РЅРµСЃРєРѕР»СЊРєРёС… С„Р°Р№Р»Р°С…
 
 void *(__cdecl *noxCallWndProc)(void* Window,int Msg,int A,int B);
 void *(__cdecl *noxWndLoad)(char const *WndName,void *WndProc);
 int (__cdecl *noxWndGetPostion) (void* Window,int *xLeft,int *yTop);
 
-wndStruct *wndGetHandleByLua(int idx) // достаем хендл окна по идиксу
+wndStruct *wndGetHandleByLua(int idx) // РґРѕСЃС‚Р°РµРј С…РµРЅРґР» РѕРєРЅР° РїРѕ РёРґРёРєСЃСѓ
 {
 	int Top=lua_gettop(L);
 	wndStruct *H=0;

@@ -2,18 +2,18 @@
 #include "windowUniMod.h"
 
 /*
-====для листа команды
+====РґР»СЏ Р»РёСЃС‚Р° РєРѕРјР°РЅРґС‹
 0x400F -  clear
-0x400D - добавить строчку
-===непроверенно
-0x4016 - достать какой-то указатель, мб строчку (ArgA - номер)
+0x400D - РґРѕР±Р°РІРёС‚СЊ СЃС‚СЂРѕС‡РєСѓ
+===РЅРµРїСЂРѕРІРµСЂРµРЅРЅРѕ
+0x4016 - РґРѕСЃС‚Р°С‚СЊ РєР°РєРѕР№-С‚Рѕ СѓРєР°Р·Р°С‚РµР»СЊ, РјР± СЃС‚СЂРѕС‡РєСѓ (ArgA - РЅРѕРјРµСЂ)
 
-====для листа сообщения -
-0x4010 - при выделении строчки
+====РґР»СЏ Р»РёСЃС‚Р° СЃРѕРѕР±С‰РµРЅРёСЏ -
+0x4010 - РїСЂРё РІС‹РґРµР»РµРЅРёРё СЃС‚СЂРѕС‡РєРё
 
 
-====для эдита сообщения
-0x401F - при Enter
+====РґР»СЏ СЌРґРёС‚Р° СЃРѕРѕР±С‰РµРЅРёСЏ
+0x401F - РїСЂРё Enter
 */
 
 
@@ -27,7 +27,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
 		}	
-		wchar_t *R=(wchar_t*) noxCallWndProc(H,0x401D,0,0);///считать строку
+		wchar_t *R=(wchar_t*) noxCallWndProc(H,0x401D,0,0);///СЃС‡РёС‚Р°С‚СЊ СЃС‚СЂРѕРєСѓ
 		if(R==0)
 		{
 			lua_pushnil(L);
@@ -60,7 +60,7 @@ namespace
 		wchar_t *Buf=new wchar_t[Len+1];
 		mbstowcs(Buf,R,Len);
 		Buf[Len]=0;
-		noxCallWndProc(H,0x401E,(int)(Buf),-1);///записать строку
+		noxCallWndProc(H,0x401E,(int)(Buf),-1);///Р·Р°РїРёСЃР°С‚СЊ СЃС‚СЂРѕРєСѓ
 		delete Buf;
 		lua_pushvalue(L,1);
 		return 1;
@@ -84,7 +84,7 @@ namespace
 		wchar_t *Buf=new wchar_t[Len+1];
 		mbstowcs(Buf,R,Len);
 		Buf[Len]=0;
-		noxCallWndProc(H,0x4001,(int)(Buf),-1);///записать строку
+		noxCallWndProc(H,0x4001,(int)(Buf),-1);///Р·Р°РїРёСЃР°С‚СЊ СЃС‚СЂРѕРєСѓ
 		delete Buf;
 		lua_pushvalue(L,1);
 		return 1;
@@ -109,7 +109,7 @@ namespace
 		wchar_t *Buf=new wchar_t[Len+1];
 		mbstowcs(Buf,R,Len);
 		Buf[Len]=0;
-		noxCallWndProc(H,0x400D,(int)(Buf),-1);///записать строку
+		noxCallWndProc(H,0x400D,(int)(Buf),-1);///Р·Р°РїРёСЃР°С‚СЊ СЃС‚СЂРѕРєСѓ
 		delete Buf;
 		lua_pushvalue(L,1);
 		return 1;
@@ -122,7 +122,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
 		}
-		noxCallWndProc(H,0x400F,0,0);///Очистить список
+		noxCallWndProc(H,0x400F,0,0);///РћС‡РёСЃС‚РёС‚СЊ СЃРїРёСЃРѕРє
 		return 0;
 	}
 	int ListBoxSetLine(lua_State *L)
@@ -168,8 +168,8 @@ namespace
 void windowMsgInit(lua_State*L)
 {
 	registerclient("wndGetText",&editBoxGetText);
-	registerclient("wndSetText",&editBoxSetText);/// для эдитов
-	registerclient("wndLbAddText",&ListBoxAddText);/// добавляет строчку в листбокс
+	registerclient("wndSetText",&editBoxSetText);/// РґР»СЏ СЌРґРёС‚РѕРІ
+	registerclient("wndLbAddText",&ListBoxAddText);/// РґРѕР±Р°РІР»СЏРµС‚ СЃС‚СЂРѕС‡РєСѓ РІ Р»РёСЃС‚Р±РѕРєСЃ
 	registerclient("wndLbClear",&ListBoxClear);
 	registerclient("wndLbSelectLine",&ListBoxSetLine);
 	registerclient("wndButtonSetText",&buttonSetText);

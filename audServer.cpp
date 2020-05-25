@@ -23,7 +23,7 @@ namespace
 		audMakeSound(lua_tointeger(L,1),&noxPoint(lua_tonumber(L,2),lua_tonumber(L,3)),0,0);
 		return 0;
 	}
-/* не работает - либо таймауты подводят, либо нужно состояние Cast игроку */
+/* РЅРµ СЂР°Р±РѕС‚Р°РµС‚ - Р»РёР±Рѕ С‚Р°Р№РјР°СѓС‚С‹ РїРѕРґРІРѕРґСЏС‚, Р»РёР±Рѕ РЅСѓР¶РЅРѕ СЃРѕСЃС‚РѕСЏРЅРёРµ Cast РёРіСЂРѕРєСѓ */
 	int audSyll(lua_State *L)
 	{
 		int i=1;

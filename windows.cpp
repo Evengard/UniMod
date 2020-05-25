@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "windowUniMod.h"
 /*
-sub_450B70 - стереть все из консоли?
+sub_450B70 - СЃС‚РµСЂРµС‚СЊ РІСЃРµ РёР· РєРѕРЅСЃРѕР»Рё?
 */
 
 int (__cdecl *noxWndGetID)(void *Window);
@@ -21,7 +21,7 @@ void (__cdecl *wndShowModalMB)(void *Wnd);
 void (__cdecl *wndSetFocusMainMB)(void *Wnd);
 
 
-// какое окно схарчило мышь
+// РєР°РєРѕРµ РѕРєРЅРѕ СЃС…Р°СЂС‡РёР»Рѕ РјС‹С€СЊ
 void *(__cdecl *wndGetCaptureMain)(); 
 int (__cdecl *wndSetCaptureMain)(void *Wnd);
 void (__cdecl *wndClearCaptureMain)(void *Wnd);
@@ -52,7 +52,7 @@ namespace
 			return false;
 		lua_pushlightuserdata(L,Ptr);
 		lua_gettable(L,-2);
-		if (!lua_istable(L,-1)) // дочернее окно
+		if (!lua_istable(L,-1)) // РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
 			return false;
 		return true;
 
@@ -63,12 +63,12 @@ namespace
 		bool isChild=false;
 		switch(Msg)
 		{
-		case 5: // тут ловим клик (левый) что бы он дальше не ушел
+		case 5: // С‚СѓС‚ Р»РѕРІРёРј РєР»РёРє (Р»РµРІС‹Р№) С‡С‚Рѕ Р±С‹ РѕРЅ РґР°Р»СЊС€Рµ РЅРµ СѓС€РµР»
 			lua_getfield(L,-1,"onLMDown");
 			if (!lua_isfunction(L,-1))
 				break;
-			lua_pushvalue(L,-2); /// таблица окна
-			lua_pushvalue(L,-5);  /// таблица - родитель 
+			lua_pushvalue(L,-2); /// С‚Р°Р±Р»РёС†Р° РѕРєРЅР°
+			lua_pushvalue(L,-5);  /// С‚Р°Р±Р»РёС†Р° - СЂРѕРґРёС‚РµР»СЊ 
 			if (0!=lua_pcall(L,2,1,0))
 			{
 				const char *S=lua_tostring(L,-2);
@@ -104,12 +104,12 @@ namespace
 				return 0;
 			}
 			break;
-		case 9: // Ловим правый клик (тут он долгий)
+		case 9: // Р›РѕРІРёРј РїСЂР°РІС‹Р№ РєР»РёРє (С‚СѓС‚ РѕРЅ РґРѕР»РіРёР№)
 			lua_getfield(L,-1,"onRMDown");
 			if (!lua_isfunction(L,-1))
 				break;
-			lua_pushvalue(L,-2); /// таблица окна
-			lua_pushvalue(L,-5);  /// таблица - родитель 
+			lua_pushvalue(L,-2); /// С‚Р°Р±Р»РёС†Р° РѕРєРЅР°
+			lua_pushvalue(L,-5);  /// С‚Р°Р±Р»РёС†Р° - СЂРѕРґРёС‚РµР»СЊ 
 			if (0!=lua_pcall(L,2,1,0))
 			{
 				const char *S=lua_tostring(L,-2);
@@ -118,12 +118,12 @@ namespace
 			if (lua_tonumber(L,-1)==1)
 				return 1;
 			return 0;
-		case 0xC: // Ловим правый клик (тут долгий)
+		case 0xC: // Р›РѕРІРёРј РїСЂР°РІС‹Р№ РєР»РёРє (С‚СѓС‚ РґРѕР»РіРёР№)
 			lua_getfield(L,-1,"onRMDown");
 			if (!lua_isfunction(L,-1))
 				break;
-			lua_pushvalue(L,-2); /// таблица окна
-			lua_pushvalue(L,-5);  /// таблица - родитель 
+			lua_pushvalue(L,-2); /// С‚Р°Р±Р»РёС†Р° РѕРєРЅР°
+			lua_pushvalue(L,-5);  /// С‚Р°Р±Р»РёС†Р° - СЂРѕРґРёС‚РµР»СЊ 
 			if (0!=lua_pcall(L,2,1,0))
 			{
 				const char *S=lua_tostring(L,-2);
@@ -136,7 +136,7 @@ namespace
 			lua_getfield(L,-1,"onEnter");
 			if (!lua_isfunction(L,-1))
 				break;
-			lua_pushvalue(L,-2); /// таблица окна
+			lua_pushvalue(L,-2); /// С‚Р°Р±Р»РёС†Р° РѕРєРЅР°
 			lua_pushvalue(L,(short)(A&0xFFFF));
 			lua_pushvalue(L,(short)(A>>16));
 			if (0!=lua_pcall(L,3,1,0))
@@ -150,7 +150,7 @@ namespace
 			lua_getfield(L,-1,"onLeave");
 			if (!lua_isfunction(L,-1))
 				break;
-			lua_pushvalue(L,-2); /// таблица окна
+			lua_pushvalue(L,-2); /// С‚Р°Р±Р»РёС†Р° РѕРєРЅР°
 			lua_pushvalue(L,(short)(A&0xFFFF));
 			lua_pushvalue(L,(short)(A>>16));
 			if (0!=lua_pcall(L,3,1,0))
@@ -160,13 +160,13 @@ namespace
 			}
 			if (lua_tonumber(L,-1)==1)
 				return 1;
-		case 0x15: /// нажатие на кнопку A- код, B - 1-отпускание,2- нажатие
-			/// похоже return 1 съедает кнопку, return 0 передает дальше
+		case 0x15: /// РЅР°Р¶Р°С‚РёРµ РЅР° РєРЅРѕРїРєСѓ A- РєРѕРґ, B - 1-РѕС‚РїСѓСЃРєР°РЅРёРµ,2- РЅР°Р¶Р°С‚РёРµ
+			/// РїРѕС…РѕР¶Рµ return 1 СЃСЉРµРґР°РµС‚ РєРЅРѕРїРєСѓ, return 0 РїРµСЂРµРґР°РµС‚ РґР°Р»СЊС€Рµ
 			return 0;
 /*
-сообщение о изменении фокуса 
-A=0 фокус получен
-A=1 фокус потерян
+СЃРѕРѕР±С‰РµРЅРёРµ Рѕ РёР·РјРµРЅРµРЅРёРё С„РѕРєСѓСЃР° 
+A=0 С„РѕРєСѓСЃ РїРѕР»СѓС‡РµРЅ
+A=1 С„РѕРєСѓСЃ РїРѕС‚РµСЂСЏРЅ
 B - ChildId
 */
 		case 0x4003:
@@ -200,33 +200,33 @@ B - ChildId
 			lua_getfield(L,-1,"onPress");
 			if (!lua_isfunction(L,-1))
 				break;
-			lua_pushvalue(L,-2); /// таблица окна
-			lua_pushvalue(L,-5);  /// таблица - родитель //  control click control childrens table <top>
+			lua_pushvalue(L,-2); /// С‚Р°Р±Р»РёС†Р° РѕРєРЅР°
+			lua_pushvalue(L,-5);  /// С‚Р°Р±Р»РёС†Р° - СЂРѕРґРёС‚РµР»СЊ //  control click control childrens table <top>
 			if (0!=lua_pcall(L,2,0,0))
 			{
 				const char *S=lua_tostring(L,-1);
 				break;
 			}
 			return 0;
-		case 0x4010: /// листбокс, смена элемента
+		case 0x4010: /// Р»РёСЃС‚Р±РѕРєСЃ, СЃРјРµРЅР° СЌР»РµРјРµРЅС‚Р°
 			lua_getfield(L,-1,"onSelChange");
 			if (!lua_isfunction(L,-1))
 				break;
-			lua_pushvalue(L,-2); /// таблица окна
-			lua_pushvalue(L,-5);  /// таблица - родитель //  control click control childrens table <top>
-			lua_pushinteger(L,B); /// Номер в списке
+			lua_pushvalue(L,-2); /// С‚Р°Р±Р»РёС†Р° РѕРєРЅР°
+			lua_pushvalue(L,-5);  /// С‚Р°Р±Р»РёС†Р° - СЂРѕРґРёС‚РµР»СЊ //  control click control childrens table <top>
+			lua_pushinteger(L,B); /// РќРѕРјРµСЂ РІ СЃРїРёСЃРєРµ
 			if (0!=lua_pcall(L,3,0,0))
 			{
 				const char *S=lua_tostring(L,-1);
 				break;
 			}
 			break;
-		case 0x401F: // эдит текст, Enter
+		case 0x401F: // СЌРґРёС‚ С‚РµРєСЃС‚, Enter
 			lua_getfield(L,-1,"onChange");
 			if (!lua_isfunction(L,-1))
 				break;
-			lua_pushvalue(L,-2); /// таблица окна
-			lua_pushvalue(L,-5);  /// таблица - родитель //  control click control childrens table <top>
+			lua_pushvalue(L,-2); /// С‚Р°Р±Р»РёС†Р° РѕРєРЅР°
+			lua_pushvalue(L,-5);  /// С‚Р°Р±Р»РёС†Р° - СЂРѕРґРёС‚РµР»СЊ //  control click control childrens table <top>
 			if (0!=lua_pcall(L,2,0,0))
 			{
 				const char *S=lua_tostring(L,-1);
@@ -249,7 +249,7 @@ B - ChildId
 			case 0x02://destroy window
 				lua_pushlightuserdata(L,&noxWndLoad);
 				lua_gettable(L,LUA_REGISTRYINDEX);
-				lua_pushlightuserdata(L,Window);// Удаляем таблицу из реестра
+				lua_pushlightuserdata(L,Window);// РЈРґР°Р»СЏРµРј С‚Р°Р±Р»РёС†Сѓ РёР· СЂРµРµСЃС‚СЂР°
 				lua_pushnil(L);
 				lua_settable(L,-3);
 				break;
@@ -267,7 +267,7 @@ B - ChildId
 				lua_getfield(L,-1,"wndProc");
 				if(lua_type(L,-1)==LUA_TFUNCTION)
 				{
-					lua_pushvalue(L,-2);///сама таблица
+					lua_pushvalue(L,-2);///СЃР°РјР° С‚Р°Р±Р»РёС†Р°
 					lua_pushinteger(L,Msg);
 					lua_pushinteger(L,A);
 					lua_pushinteger(L,B);
@@ -285,25 +285,25 @@ B - ChildId
 					}
 				}
 				break;
-			case 0x17:/// уничтожено дочернее окно
-/*здесь надо дочернее удалить
+			case 0x17:/// СѓРЅРёС‡С‚РѕР¶РµРЅРѕ РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
+/*Р·РґРµСЃСЊ РЅР°РґРѕ РґРѕС‡РµСЂРЅРµРµ СѓРґР°Р»РёС‚СЊ
 				lua_pushlightuserdata(L,&noxWndLoad);
 				lua_gettable(L,LUA_REGISTRYINDEX);
-				lua_pushlightuserdata(L,Window);// Удаляем таблицу из реестра
+				lua_pushlightuserdata(L,Window);// РЈРґР°Р»СЏРµРј С‚Р°Р±Р»РёС†Сѓ РёР· СЂРµРµСЃС‚СЂР°
 				lua_pushnil(L);
 				lua_settable(L,-3);*/
-			/// прочие случаи
-			case 0x16:// создано дочернее окно + A= ID			
+			/// РїСЂРѕС‡РёРµ СЃР»СѓС‡Р°Рё
+			case 0x16:// СЃРѕР·РґР°РЅРѕ РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ + A= ID			
 
 			default:
 				lua_pushlightuserdata(L,&noxWndLoad);
 				lua_gettable(L,LUA_REGISTRYINDEX);
-				lua_pushlightuserdata(L,Window);// Удаляем таблицу из реестра
+				lua_pushlightuserdata(L,Window);// РЈРґР°Р»СЏРµРј С‚Р°Р±Р»РёС†Сѓ РёР· СЂРµРµСЃС‚СЂР°
 				lua_gettable(L,-2);
 				if(lua_type(L,-1) ==LUA_TNIL)
 					break;
 				lua_getfield(L,-1,"wndProc");
-				if (lua_isnil(L,-1)) /// возможно используем реакции на дочерние функции
+				if (lua_isnil(L,-1)) /// РІРѕР·РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·СѓРµРј СЂРµР°РєС†РёРё РЅР° РґРѕС‡РµСЂРЅРёРµ С„СѓРЅРєС†РёРё
 				{
 					lua_pop(L,1);
 					Ret=parseChildProc((byte*)Window,Msg,A,B);
@@ -312,7 +312,7 @@ B - ChildId
 				{
 					if(lua_type(L,-1)==LUA_TFUNCTION)
 					{
-						lua_pushvalue(L,-2);///сама таблица
+						lua_pushvalue(L,-2);///СЃР°РјР° С‚Р°Р±Р»РёС†Р°
 						lua_pushinteger(L,Msg);
 						lua_pushlightuserdata(L,(void *)A);
 						lua_pushinteger(L,B);
@@ -334,12 +334,12 @@ B - ChildId
 		lua_settop(L,Top);
 		return Ret;
 	}
-	int __cdecl newWindowControlProc(wndStruct* Window,int Msg,int A,int B) // специально для контролов
+	int __cdecl newWindowControlProc(wndStruct* Window,int Msg,int A,int B) // СЃРїРµС†РёР°Р»СЊРЅРѕ РґР»СЏ РєРѕРЅС‚СЂРѕР»РѕРІ
 	{
 		int Top=lua_gettop(L);
 		int Ret=0;
 
-		wndStruct *Parent=Window->drawData.wndPtr; // не совсем парент, но в это окно по идее идут мсж 
+		wndStruct *Parent=Window->drawData.wndPtr; // РЅРµ СЃРѕРІСЃРµРј РїР°СЂРµРЅС‚, РЅРѕ РІ СЌС‚Рѕ РѕРєРЅРѕ РїРѕ РёРґРµРµ РёРґСѓС‚ РјСЃР¶ 
 		lua_pushlightuserdata(L,&noxWndLoad);
 		lua_gettable(L,LUA_REGISTRYINDEX);
 		lua_pushlightuserdata(L,Parent);
@@ -453,7 +453,7 @@ B - ChildId
 	{
 		lua_settop(L,2);
 		wndStruct *H=wndGetHandleByLua(1);
-		if (0==lua_toboolean(L,2) && ( 0!=wndGetCaptureMain() ))// если второй параметр true - схарчим в любом случае
+		if (0==lua_toboolean(L,2) && ( 0!=wndGetCaptureMain() ))// РµСЃР»Рё РІС‚РѕСЂРѕР№ РїР°СЂР°РјРµС‚СЂ true - СЃС…Р°СЂС‡РёРј РІ Р»СЋР±РѕРј СЃР»СѓС‡Р°Рµ
 			return 0;
 		wndSetCaptureMain(H);
 		return 0;
@@ -487,7 +487,7 @@ B - ChildId
 		}
 		return 1;
 	}
-	int wndSetProcL(lua_State *L) // wnd+0x178 - прок окна
+	int wndSetProcL(lua_State *L) // wnd+0x178 - РїСЂРѕРє РѕРєРЅР°
 	{
 		wndStruct *Window=wndGetHandleByLua(1);
 		bool haveTable=false;
@@ -510,29 +510,29 @@ B - ChildId
 			lua_setfield(L,-2,"wndProc");
 		}
 		lua_pushlightuserdata(L,Window->wndProcPre);
-		lua_setfield(L,-2,"oldFn");/// сохраним старую функцию
+		lua_setfield(L,-2,"oldFn");/// СЃРѕС…СЂР°РЅРёРј СЃС‚Р°СЂСѓСЋ С„СѓРЅРєС†РёСЋ
 		lua_pushlightuserdata(L,Window);
 		lua_pushvalue(L,-2);
-		/// сейчас стэк устроен так: -1=новаятаблица, -2=юзердата, новая таблица, 
-		// табл из реестра, [юзердата из первого], функция,  второй аргумент
+		/// СЃРµР№С‡Р°СЃ СЃС‚СЌРє СѓСЃС‚СЂРѕРµРЅ С‚Р°Рє: -1=РЅРѕРІР°СЏС‚Р°Р±Р»РёС†Р°, -2=СЋР·РµСЂРґР°С‚Р°, РЅРѕРІР°СЏ С‚Р°Р±Р»РёС†Р°, 
+		// С‚Р°Р±Р» РёР· СЂРµРµСЃС‚СЂР°, [СЋР·РµСЂРґР°С‚Р° РёР· РїРµСЂРІРѕРіРѕ], С„СѓРЅРєС†РёСЏ,  РІС‚РѕСЂРѕР№ Р°СЂРіСѓРјРµРЅС‚
 		lua_settable(L,-4);
-		/// 174 - 178 - какой из проков?
+		/// 174 - 178 - РєР°РєРѕР№ РёР· РїСЂРѕРєРѕРІ?
 		Window->wndProcPre=&newWindowProc;
 
 		return 1;
 	}
-class staticTextDataClass /// данные для статикстекста
+class staticTextDataClass /// РґР°РЅРЅС‹Рµ РґР»СЏ СЃС‚Р°С‚РёРєСЃС‚РµРєСЃС‚Р°
 {
 public:
 	staticTextDataStruct staticTextData;
 
-	static void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна, и кладет в нее себя
+	static void *Create(lua_State *L,int Idx)/// РїРѕР»СѓС‡Р°РµС‚ С‚Р°Р±Р»РёС†Сѓ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё РѕРєРЅР°, Рё РєР»Р°РґРµС‚ РІ РЅРµРµ СЃРµР±СЏ
 	{
 		lua_getfield(L,Idx,"text");
-		int NeedSize=lua_objlen(L,-1)*2; // какой длинны строку нам прислали
-		NeedSize=(sizeof(staticTextDataStruct)+NeedSize+0x3F)&(~0x3F);//вычисляем сколько нам надо памяти (с шагом в 64байта)
+		int NeedSize=lua_objlen(L,-1)*2; // РєР°РєРѕР№ РґР»РёРЅРЅС‹ СЃС‚СЂРѕРєСѓ РЅР°Рј РїСЂРёСЃР»Р°Р»Рё
+		NeedSize=(sizeof(staticTextDataStruct)+NeedSize+0x3F)&(~0x3F);//РІС‹С‡РёСЃР»СЏРµРј СЃРєРѕР»СЊРєРѕ РЅР°Рј РЅР°РґРѕ РїР°РјСЏС‚Рё (СЃ С€Р°РіРѕРј РІ 64Р±Р°Р№С‚Р°)
 		
-		staticTextDataStruct *Me=(staticTextDataStruct *)lua_newuserdata(L,NeedSize); // пускай луа выделит нам память - она же и будет за ней следить
+		staticTextDataStruct *Me=(staticTextDataStruct *)lua_newuserdata(L,NeedSize); // РїСѓСЃРєР°Р№ Р»СѓР° РІС‹РґРµР»РёС‚ РЅР°Рј РїР°РјСЏС‚СЊ - РѕРЅР° Р¶Рµ Рё Р±СѓРґРµС‚ Р·Р° РЅРµР№ СЃР»РµРґРёС‚СЊ
 		Me->BoolA=0;Me->BoolB=0;
 		Me->Size=NeedSize-sizeof(staticTextDataStruct);
 		Me->DataPtr=Me->Buf;
@@ -546,7 +546,7 @@ class editboxDataClass
 public:
 	editBoxDataStruct editboxData;
 
-	void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна
+	void *Create(lua_State *L,int Idx)/// РїРѕР»СѓС‡Р°РµС‚ С‚Р°Р±Р»РёС†Сѓ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё РѕРєРЅР°
 	{
 		int Top=lua_gettop(L);
 		editBoxDataStruct *Me=&this->editboxData;
@@ -557,11 +557,11 @@ public:
 		lua_getfield(L,Idx,"onlyAlphaNum");
 		Me->onlyAlphaNum=lua_toboolean(L,-1);
 		lua_getfield(L,Idx,"maxLen");
-		Me->maxLen=lua_tointeger(L,-1); // возможно MaxLen
+		Me->maxLen=lua_tointeger(L,-1); // РІРѕР·РјРѕР¶РЅРѕ MaxLen
 		if (Me->maxLen<1)
 			Me->maxLen=255;
 
-		Me->entryWidth=-1;// стартовая ширина MB
+		Me->entryWidth=-1;// СЃС‚Р°СЂС‚РѕРІР°СЏ С€РёСЂРёРЅР° MB
 		Me->Param_6=0;
 		lua_settop(L,Top);
 		return Me;
@@ -572,15 +572,15 @@ class ListboxDataClass
 public:
 	listBoxDataStruct listboxData;
 
-	void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна
+	void *Create(lua_State *L,int Idx)/// РїРѕР»СѓС‡Р°РµС‚ С‚Р°Р±Р»РёС†Сѓ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё РѕРєРЅР°
 	{
 		listBoxDataStruct *Me=&this->listboxData;
 		memset(this,0,sizeof(listBoxDataStruct));
 		int Top=lua_gettop(L);
 		lua_getfield(L,Idx,"maxLines");
-		Me->maxLines=lua_tointeger(L,-1); // возможно MaxLen
+		Me->maxLines=lua_tointeger(L,-1); // РІРѕР·РјРѕР¶РЅРѕ MaxLen
 		if (Me->maxLines<1)
-			Me->maxLines=100;/// не стоит их много делать, память кушает
+			Me->maxLines=100;/// РЅРµ СЃС‚РѕРёС‚ РёС… РјРЅРѕРіРѕ РґРµР»Р°С‚СЊ, РїР°РјСЏС‚СЊ РєСѓС€Р°РµС‚
 		Me->LineHeight=18;
 		lua_getfield(L,Idx,"lineUnSelected");
 		if (lua_isboolean(L,-1) || lua_toboolean(L,-1))	
@@ -598,7 +598,7 @@ public:
 	void CreateSlider(lua_State *L,wndStruct *Wnd)
 	{
 		int isSlider=false;
-		lua_getfield(L,1,"slider"); // что бы это таблица лежала под индексом 2
+		lua_getfield(L,1,"slider"); // С‡С‚Рѕ Р±С‹ СЌС‚Рѕ С‚Р°Р±Р»РёС†Р° Р»РµР¶Р°Р»Р° РїРѕРґ РёРЅРґРµРєСЃРѕРј 2
 		getClientVar("wndCreate");
 		if (lua_type(L,2)==LUA_TTABLE)
 		{
@@ -620,7 +620,7 @@ public:
 						isSlider=true;
 					}
 					else
-						break; // если ни то и ни другео то нафига мы тут вообще
+						break; // РµСЃР»Рё РЅРё С‚Рѕ Рё РЅРё РґСЂСѓРіРµРѕ С‚Рѕ РЅР°С„РёРіР° РјС‹ С‚СѓС‚ РІРѕРѕР±С‰Рµ
 				}
 				lua_pop(L,1);
 				lua_pushvalue(L,3);
@@ -635,7 +635,7 @@ public:
 				lua_getfield(L,-1,"handle");
 
 				wndStruct *createdWnd=(wndStruct*) lua_touserdata(L,-1);
-				lua_getfield(L,-2,"wndControlProc"); // нужно вернуть дефлотный прок, ибо эти окна не имеют своих таблиц
+				lua_getfield(L,-2,"wndControlProc"); // РЅСѓР¶РЅРѕ РІРµСЂРЅСѓС‚СЊ РґРµС„Р»РѕС‚РЅС‹Р№ РїСЂРѕРє, РёР±Рѕ СЌС‚Рё РѕРєРЅР° РЅРµ РёРјРµСЋС‚ СЃРІРѕРёС… С‚Р°Р±Р»РёС†
 				createdWnd->wndProc=lua_touserdata(L,-1);
 
 				listBoxDataStruct *listboxData=(listBoxDataStruct*)Wnd->someData;
@@ -660,7 +660,7 @@ class scrollboxDataClass
 public:
 	scrollBoxDataStruct scrollboxData;
 
-	void *Create(lua_State *L,int Idx)/// получает таблицу с параметрами окна
+	void *Create(lua_State *L,int Idx)/// РїРѕР»СѓС‡Р°РµС‚ С‚Р°Р±Р»РёС†Сѓ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё РѕРєРЅР°
 	{
 		int Top=lua_gettop(L);
 		scrollBoxDataStruct *Me=&this->scrollboxData;
@@ -679,7 +679,7 @@ public:
 		}
 		lua_settop(L,2);
 		if(lua_type(L,2)==LUA_TNIL)
-			{lua_pop(L,1);lua_newtable(L);}// если ничего не дали - то создадим новую
+			{lua_pop(L,1);lua_newtable(L);}// РµСЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РґР°Р»Рё - С‚Рѕ СЃРѕР·РґР°РґРёРј РЅРѕРІСѓСЋ
 		else if(lua_type(L,2)!=LUA_TTABLE)
 		{
 			lua_pushstring(L,"wrong args!");
@@ -688,11 +688,11 @@ public:
 		lua_pushlightuserdata(L,&noxWndLoad);
 		lua_gettable(L,LUA_REGISTRYINDEX);
 
-		lua_pushinteger(L,++nowCreating);// записываем элемент
+		lua_pushinteger(L,++nowCreating);// Р·Р°РїРёСЃС‹РІР°РµРј СЌР»РµРјРµРЅС‚
 		lua_pushvalue(L,2);
-		lua_settable(L,-3);//записываем в реестр ту таблицу, что нам подсунули
+		lua_settable(L,-3);//Р·Р°РїРёСЃС‹РІР°РµРј РІ СЂРµРµСЃС‚СЂ С‚Сѓ С‚Р°Р±Р»РёС†Сѓ, С‡С‚Рѕ РЅР°Рј РїРѕРґСЃСѓРЅСѓР»Рё
 		Window=noxWndLoad(lua_tostring(L,1),&newWindowProc);
-		lua_pushinteger(L,nowCreating--);// удаляем номерной элемент
+		lua_pushinteger(L,nowCreating--);// СѓРґР°Р»СЏРµРј РЅРѕРјРµСЂРЅРѕР№ СЌР»РµРјРµРЅС‚
 		lua_pushnil(L);
 		lua_settable(L,-3);
 		
@@ -705,9 +705,9 @@ public:
 		lua_pushvalue(L,2);
 		lua_pushstring(L,"handle");
 		lua_pushlightuserdata(L,Window);
-		lua_settable(L,-3);// Записываем в таблицу хэндл
-		lua_settable(L,-3);//записываем в реестр ту таблицу, что нам подсунули
-		lua_settop(L,2);/// и ее же и вернем
+		lua_settable(L,-3);// Р—Р°РїРёСЃС‹РІР°РµРј РІ С‚Р°Р±Р»РёС†Сѓ С…СЌРЅРґР»
+		lua_settable(L,-3);//Р·Р°РїРёСЃС‹РІР°РµРј РІ СЂРµРµСЃС‚СЂ С‚Сѓ С‚Р°Р±Р»РёС†Сѓ, С‡С‚Рѕ РЅР°Рј РїРѕРґСЃСѓРЅСѓР»Рё
+		lua_settop(L,2);/// Рё РµРµ Р¶Рµ Рё РІРµСЂРЅРµРј
 		return 1;
 	}
 	inline int lua_getint(lua_State*L,const char *Name)
@@ -727,7 +727,7 @@ public:
 			lua_pushstring(L,"wrong args!");
 			lua_error(L);
 		}
-		void *Parent=0; // родительское окно
+		void *Parent=0; // СЂРѕРґРёС‚РµР»СЊСЃРєРѕРµ РѕРєРЅРѕ
 		if(lua_type(L,2)==LUA_TTABLE)
 		{
 			lua_getfield(L,-1,"handle");
@@ -739,7 +739,7 @@ public:
 			Parent=lua_touserdata(L,2);
 		}
 /*
-примерное применение
+РїСЂРёРјРµСЂРЅРѕРµ РїСЂРёРјРµРЅРµРЅРёРµ
 	wndCreate(
 	{	
 		x=100,y=100,w=200,h=30,
@@ -843,16 +843,16 @@ public:
 			Wdd.TextColor=parseColor(lua_tostring(L,-1));
 		lua_getfield(L,1,"text");
 		if (lua_type(L,-1)==LUA_TSTRING)
-			wstringFromLua(L,Wdd.String,60);// возможно 64
+			wstringFromLua(L,Wdd.String,60);// РІРѕР·РјРѕР¶РЅРѕ 64
 		lua_getfield(L,1,"tooltip");
 		if (lua_type(L,-1)==LUA_TSTRING)
 		{
-			wstringFromLua(L,Wdd.tooltipStr,62);// возможно 64
+			wstringFromLua(L,Wdd.tooltipStr,62);// РІРѕР·РјРѕР¶РЅРѕ 64
 		}
 		lua_getfield(L,1,"font");
 		if (lua_type(L,-1)==LUA_TSTRING)
 		{
-			Wdd.FontPtr=guiFontPtrByName(lua_tostring(L,-1));// возможно 64
+			Wdd.FontPtr=guiFontPtrByName(lua_tostring(L,-1));// РІРѕР·РјРѕР¶РЅРѕ 64
 		}
 		lua_settop(L,1);
 
@@ -868,7 +868,7 @@ public:
 			{
 				lua_pushstring(L,"__bindata");
 				DataPtr=staticTextDataClass::Create(L,1);
-				lua_settable(L,1); // положим данные в таблицу окна
+				lua_settable(L,1); // РїРѕР»РѕР¶РёРј РґР°РЅРЅС‹Рµ РІ С‚Р°Р±Р»РёС†Сѓ РѕРєРЅР°
 			}else if (0==strcmpi(ControlType,"ENTRYFIELD"))
 			{
 				ED.Create(L,1);
@@ -892,7 +892,7 @@ public:
 				lua_error(L);
 			}
 
-			if ((Wnd->drawData.controlType & ctListBox)!=0) // если листбокс, то проверяем на слайдер
+			if ((Wnd->drawData.controlType & ctListBox)!=0) // РµСЃР»Рё Р»РёСЃС‚Р±РѕРєСЃ, С‚Рѕ РїСЂРѕРІРµСЂСЏРµРј РЅР° СЃР»Р°Р№РґРµСЂ
 			{
 				lua_settop(L,1);
 				LD.CreateSlider(L,Wnd);	
@@ -918,17 +918,17 @@ public:
 			return 1;
 		}
 
-		Wdd.controlType|=ctUser;// кастомный контрол
+		Wdd.controlType|=ctUser;// РєР°СЃС‚РѕРјРЅС‹Р№ РєРѕРЅС‚СЂРѕР»
 
 
 		lua_pushlightuserdata(L,&noxWndLoad);
 		lua_gettable(L,LUA_REGISTRYINDEX);
 			lua_pushinteger(L,++nowCreating);
 			lua_pushvalue(L,1);
-		lua_settable(L,-3);/// кладем таблицу для события
+		lua_settable(L,-3);/// РєР»Р°РґРµРј С‚Р°Р±Р»РёС†Сѓ РґР»СЏ СЃРѕР±С‹С‚РёСЏ
 	
 		wndStruct *Wnd=wndCreate2(Parent,Wdd.status,x,y,w,h,&newWindowProc);
-			lua_pushinteger(L,nowCreating--); /// удаляем номерную таблицу
+			lua_pushinteger(L,nowCreating--); /// СѓРґР°Р»СЏРµРј РЅРѕРјРµСЂРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ
 			lua_pushnil(L);
 		lua_settable(L,-3);
 		if (Wnd==0)
@@ -936,7 +936,7 @@ public:
 			lua_pushstring(L,"wndCreate2 Fail!");
 			lua_error(L);
 		}
-		Wnd->drawFn=&uniWindowDrawFn; // наа рисовалка
+		Wnd->drawFn=&uniWindowDrawFn; // РЅР°Р° СЂРёСЃРѕРІР°Р»РєР°
 		Wnd->wndProcPre=&newWindowProc;
 
 		Wnd->wndId=nextChildId;
@@ -955,7 +955,7 @@ public:
 		lua_pushvalue(L,1);
 				lua_pushstring(L,"handle");
 				lua_pushlightuserdata(L,Wnd);
-			lua_settable(L,-3);// Записываем в таблицу хэндл
+			lua_settable(L,-3);// Р—Р°РїРёСЃС‹РІР°РµРј РІ С‚Р°Р±Р»РёС†Сѓ С…СЌРЅРґР»
 		lua_settable(L,-3);
 		Wnd->drawData=Wdd;
 	
@@ -970,7 +970,7 @@ public:
 			lua_setfield(L,1,"children");
 		}
 		getClientVar("wndCreate"); //wndcreaet, children, table, <end>
-		for (int i=1;;i++)/// создаем дочерние окна
+		for (int i=1;;i++)/// СЃРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРёРµ РѕРєРЅР°
 		{
 			lua_pushvalue(L,-1);
 			lua_pushinteger(L,i);
@@ -980,7 +980,7 @@ public:
 			lua_getfield(L,-1,"handle");
 			if (lua_type(L,-1)!=LUA_TNIL)
 			{
-				//что еще за хрень? почему дочернее окно уже создано?
+				//С‡С‚Рѕ РµС‰Рµ Р·Р° С…СЂРµРЅСЊ? РїРѕС‡РµРјСѓ РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ СѓР¶Рµ СЃРѕР·РґР°РЅРѕ?
 				lua_pop(L,3);
 				continue;
 			}
@@ -1033,14 +1033,14 @@ void windowsInit()
 	registerclient("wndGrabMouse",&wndGrabMouse);
 	registerclient("wndUnGrabMouse",&wndUnGrabMouse);
 
-	registerclient("wndShow",&wndShow); // показывает/скрывает
+	registerclient("wndShow",&wndShow); // РїРѕРєР°Р·С‹РІР°РµС‚/СЃРєСЂС‹РІР°РµС‚
 	registerclient("wndClose",&wndDestroyL);
 	registerclient("wndCreate",&wndCreate,1);
 	registerclient("wndLoad",&wndLoad);
 
 	registerclient("wndGetId",&wndGetIdL);
 	registerclient("wndChildById",&getChildByIdL);
-	registerclient("wndSetAttr",&wndSetAttr); // для задания разных параметров
+	registerclient("wndSetAttr",&wndSetAttr); // РґР»СЏ Р·Р°РґР°РЅРёСЏ СЂР°Р·РЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ
 
 }
 

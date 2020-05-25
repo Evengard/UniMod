@@ -94,7 +94,7 @@ struct TarBlock
 typedef std::vector<TarBlock *>  TarList;
 namespace
 {
-	TarList MapList; //туда все куски от карты - выгрузятся вместе с нею
+	TarList MapList; //С‚СѓРґР° РІСЃРµ РєСѓСЃРєРё РѕС‚ РєР°СЂС‚С‹ - РІС‹РіСЂСѓР·СЏС‚СЃСЏ РІРјРµСЃС‚Рµ СЃ РЅРµСЋ
 	TarList GlobalList;
 
 	struct IFile
@@ -179,7 +179,7 @@ namespace
 /*		if (0==strcmpi(Filename+strlen(Filename)-4,".tar"))
 		{
 			F=TarFile::fopen(Filename);
-		}else*/ /// тарфайлы были нужны только для тестов
+		}else*/ /// С‚Р°СЂС„Р°Р№Р»С‹ Р±С‹Р»Рё РЅСѓР¶РЅС‹ С‚РѕР»СЊРєРѕ РґР»СЏ С‚РµСЃС‚РѕРІ
 		if( 
 			(0==strcmpi(Filename+strlen(Filename)-5,".tbz2"))||
 			(0==strcmpi(Filename+strlen(Filename)-8,".tar.bz2"))
@@ -197,7 +197,7 @@ namespace
 		{
 			if (1!=F->fread(Block,512))
 				break;
-			Block->Info.Size=oct2i(Block->size);/// число записано В ВОСЬМЕРИЧНОЙ системе!
+			Block->Info.Size=oct2i(Block->size);/// С‡РёСЃР»Рѕ Р·Р°РїРёСЃР°РЅРѕ Р’ Р’РћРЎР¬РњР•Р РР§РќРћР™ СЃРёСЃС‚РµРјРµ!
 			Block->Info.Data=0;
 			Block->Info.nextBlock=0;
 			Block->Info.Check=123456;
@@ -206,14 +206,14 @@ namespace
 			if (nameLen<1)
 			{
 				Error=false;
-				break; //думаю конец архива
+				break; //РґСѓРјР°СЋ РєРѕРЅРµС† Р°СЂС…РёРІР°
 			}
 			FileCount++;
 			if (Block->Info.Size==0)
 			{
 				if (Name[nameLen-1]!='/')
-					continue;/// зачем нам пустой файл?
-				Block->Info.nextBlock=new TarBlock;/// это директория, пущай будет
+					continue;/// Р·Р°С‡РµРј РЅР°Рј РїСѓСЃС‚РѕР№ С„Р°Р№Р»?
+				Block->Info.nextBlock=new TarBlock;/// СЌС‚Рѕ РґРёСЂРµРєС‚РѕСЂРёСЏ, РїСѓС‰Р°Р№ Р±СѓРґРµС‚
 				Block=Block->Info.nextBlock;
 				continue;
 			}
@@ -221,7 +221,7 @@ namespace
 			BYTE *B=new BYTE[ReadSize];
 			Block->Info.Data=B;
 			if (1!=F->fread(B,ReadSize))
-				break;/// ошибка чтения
+				break;/// РѕС€РёР±РєР° С‡С‚РµРЅРёСЏ
 			Block->Info.nextBlock=new TarBlock;
 			Block=Block->Info.nextBlock;
 		}
@@ -237,17 +237,17 @@ namespace
 			{
 				N=P->Info.nextBlock;
 				P->Info.nextBlock=0;
-				if (0==*P->name) // просто финальный
+				if (0==*P->name) // РїСЂРѕСЃС‚Рѕ С„РёРЅР°Р»СЊРЅС‹Р№
 				{
 					delete P;
 					break;
 				}
-				if (123456!=P->Info.Check)// невалидный блок
+				if (123456!=P->Info.Check)// РЅРµРІР°Р»РёРґРЅС‹Р№ Р±Р»РѕРє
 				{
 					delete P;
 					break;
 				}
-				SearchList.push_back(P);/// складываем все в массив
+				SearchList.push_back(P);/// СЃРєР»Р°РґС‹РІР°РµРј РІСЃРµ РІ РјР°СЃСЃРёРІ
 			}
 			qsort(&SearchList.front(),SearchList.size(),sizeof(TarBlock *),TarBlock::Comparer);
 		}
@@ -294,15 +294,15 @@ namespace
 		else
 		{
 			if (*P=='/') P++;
-			if (0==strncmp(P,"global/",7))  /// Из карты вызывается глобальные скрипты через /global/
+			if (0==strncmp(P,"global/",7))  /// РР· РєР°СЂС‚С‹ РІС‹Р·С‹РІР°РµС‚СЃСЏ РіР»РѕР±Р°Р»СЊРЅС‹Рµ СЃРєСЂРёРїС‚С‹ С‡РµСЂРµР· /global/
 			{
 				P+=7;
 				List=&GlobalList;
 			}
 			else
 			{
-				if (0!=strncmp(P,"map/",4))		/// В карте вызвано как /map/...
-					strcpy(Buf,"map/");			/// В карте вызвано просто как ...
+				if (0!=strncmp(P,"map/",4))		/// Р’ РєР°СЂС‚Рµ РІС‹Р·РІР°РЅРѕ РєР°Рє /map/...
+					strcpy(Buf,"map/");			/// Р’ РєР°СЂС‚Рµ РІС‹Р·РІР°РЅРѕ РїСЂРѕСЃС‚Рѕ РєР°Рє ...
 				else
 					P+=4;
 			}
@@ -311,7 +311,7 @@ namespace
 
 		return dirSearch(P,List);
 	}
-	int bz2Loader(lua_State*L) /// loadfile из архивов
+	int bz2Loader(lua_State*L) /// loadfile РёР· Р°СЂС…РёРІРѕРІ
 	{
 
 		const char *P=lua_tostring(L,1);
@@ -337,8 +337,8 @@ namespace
 		}
 		return 1;
 	}
-	int cliMapSize=0;/// размер файла карты для клиента
-	int CurrentSize;/// сколько уже приехало
+	int cliMapSize=0;/// СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° РєР°СЂС‚С‹ РґР»СЏ РєР»РёРµРЅС‚Р°
+	int CurrentSize;/// СЃРєРѕР»СЊРєРѕ СѓР¶Рµ РїСЂРёРµС…Р°Р»Рѕ
 	char *MapPath=0;
 	char *ArchiveName=0;
 	void **mapFileHandle;
@@ -369,7 +369,7 @@ namespace
 				char *P=strrchr(MapPath,'.');
 				if (P!=NULL)
 				{
-					noxFclose(File);///по идее всегда File==mapFileHandle
+					noxFclose(File);///РїРѕ РёРґРµРµ РІСЃРµРіРґР° File==mapFileHandle
 					strcpy(P,".tbz2");
 					*mapFileHandle=noxFopen(MapPath,"wb");
 				}
@@ -473,7 +473,7 @@ namespace
 		BYTE *P=Buf;
 		int Len=strlen(servArchiveName);
 		netUniPacket(upSendArchive,P,sizeof(int)+Len);
-		*((int*)P)=*mapFileSizeServ-servArchiveSize;/// размер только карты
+		*((int*)P)=*mapFileSizeServ-servArchiveSize;/// СЂР°Р·РјРµСЂ С‚РѕР»СЊРєРѕ РєР°СЂС‚С‹
 		P+=4;
 		memcpy(P,servArchiveName,Len);
 		P+=Len;
@@ -494,7 +494,7 @@ bool fsRead(const char *File,void *&Data, size_t &Size)
 }
 void netOnSendArchive(int Size,char *Name,char *NameE)
 {
-	cliMapSize=Size;/// размер карты
+	cliMapSize=Size;/// СЂР°Р·РјРµСЂ РєР°СЂС‚С‹
 	if (ArchiveName)
 	{
 		delete ArchiveName;
@@ -529,11 +529,11 @@ void mapLoadFilesystem(const char *MapName)
 		sprintf(Buf,"maps/%s/%s.tar.bz2",MapName,MapName);
 		if (readFile(Buf,MapList))
 			break;
-		return; //не нашли файла
+		return; //РЅРµ РЅР°С€Р»Рё С„Р°Р№Р»Р°
 	}while (0);
 	TarBlock *B=dirSearch("server.lua",&MapList);
 	if (B==NULL)
-		return; // нету луафайла для сервера
+		return; // РЅРµС‚Сѓ Р»СѓР°С„Р°Р№Р»Р° РґР»СЏ СЃРµСЂРІРµСЂР°
 	if (B->Info.Size>0)
 	{
 		int Top=lua_gettop(L);
@@ -567,10 +567,10 @@ extern void InjectOffs(DWORD Addr,void *Fn);
 void initFilesystem()
 {
 /*
-при смене карты
-MSG_USE_MAP приходит всем, клиентам включая сервак
-устанавливает в gameFlags флаг необходимости загрузки
-затем в главном цикле при проверке флага загружает данные
+РїСЂРё СЃРјРµРЅРµ РєР°СЂС‚С‹
+MSG_USE_MAP РїСЂРёС…РѕРґРёС‚ РІСЃРµРј, РєР»РёРµРЅС‚Р°Рј РІРєР»СЋС‡Р°СЏ СЃРµСЂРІР°Рє
+СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РІ gameFlags С„Р»Р°Рі РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё Р·Р°РіСЂСѓР·РєРё
+Р·Р°С‚РµРј РІ РіР»Р°РІРЅРѕРј С†РёРєР»Рµ РїСЂРё РїСЂРѕРІРµСЂРєРµ С„Р»Р°РіР° Р·Р°РіСЂСѓР¶Р°РµС‚ РґР°РЅРЅС‹Рµ
 
 */
 	InjectOffs(0x004AB7FD+1,&clientWriteChunk);
@@ -590,7 +590,7 @@ MSG_USE_MAP приходит всем, клиентам включая сервак
 	ASSIGN(mapFileDataServ,0x0081B834);
 	ASSIGN(mapFileSizeServ,0x0081B838);
 
-	lua_newtable(L);/// в эту таблицу будем что-нить класть если ведем глобальный поиск
+	lua_newtable(L);/// РІ СЌС‚Сѓ С‚Р°Р±Р»РёС†Сѓ Р±СѓРґРµРј С‡С‚Рѕ-РЅРёС‚СЊ РєР»Р°СЃС‚СЊ РµСЃР»Рё РІРµРґРµРј РіР»РѕР±Р°Р»СЊРЅС‹Р№ РїРѕРёСЃРє
 	lua_pushcclosure(L,&bz2Loader,1);
 	lua_setglobal(L,"bz2Loader");
 	lua_register(L,"fileLoad",&loadFileL);

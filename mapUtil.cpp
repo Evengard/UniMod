@@ -18,12 +18,12 @@ char *(__cdecl *getGameFolder)();
 
 void **noxWallGlobalList=(void**)0x0075396C;
 /*
-Формат файла:
+Р¤РѕСЂРјР°С‚ С„Р°Р№Р»Р°:
 DWORD Sign;//FADEFACE
 DWORD Crc;
 DWORD Var1;
 DWORD Var2;
-затем разделы
+Р·Р°С‚РµРј СЂР°Р·РґРµР»С‹
 
 Section
 {
@@ -35,7 +35,7 @@ DWORD SectionCrcORSize;
 namespace
 {
 /*
-Тестовые функции для шифрования файлов
+РўРµСЃС‚РѕРІС‹Рµ С„СѓРЅРєС†РёРё РґР»СЏ С€РёС„СЂРѕРІР°РЅРёСЏ С„Р°Р№Р»РѕРІ
 	int mapDecode(lua_State*L)
 	{
 		lua_settop(L,2);

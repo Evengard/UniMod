@@ -1,0 +1,39 @@
+==
+карта war03b
+или wiz05a
+==
+==желательно
+monument1
+fairyjar
+immobilefairyjar
+outdoortraderarmorrack1
+vandegrafsmall
+teepeeshelvesfull1
+wizardworkstation2c
+ogrepostskull1
+==
+DunMirMilestone - круглая тумба
+
+statuevictory2s - статуя с мечем разных цветов
+statuevictory3s
+statuevictory4s
+windmill1
+statuevase4s -- статуя с вазой
+
+sackchestlarge2
+gear2 - ремень+колесо варианты 1-4 с разными углами
+
+torchpole -- палка с факелом
+
+cinderbin1 - жаровня большая (ящик углей)
+bellows1 - меха
+
+rotatingspikes
+- нежелательно
+column7 - колонна тонкая но высокая, с тенью
+dunmirflamebasinlit - тумба с огнем 
+dunmiraltar1 - просто тумба 
+wishingwell
+anvil1
+cauldronanimated
+cr 'traderquiverrack'

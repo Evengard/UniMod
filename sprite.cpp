@@ -12,7 +12,7 @@ extern tileDef_s *tileDefs;
 namespace
 {
 /*
-надо продумать способ отрисовки спрайтов с кастомными переменными
+РЅР°РґРѕ РїСЂРѕРґСѓРјР°С‚СЊ СЃРїРѕСЃРѕР± РѕС‚СЂРёСЃРѕРІРєРё СЃРїСЂР°Р№С‚РѕРІ СЃ РєР°СЃС‚РѕРјРЅС‹РјРё РїРµСЂРµРјРµРЅРЅС‹РјРё
 */
 	void customSpriteDraw(void *DrawData,void *Sprite)
 	{
@@ -33,7 +33,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		void **imageH=0;/// тут бы проверок
+		void **imageH=0;/// С‚СѓС‚ Р±С‹ РїСЂРѕРІРµСЂРѕРє
 		imageH=(void **)tileDefs[lua_tointeger(L,1)].ImgPtr;
 		if (imageH==NULL)
 			return 0;
@@ -54,7 +54,7 @@ namespace
 			lua_pushstring(L,"wrong args!");
 			lua_error_(L);
 		}
-		void **imageH=0;/// тут бы проверок
+		void **imageH=0;/// С‚СѓС‚ Р±С‹ РїСЂРѕРІРµСЂРѕРє
 		imageH=(void **)tileDefs[lua_tointeger(L,1)].ImgPtr;
 		if (imageH==NULL)
 			return 0;

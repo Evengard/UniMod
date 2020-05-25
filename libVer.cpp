@@ -388,7 +388,7 @@ DWORD __cdecl onConCmd(wchar_t *A,DWORD B) // TODO: TO REIMPLEMENT FROM ASM!!!
 			return 0;
 		wcstombs(Dest, A, 0xC7);
 		Dest[0xC7] = 0;
-		if (*GameFlags) // Закладка выпилена
+		if (*GameFlags) // Р—Р°РєР»Р°РґРєР° РІС‹РїРёР»РµРЅР°
 		{
 			cmdResult = conDoCmd(Dest, printNil); // TODO: Implement conDoCmd
 		}

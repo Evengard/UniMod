@@ -104,8 +104,8 @@ struct playerInfoStruct
 };
 
 
-extern bigUnitStruct* (__cdecl *playerFirstUnit)(); ///возвращает первый юнит сетевого игрока
-extern bigUnitStruct* (__cdecl *playerNextUnit)(void* Prev); /// Возвращает следующего сетевого игрока
+extern bigUnitStruct* (__cdecl *playerFirstUnit)(); ///РІРѕР·РІСЂР°С‰Р°РµС‚ РїРµСЂРІС‹Р№ СЋРЅРёС‚ СЃРµС‚РµРІРѕРіРѕ РёРіСЂРѕРєР°
+extern bigUnitStruct* (__cdecl *playerNextUnit)(void* Prev); /// Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃР»РµРґСѓСЋС‰РµРіРѕ СЃРµС‚РµРІРѕРіРѕ РёРіСЂРѕРєР°
 
 extern bigUnitStruct* getPlayerUDataFromPlayerInfo(playerInfoStruct *addr);
 extern bigUnitStruct* getPlayerUDataFromPlayerIdx(int idx);

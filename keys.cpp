@@ -3,14 +3,14 @@
 #define ASSIGN(X,Y) *((DWORD*)&X)=(DWORD)Y;
 
 
-/// Просто чтобы знать
+/// РџСЂРѕСЃС‚Рѕ С‡С‚РѕР±С‹ Р·РЅР°С‚СЊ
 void (__cdecl *keyNextSpell) ();
 void (__cdecl *keyPrevSpell) ();
 void (__cdecl *keyResetSpell) ();
 
-int (__cdecl *sub_4160F0)(int A,int B);/// B - небольшой интервал 
-void (__cdecl *sub_4160D0)(int A);/// непонятного действия
-void (__cdecl *wnd_452D80)(int A,int B);/// A - код рисунка? B - почти всегда 100
+int (__cdecl *sub_4160F0)(int A,int B);/// B - РЅРµР±РѕР»СЊС€РѕР№ РёРЅС‚РµСЂРІР°Р» 
+void (__cdecl *sub_4160D0)(int A);/// РЅРµРїРѕРЅСЏС‚РЅРѕРіРѕ РґРµР№СЃС‚РІРёСЏ
+void (__cdecl *wnd_452D80)(int A,int B);/// A - РєРѕРґ СЂРёСЃСѓРЅРєР°? B - РїРѕС‡С‚Рё РІСЃРµРіРґР° 100
 DWORD (__cdecl *get_57AF20)();
 
 void (__cdecl *drawSpellIcons) (keyPack *Keys);
@@ -142,7 +142,7 @@ namespace
 		noxKeyPack->selectedRow=myKeySelectedRow;
 		noxKeyPack->keyRowPtr=noxKeyPack->keyRowPtr + 5 * noxKeyPack->selectedRow;
 		sub_4160D0(7);
-		wnd_452D80(0x31E,100);//может это звук? 0x31E было
+		wnd_452D80(0x31E,100);//РјРѕР¶РµС‚ СЌС‚Рѕ Р·РІСѓРє? 0x31E Р±С‹Р»Рѕ
 		drawSpellIcons(noxKeyPack);
 	}
 	int myFixKeyFn(lua_State*L)

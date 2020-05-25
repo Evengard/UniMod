@@ -17,7 +17,7 @@ namespace
 		}
 		float X=lua_tonumber(L,1); float Y=lua_tonumber(L,2);
 		waypoint_s *P = noxCreateWaypoint(X,Y);
-		P->flag=P->Id; //незнаю че это но пусть пока будет так
+		P->flag=P->Id; //РЅРµР·РЅР°СЋ С‡Рµ СЌС‚Рѕ РЅРѕ РїСѓСЃС‚СЊ РїРѕРєР° Р±СѓРґРµС‚ С‚Р°Рє
 		strncpy(P->Name,lua_tostring(L,3),strlen(lua_tostring(L,3)));
 		lua_pushlightuserdata(L,P);
 		return 1;
